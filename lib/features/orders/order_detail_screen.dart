@@ -1,14 +1,66 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../providers/customer_orders_provider.dart';
 import '../../theme/app_colors.dart';
 
-class OrderDetailScreen extends StatelessWidget {
+class OrderDetailScreen extends ConsumerStatefulWidget {
   const OrderDetailScreen({super.key, required this.order});
   final CustomerOrder order;
+
+  @override
+  ConsumerState<OrderDetailScreen> createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
+  bool _termsAccepted = false;
+  bool _earlyStartConsent = false;
+  bool _submitting = false;
+  bool _offerAccepted = false;
+
+  CustomerOrder get order => widget.order;
+
+  Future<void> _acceptOffer() async {
+    if (!_termsAccepted || _submitting) return;
+    setState(() => _submitting = true);
+    try {
+      final response = await Supabase.instance.client.functions.invoke(
+        'order-account-actions',
+        body: {
+          'action': 'accept_offer',
+          'order_id': order.id,
+          'accept_offer': true,
+          'early_start_consent': _earlyStartConsent,
+        },
+      );
+      final payload = response.data;
+      if (response.status < 200 || response.status >= 300 ||
+          payload is! Map || payload['ok'] != true) {
+        final message = payload is Map ? payload['error']?.toString() : null;
+        throw Exception(message?.isNotEmpty == true ? message : 'ثبت پذیرش پیشنهاد انجام نشد.');
+      }
+      if (!mounted) return;
+      setState(() {
+        _offerAccepted = true;
+        _submitting = false;
+      });
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId != null) ref.invalidate(customerOrdersProvider(userId));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(payload['message']?.toString() ?? 'پیشنهاد پذیرفته شد.')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString().replaceFirst('Exception: ', ''))),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +108,55 @@ class OrderDetailScreen extends StatelessWidget {
                 if ((order.data['offer_terms_version'] ?? '').toString().isNotEmpty)
                   _row(context, 'نسخه شرایط پیشنهاد', order.data['offer_terms_version'].toString(), c),
               ])),
+              if (!_offerAccepted &&
+                  order.data['offer_accepted_at'] == null &&
+                  ['awaiting_customer', 'ready_to_convert', 'approved'].contains(order.status) &&
+                  order.quotedPrice > 0) ...[
+                const SizedBox(height: 12),
+                _panel(c, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  _heading(context, 'تأیید پیشنهاد نهایی', c),
+                  Text(
+                    'مبلغ نهایی و شرایط سفارش را با دقت بررسی کن. با تأیید این بخش، پذیرش پیشنهاد به‌صورت امن به حساب کاربری تو ثبت می‌شود.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted, height: 1.8),
+                  ),
+                  const SizedBox(height: 8),
+                  CheckboxListTile(
+                    value: _termsAccepted,
+                    onChanged: _submitting ? null : (value) => setState(() => _termsAccepted = value ?? false),
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: const Text('پیشنهاد نهایی، مبلغ و شرایط را مطالعه کرده‌ام و می‌پذیرم.'),
+                    subtitle: const Text('پذیرش این گزینه برای ثبت توافق لازم است.'),
+                  ),
+                  CheckboxListTile(
+                    value: _earlyStartConsent,
+                    onChanged: _submitting ? null : (value) => setState(() => _earlyStartConsent = value ?? false),
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: const Text('با شروع خدمت پیش از پایان مهلت قانونی انصراف، در موارد قابل اعمال، موافقم.'),
+                    subtitle: const Text('این گزینه اختیاری است و نپذیرفتن آن مانع پذیرش پیشنهاد نیست.'),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: _termsAccepted && !_submitting ? _acceptOffer : null,
+                      icon: _submitting
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.verified_outlined),
+                      label: Text(_submitting ? 'در حال ثبت توافق…' : 'تأیید پیشنهاد و ثبت توافق'),
+                    ),
+                  ),
+                ])),
+              ],
+              if (_offerAccepted) ...[
+                const SizedBox(height: 12),
+                _panel(c, const Row(children: [
+                  Icon(Icons.check_circle, color: Colors.green),
+                  SizedBox(width: 10),
+                  Expanded(child: Text('پیشنهاد با موفقیت پذیرفته شد. وضعیت سفارش به‌روزرسانی شده است.')),
+                ])),
+              ],
               if (order.publicMessage.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _panel(c, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -87,7 +188,7 @@ class OrderDetailScreen extends StatelessWidget {
                   }),
               ])),
               const SizedBox(height: 12),
-              Text('اطلاعات این صفحه از سوابق ثبت‌شده سفارش دریافت می‌شود. عملیات مالی و پذیرش پیشنهاد از این صفحه انجام نمی‌شود.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c.muted, height: 1.8)),
+              Text('اطلاعات این صفحه از سوابق ثبت‌شده سفارش دریافت می‌شود. پرداخت پس از تبدیل سفارش به پروژه و اعلام مرحله پرداخت در دسترس قرار می‌گیرد.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c.muted, height: 1.8)),
             ],
           ),
         ),
