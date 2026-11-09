@@ -7,6 +7,8 @@ import '../../providers/account_overview_provider.dart';
 import '../../providers/notification_unread_provider.dart';
 import '../../assets/app_assets.dart';
 import '../services/services_screen.dart';
+import '../plus/plus_screen.dart';
+import '../club/club_screen.dart';
 import '../orders/orders_screen.dart';
 import '../account/account_screen.dart';
 import '../notifications/notifications_screen.dart';
@@ -104,7 +106,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: 18),
             _portfolioStrip(context, c),
             const SizedBox(height: 22),
-            _membershipBanner(context, c, userId == null ? null : ref.watch(accountOverviewProvider(userId))),
+            _membershipBanner(context, c, userId == null ? null : ref.watch(accountOverviewProvider(userId)), () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlusScreen()))),
             const SizedBox(height: 24),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('دسترسی سریع', style: Theme.of(context).textTheme.titleMedium),
@@ -112,20 +114,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ]),
             const SizedBox(height: 12),
             Row(children: [
-              Expanded(child: _quickAction(context, c, Icons.language_rounded, 'طراحی سایت', 'سفارش اختصاصی')),
+              Expanded(child: _quickAction(context, c, Icons.language_rounded, 'طراحی سایت', 'سفارش اختصاصی', () => setState(() => _tab = 1))),
               const SizedBox(width: 10),
-              Expanded(child: _quickAction(context, c, Icons.alternate_email_rounded, 'ثبت دامنه', 'بررسی و سفارش')),
+              Expanded(child: _quickAction(context, c, Icons.alternate_email_rounded, 'ثبت دامنه', 'بررسی و سفارش', () => setState(() => _tab = 1))),
             ]),
             const SizedBox(height: 10),
             Row(children: [
-              Expanded(child: _quickAction(context, c, Icons.workspace_premium_outlined, 'پلاس+', 'مزایای عضویت')),
+              Expanded(child: _quickAction(context, c, Icons.workspace_premium_outlined, 'پلاس+', 'مزایای عضویت', () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlusScreen())))),
               const SizedBox(width: 10),
-              Expanded(child: _quickAction(context, c, Icons.emoji_events_outlined, 'باشگاه مشتریان', 'امتیاز و جوایز')),
+              Expanded(child: _quickAction(context, c, Icons.emoji_events_outlined, 'باشگاه مشتریان', 'امتیاز و جوایز', () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClubScreen())))),
             ]),
             const SizedBox(height: 24),
             Text('باشگاه مشتریان', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
-            _clubCard(context, c, userId == null ? null : ref.watch(accountOverviewProvider(userId))),
+            _clubCard(context, c, userId == null ? null : ref.watch(accountOverviewProvider(userId)), () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClubScreen()))),
             const SizedBox(height: 22),
             Text('پیگیری سفارش', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 10),
@@ -148,7 +150,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       boxShadow: [BoxShadow(color: c.primary.withValues(alpha: 0.28), blurRadius: 32, offset: const Offset(0, 12))],
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [const Icon(Icons.auto_awesome, color: Color(0xFFBDEFF8), size: 18), const SizedBox(width: 7), Text('استودیو دیجیتال علی‌شمس', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.white70))]),
+      Row(children: [const Icon(Icons.auto_awesome, color: Color(0xFFBDEFF8), size: 18), const SizedBox(width: 7), Text('استودیو دیجیتال علی‌شمس', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: const Color(0xFFB7F34A), fontWeight: FontWeight.w800))]),
       const SizedBox(height: 16),
       Text('ایده‌ات را\nبه تجربه‌ای دیجیتال تبدیل کن.', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, height: 1.45, fontWeight: FontWeight.w800)),
       const SizedBox(height: 8),
@@ -211,7 +213,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _membershipBanner(BuildContext context, AppColors c, AsyncValue<AccountOverview>? overview) => Container(
+  Widget _membershipBanner(BuildContext context, AppColors c, AsyncValue<AccountOverview>? overview, VoidCallback onTap) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(20),
+    child: Container(
     padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(20),
@@ -229,9 +234,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ])),
       const Icon(Icons.chevron_left_rounded, color: Colors.white70),
     ]),
-  );
+  ));
 
-  Widget _clubCard(BuildContext context, AppColors c, AsyncValue<AccountOverview>? overview) => Container(
+  Widget _clubCard(BuildContext context, AppColors c, AsyncValue<AccountOverview>? overview, VoidCallback onTap) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(20),
+    child: Container(
     padding: const EdgeInsets.all(17),
     decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(20), border: Border.all(color: c.line)),
     child: Row(children: [
@@ -244,11 +252,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ])),
       Icon(Icons.chevron_left_rounded, color: c.muted),
     ]),
-  );
+  ));
 
-  Widget _quickAction(BuildContext context, AppColors c, IconData icon, String title, String subtitle) => InkWell(
+  Widget _quickAction(BuildContext context, AppColors c, IconData icon, String title, String subtitle, VoidCallback onTap) => InkWell(
     borderRadius: BorderRadius.circular(18),
-    onTap: () => setState(() => _tab = 1),
+    onTap: onTap,
     child: Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: c.line)),
@@ -260,7 +268,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted)),
       ]),
     ),
-  );
+  ));
 
   Widget _infoCard(BuildContext context, AppColors c, IconData icon, String title, String body, String action, VoidCallback onTap) => Container(
     padding: const EdgeInsets.all(16),
