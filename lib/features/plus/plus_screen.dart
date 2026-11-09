@@ -136,6 +136,8 @@ class _PlusScreenState extends State<PlusScreen> {
     final history=(_data?['purchase_history'] as List? ?? const []);
     final reels=(_data?['reels'] as List? ?? const []);
     final latest=_data?['latest_manual_payment'] as Map?;
+    final manualHistory=history.where((x)=>x is Map&&x['payment_provider']=='card_transfer').toList();
+    final latestNote=manualHistory.isNotEmpty?(manualHistory.first as Map)['admin_note']?.toString():null;
     final pending=latest?['payment_status']=='pending';
     final failed=latest?['payment_status']=='failed';
     return Directionality(textDirection:TextDirection.rtl,child:Scaffold(
@@ -169,7 +171,7 @@ class _PlusScreenState extends State<PlusScreen> {
           if(_levelLoading)const LinearProgressIndicator(),
           if(!_levelLoading&&!_level3Approved)_notice(c,_levelMessage??'برای خرید پلاس+ سطح ۳ حساب لازم است.',Icons.lock_outline_rounded),
           if(_level3Approved&&!pending)...[
-            if(failed&&latest?['admin_note']!=null)_notice(c,'رسید قبلی تأیید نشد: ${latest?['admin_note']}',Icons.info_outline_rounded),
+            if(failed&&latestNote!=null&&latestNote.isNotEmpty)_notice(c,'رسید قبلی تأیید نشد: $latestNote',Icons.info_outline_rounded),
             OutlinedButton.icon(onPressed:_busy?null:_pickReceipt,icon:const Icon(Icons.add_photo_alternate_outlined),label:Text(_receipt==null?'انتخاب تصویر رسید':'تغییر تصویر رسید')),
             if(_receipt!=null)...[
               const SizedBox(height:8),
