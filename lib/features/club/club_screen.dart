@@ -95,6 +95,6 @@ class _ClubScreenState extends State<ClubScreen>{
       const SizedBox(height:12),Text('امتیازها و پاداش‌ها از سرویس رسمی باشگاه دریافت می‌شوند؛ صدور پاداش فقط پس از تأیید سرور انجام می‌شود.',style:TextStyle(color:c.muted,fontSize:11,height:1.6)),
     ]))));
   }
-  Widget _tierRule(String name,String range,AppColors c)=>Padding(padding:const EdgeInsets.symmetric(vertical:4),child:Row(children:[Expanded(child:Text(name,style:TextStyle(color:c.text,fontSize:12,fontWeight:FontWeight.w600))),Text(range,style:TextStyle(color:c.muted,fontSize:12))]));
+  Widget _tierRule(String name,String range,AppColors c)=>Padding(padding:const EdgeInsets.symmetric(vertical:4),child:Row(children:[Expanded(child:Text(name,style:TextStyle(color:c.ink,fontSize:12,fontWeight:FontWeight.w600))),Text(range,style:TextStyle(color:c.muted,fontSize:12))]));
   Widget _metric(String label,String value)=>Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(label,style:TextStyle(color:Colors.white.withValues(alpha:.75),fontSize:11)),const SizedBox(height:4),Text(value,style:const TextStyle(fontWeight:FontWeight.w900,fontSize:21))]);
 }
