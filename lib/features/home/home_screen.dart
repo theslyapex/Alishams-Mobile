@@ -434,19 +434,48 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             )),
           ]),
           const SizedBox(height: 16),
-          Row(children: [
-            Expanded(child: OutlinedButton.icon(
-              onPressed: onClubTap,
-              icon: const Icon(Icons.emoji_events_outlined, size: 17),
-              label: const Text('باشگاه مشتریان'),
-            )),
-            const SizedBox(width: 10),
-            Expanded(child: FilledButton.icon(
-              onPressed: onPlusTap,
-              icon: const Icon(Icons.arrow_back_rounded, size: 17),
-              label: const Text('جزئیات پلاس+'),
-            )),
-          ]),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 360;
+              final buttonPadding = EdgeInsets.symmetric(
+                horizontal: compact ? 7 : 12,
+                vertical: 13,
+              );
+              return Row(children: [
+                Expanded(child: OutlinedButton.icon(
+                  onPressed: onClubTap,
+                  icon: const Icon(Icons.emoji_events_outlined, size: 16),
+                  label: const Text(
+                    'باشگاه مشتریان',
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: buttonPadding,
+                    minimumSize: const Size(0, 46),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                )),
+                const SizedBox(width: 10),
+                Expanded(child: FilledButton.icon(
+                  onPressed: onPlusTap,
+                  icon: const Icon(Icons.arrow_back_rounded, size: 16),
+                  label: const Text(
+                    'جزئیات پلاس+',
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  style: FilledButton.styleFrom(
+                    padding: buttonPadding,
+                    minimumSize: const Size(0, 46),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                )),
+              ]);
+            },
+          ),
         ],
       ),
     );
