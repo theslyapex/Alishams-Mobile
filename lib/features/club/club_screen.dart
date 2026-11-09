@@ -55,6 +55,16 @@ class _ClubScreenState extends State<ClubScreen>{
         const SizedBox(height:12),ClipRRect(borderRadius:BorderRadius.circular(20),child:LinearProgressIndicator(value:((_data?['progress'] as num?)?.toDouble()??0)/100,minHeight:9)),
         const SizedBox(height:7),Text(diamond?'به بالاترین لیگ باشگاه رسیده‌ای.':'تا لیگ ${tierNames[nextTier]??nextTier}، $pointsRemaining امتیاز دیگر لازم است.',style:TextStyle(color:c.muted,fontSize:12)),
       ])),
+      const SizedBox(height:18),
+      Container(padding:const EdgeInsets.all(15),decoration:BoxDecoration(color:c.surface,borderRadius:BorderRadius.circular(16),border:Border.all(color:c.line)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+        Text('حدنصاب لیگ‌های باشگاه',style:Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight:FontWeight.w800)),
+        const SizedBox(height:10),
+        _tierRule('بدون لیگ','۰ تا ۲٬۴۹۹',c),
+        _tierRule('برنزی','۲٬۵۰۰ تا ۹٬۹۹۹',c),
+        _tierRule('نقره‌ای','۱۰٬۰۰۰ تا ۱۷٬۹۹۹',c),
+        _tierRule('طلایی','۱۸٬۰۰۰ تا ۲۴٬۹۹۹',c),
+        _tierRule('الماس','۲۵٬۰۰۰ به بالا',c),
+      ])),
       const SizedBox(height:18),Text('پاداش‌های قابل دریافت',style:Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight:FontWeight.w800)),
       ...rewards.map((e){final points=(e['points'] as num?)?.toInt()??0;final reward=(e['reward_toman'] as num?)?.toInt()??0;final claimed=vouchers.any((v)=>(v['points_spent'] as num?)?.toInt()==points);return Container(margin:const EdgeInsets.only(top:9),padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:c.surface,borderRadius:BorderRadius.circular(16),border:Border.all(color:c.line)),child:Row(children:[Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('$points امتیاز',style:const TextStyle(fontWeight:FontWeight.w800)),Text('$reward تومان اعتبار پاداش',style:TextStyle(color:c.muted,fontSize:12))])),FilledButton(onPressed:_busy||claimed||balance<points?null:()=>_redeem(points,reward),child:Text(claimed?'دریافت‌شده':balance<points?'امتیاز ناکافی':'دریافت'))]));}),
 
@@ -85,5 +95,6 @@ class _ClubScreenState extends State<ClubScreen>{
       const SizedBox(height:12),Text('امتیازها و پاداش‌ها از سرویس رسمی باشگاه دریافت می‌شوند؛ صدور پاداش فقط پس از تأیید سرور انجام می‌شود.',style:TextStyle(color:c.muted,fontSize:11,height:1.6)),
     ]))));
   }
+  Widget _tierRule(String name,String range,AppColors c)=>Padding(padding:const EdgeInsets.symmetric(vertical:4),child:Row(children:[Expanded(child:Text(name,style:TextStyle(color:c.text,fontSize:12,fontWeight:FontWeight.w600))),Text(range,style:TextStyle(color:c.muted,fontSize:12))]));
   Widget _metric(String label,String value)=>Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(label,style:TextStyle(color:Colors.white.withValues(alpha:.75),fontSize:11)),const SizedBox(height:4),Text(value,style:const TextStyle(fontWeight:FontWeight.w900,fontSize:21))]);
 }
