@@ -8,6 +8,7 @@ import '../../assets/app_assets.dart';
 import '../../theme/app_colors.dart';
 import '../plus/plus_screen.dart';
 import '../club/club_screen.dart';
+import '../projects/projects_screen.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -44,6 +45,8 @@ class AccountScreen extends ConsumerWidget {
                     _menuTile(context, c, Icons.workspace_premium_rounded, 'عضویت پلاس+', overview?.when(data: (v) => v.plusSummary, loading: () => 'در حال دریافت وضعیت عضویت…', error: (_, __) => 'دریافت وضعیت عضویت ممکن نشد') ?? 'برای مشاهده وضعیت عضویت وارد حساب شوید', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlusScreen())); } }, accent: c.tertiary),
                     const SizedBox(height: 9),
                     _menuTile(context, c, Icons.emoji_events_rounded, 'باشگاه مشتریان', overview?.when(data: (v) => 'امتیاز ثبت‌شده: ${v.points}', loading: () => 'در حال دریافت امتیازها…', error: (_, __) => 'دریافت امتیازها ممکن نشد') ?? 'برای مشاهده امتیازها وارد حساب شوید', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClubScreen())); } }, accent: c.secondary),
+                    const SizedBox(height: 9),
+                    _menuTile(context, c, Icons.folder_copy_outlined, 'پروژه‌ها و پرداخت‌ها', 'پیگیری پروژه‌ها، مشاهده مانده و ارسال رسید پرداخت', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProjectsScreen())); } }, accent: c.tertiary),
                     const SizedBox(height: 24),
                     _sectionTitle(context, 'تنظیمات و پشتیبانی'),
                     const SizedBox(height: 10),
