@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/account_overview_provider.dart';
+import '../../providers/notification_unread_provider.dart';
 import '../../assets/app_assets.dart';
 import '../services/services_screen.dart';
 import '../orders/orders_screen.dart';
@@ -81,7 +82,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Row(mainAxisSize: MainAxisSize.min, children: [
                 _roundIcon(c, Icons.support_agent_rounded, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SupportCenterScreen()))),
                 const SizedBox(width: 8),
-                _roundIcon(c, Icons.notifications_none_rounded, () => _notice(context, userId != null)),
+                Consumer(builder: (context, ref, _) {
+                  final count = userId == null
+                      ? const AsyncValue<int>.data(0)
+                      : ref.watch(notificationUnreadCountProvider(userId));
+                  return _notificationIcon(c, count, () async {
+                    await _notice(context, userId != null);
+                    if (userId != null) {
+                      ref.invalidate(notificationUnreadCountProvider(userId));
+                    }
+                  });
+                }),
               ]),
             ]),
             const SizedBox(height: 26),
@@ -277,6 +288,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       Text('این بخش در نسخه‌های بعدی تکمیل می‌شود.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted)),
     ])),
   );
+
+  Widget _notificationIcon(AppColors c, AsyncValue<int> count, VoidCallback onTap) =>
+      Material(
+        color: c.surface,
+        shape: CircleBorder(side: BorderSide(color: c.line)),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: SizedBox(
+            width: 48, height: 48,
+            child: Stack(
+              clipBehavior: Clip.none, alignment: Alignment.center,
+              children: [
+                Icon(Icons.notifications_none_rounded, color: c.ink),
+                if ((count.valueOrNull ?? 0) > 0)
+                  Positioned(
+                    top: 5, right: 5,
+                    child: Container(
+                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(color: c.danger, borderRadius: BorderRadius.circular(10), border: Border.all(color: c.surface, width: 1.5)),
+                      child: Text(
+                        (count.valueOrNull ?? 0) > 99 ? '99+' : (count.valueOrNull ?? 0).toString(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                  ),
+                if (count.isLoading)
+                  Positioned(bottom: 5, left: 5, child: SizedBox(width: 8, height: 8, child: CircularProgressIndicator(strokeWidth: 1.5, color: c.secondary))),
+              ],
+            ),
+          ),
+        ),
+      );
 
   Widget _roundIcon(AppColors c, IconData icon, VoidCallback onTap) => Material(
     color: c.surface,
