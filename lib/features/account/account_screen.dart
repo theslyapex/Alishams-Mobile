@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/account_overview_provider.dart';
@@ -244,7 +246,7 @@ class AboutAlishamsScreen extends StatelessWidget {
                     color: c.background, borderRadius: BorderRadius.circular(22),
                     border: Border.all(color: c.line),
                   ),
-                  child: Icon(Icons.auto_awesome_rounded, color: c.secondary, size: 42),
+                  child: SvgPicture.asset(AppAssets.logoSvg, fit: BoxFit.contain),
                 ),
                 const SizedBox(height: 17),
                 const Text('علی‌شمس', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900)),
@@ -257,6 +259,27 @@ class AboutAlishamsScreen extends StatelessWidget {
                   style: TextStyle(color: c.muted, height: 1.9, fontSize: 12),
                 ),
               ]),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              'استودیو دیجیتال علی‌شمس',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: 9),
+            Text(
+              'در استودیو دیجیتال علی‌شمس، ایده‌ها به تجربه‌ها و راهکارهای کاربردی دیجیتال تبدیل می‌شوند. تمرکز مجموعه بر طراحی و توسعه وب‌سایت، تولید محتوای بصری و تبلیغاتی، موشن‌گرافیک، ویدئو و ریلز، طراحی هویت بصری و ساخت ابزارها و محصولات دیجیتال است.',
+              style: TextStyle(color: c.muted, fontSize: 13, height: 2),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'هر پروژه با شناخت نیاز، هدف و مخاطب آن آغاز می‌شود؛ سپس مسیر اجرا، جزئیات فنی و پیشنهاد متناسب با محدوده کار مشخص خواهد شد. هدف، ارائه خروجی حرفه‌ای، منسجم و متناسب با هویت هر برند است.',
+              style: TextStyle(color: c.muted, fontSize: 13, height: 2),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: () => launchUrl(Uri.parse('https://alishams.ir/'), mode: LaunchMode.externalApplication),
+              icon: const Icon(Icons.open_in_new_rounded, size: 18),
+              label: const Text('مشاهده وب‌سایت alishams.ir'),
             ),
             const SizedBox(height: 18),
             _aboutInfo(c, Icons.apps_rounded, 'اپلیکیشن', 'ALISHAMS Android'),
