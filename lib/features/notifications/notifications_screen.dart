@@ -3,7 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../theme/app_colors.dart';
 
 class NotificationsScreen extends StatefulWidget {
-  const NotificationsScreen({super.key});
+  const NotificationsScreen({super.key, this.initialCategory = 'all'});
+  final String initialCategory;
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
@@ -15,7 +16,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   String _filter='all';
 
   @override
-  void initState(){super.initState();_load();}
+  void initState(){super.initState();_filter=widget.initialCategory;_load();}
 
   Future<void> _load() async {
     if(mounted)setState(()=>_loading=true);
