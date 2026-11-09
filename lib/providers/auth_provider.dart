@@ -243,6 +243,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> signOutOtherSessions() async {
+    await _client.auth.signOut(scope: SignOutScope.others);
+  }
+
   void clearError() => state = state.copyWith(clearError: true);
   Future<void> signOut() async {
     await PushNotificationService.instance.unregisterForCurrentUser();
