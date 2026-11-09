@@ -6,10 +6,12 @@ import '../features/auth/sign_in_screen.dart';
 import '../features/auth/sign_up_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/splash/splash_screen.dart';
+import '../features/notifications/push_notification_service.dart';
 import '../motion/motion.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
+    navigatorKey: pushNavigatorKey,
     initialLocation: '/',
     routes: [
       GoRoute(
