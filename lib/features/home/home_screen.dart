@@ -8,6 +8,7 @@ import '../../assets/app_assets.dart';
 import '../services/services_screen.dart';
 import '../orders/orders_screen.dart';
 import '../account/account_screen.dart';
+import '../notifications/notifications_screen.dart';
 import '../../theme/app_colors.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -76,7 +77,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Text('علی‌شمس', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
                 Text('استودیو دیجیتال', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted)),
               ])),
-              _roundIcon(c, Icons.notifications_none_rounded, () => _notice(context)),
+              _roundIcon(c, Icons.notifications_none_rounded, () => _notice(context, userId != null)),
             ]),
             const SizedBox(height: 26),
             Text('سلام، $userName', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -.4)),
@@ -278,7 +279,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     child: IconButton(onPressed: onTap, icon: Icon(icon, color: c.ink)),
   );
 
-  void _notice(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('این قابلیت پس از اتصال به سامانه اصلی فعال می‌شود.')));
+  void _notice(BuildContext context, bool signedIn) {
+    if (!signedIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('برای مشاهده اعلان‌ها ابتدا وارد حساب کاربری شوید.')),
+      );
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+    );
   }
 }
