@@ -84,7 +84,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const SizedBox(width: 8),
                 Consumer(builder: (context, ref, _) {
                   final count = userId == null
-                      ? const AsyncValue<int>.data(0)
+                      ? const AsyncData<int>(0)
                       : ref.watch(notificationUnreadCountProvider(userId));
                   return _notificationIcon(c, count, () async {
                     await _notice(context, userId != null);
