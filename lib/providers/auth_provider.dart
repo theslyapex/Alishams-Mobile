@@ -12,12 +12,14 @@ class AuthState {
     this.isLoading = false,
     this.error,
     this.notice,
+    this.requiresMfa = false,
   });
 
   final AppUser? user;
   final bool isLoading;
   final String? error;
   final String? notice;
+  final bool requiresMfa;
 
   bool get isSignedIn => user != null;
 
@@ -29,12 +31,14 @@ class AuthState {
     bool clearUser = false,
     bool clearError = false,
     bool clearNotice = false,
+    bool? requiresMfa,
   }) {
     return AuthState(
       user: clearUser ? null : (user ?? this.user),
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : (error ?? this.error),
       notice: clearNotice ? null : (notice ?? this.notice),
+      requiresMfa: requiresMfa ?? this.requiresMfa,
     );
   }
 }
@@ -122,9 +126,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
         return false;
       }
-      state = AuthState(user: _mapUser(response.user!));
-      unawaited(PushNotificationService.instance.registerForUser());
-      unawaited(_recordSecurityEvent('login'));
+      final factors = await _client.auth.mfa.listFactors();
+      final hasVerifiedTotp = factors.data.totp.any((factor) => factor.status == FactorStatus.verified);
+      state = AuthState(user: _mapUser(response.user!), requiresMfa: hasVerifiedTotp);
+      if (!hasVerifiedTotp) {
+        unawaited(PushNotificationService.instance.registerForUser());
+        unawaited(_recordSecurityEvent('login'));
+      }
       return true;
     } catch (error) {
       state = AuthState(error: _friendlyError(error));
@@ -241,6 +249,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = AuthState(user: state.user, error: _friendlyError(error));
       return false;
     }
+  }
+
+  void completeMfaLogin() {
+    final user = state.user;
+    state = AuthState(user: user);
+    unawaited(PushNotificationService.instance.registerForUser());
+    unawaited(_recordSecurityEvent('login'));
   }
 
   Future<void> signOutOtherSessions() async {
