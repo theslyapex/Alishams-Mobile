@@ -1,5 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'notifications_screen.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -8,6 +12,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 const String _notificationChannelId = 'alishams_updates';
 const String _notificationChannelName = 'اعلان‌های علی‌شمس';
+final GlobalKey<NavigatorState> pushNavigatorKey = GlobalKey<NavigatorState>();
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -26,6 +31,7 @@ class PushNotificationService {
   StreamSubscription<String>? _tokenRefreshSubscription;
   StreamSubscription<RemoteMessage>? _foregroundSubscription;
   bool _localNotificationsReady = false;
+  Map<String, dynamic>? _pendingTapData;
 
   Stream<RemoteMessage> get foregroundMessages => _foregroundMessages.stream;
   Stream<String> get tokenRefreshes => _messaging.onTokenRefresh;
@@ -36,6 +42,13 @@ class PushNotificationService {
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     await _initializeLocalNotifications();
     await _messaging.requestPermission(alert: true, badge: true, sound: true);
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      unawaited(_openNotification(message.data));
+    });
+    final initialMessage = await _messaging.getInitialMessage();
+    if (initialMessage != null) {
+      _pendingTapData = Map<String, dynamic>.from(initialMessage.data);
+    }
 
     _tokenRefreshSubscription ??= _messaging.onTokenRefresh.listen((_) {
       unawaited(registerForUser());
@@ -57,7 +70,16 @@ class PushNotificationService {
     await _localNotifications.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (response) {
-        // Notification routing can be connected to the app router later.
+        final raw = response.payload;
+        if (raw == null || raw.isEmpty) return;
+        try {
+          final decoded = jsonDecode(raw);
+          if (decoded is Map) {
+            unawaited(_openNotification(Map<String, dynamic>.from(decoded)));
+          }
+        } catch (error) {
+          debugPrint('Notification payload parse failed: $error');
+        }
       },
     );
 
@@ -105,7 +127,7 @@ class PushNotificationService {
       title,
       body,
       details,
-      payload: message.data.toString(),
+      payload: jsonEncode(message.data),
     );
   }
 
@@ -131,6 +153,33 @@ class PushNotificationService {
     } catch (error) {
       debugPrint('FCM device registration failed: $error');
     }
+    if (_pendingTapData != null) {
+      final data = _pendingTapData!;
+      _pendingTapData = null;
+      await _openNotification(data);
+    }
+  }
+
+  Future<void> _openNotification(Map<String, dynamic> data) async {
+    if (Supabase.instance.client.auth.currentUser == null) {
+      _pendingTapData = data;
+      return;
+    }
+    final target = (data['category'] ?? data['target_type'] ?? '').toString();
+    String category = 'account';
+    if (target == 'order' || target == 'orders') category = 'orders';
+    if (target == 'project' || target == 'projects') category = 'projects';
+    if (target == 'payment' || target == 'payments') category = 'payments';
+    if (target == 'club') category = 'club';
+    if (target == 'plus') category = 'plus';
+    final navigator = pushNavigatorKey.currentState;
+    if (navigator == null) {
+      _pendingTapData = data;
+      return;
+    }
+    navigator.push(MaterialPageRoute(
+      builder: (_) => NotificationsScreen(initialCategory: category),
+    ));
   }
 
   Future<void> unregisterForCurrentUser() async {
