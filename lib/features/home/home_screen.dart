@@ -81,7 +81,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
           sliver: SliverList(delegate: SliverChildListDelegate([
             Row(children: [
-              Container(width: 48, height: 48, padding: const EdgeInsets.all(7), decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(begin: Alignment.topRight, end: Alignment.bottomLeft, colors: [c.primary.withValues(alpha: .25), c.secondary.withValues(alpha: .12)]), border: Border.all(color: c.line)), child: SvgPicture.asset(AppAssets.logoSvg, fit: BoxFit.contain)),
+              Container(width: 48, height: 48, padding: const EdgeInsets.all(7), decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(begin: Alignment.topRight, end: Alignment.bottomLeft, colors: [c.primary.withValues(alpha: .25), c.secondary.withValues(alpha: .12)]), border: Border.all(color: c.line)), child: Image.asset(AppAssets.logo, fit: BoxFit.contain, errorBuilder: (_, __, ___) => const Icon(Icons.auto_awesome, color: Colors.white))),
               const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('علی‌شمس', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
@@ -156,7 +156,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       boxShadow: [BoxShadow(color: c.primary.withValues(alpha: 0.28), blurRadius: 32, offset: const Offset(0, 12))],
     ),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [const Icon(Icons.auto_awesome, color: Color(0xFFBDEFF8), size: 18), const SizedBox(width: 7), Text('استودیو دیجیتال علی‌شمس', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: const Color(0xFFB7F34A), fontWeight: FontWeight.w800))]),
+      Row(children: [const Icon(Icons.auto_awesome, color: Color(0xFFBDEFF8), size: 18), const SizedBox(width: 7), Text('استودیو دیجیتال علی‌شمس', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w800))]),
       const SizedBox(height: 16),
       Text('ایده‌ات را\nبه تجربه‌ای دیجیتال تبدیل کن.', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, height: 1.45, fontWeight: FontWeight.w800)),
       const SizedBox(height: 8),
