@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../assets/app_assets.dart';
@@ -83,10 +82,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           'sign_in.hero',
                           child: Column(
                             children: [
-                              SvgPicture.asset(
+                              Image.asset(
                                 AppAssets.logo,
                                 width: 64,
                                 height: 64,
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) => const Icon(Icons.auto_awesome, size: 54, color: Colors.white),
                               ),
                               const SizedBox(height: 16),
                               Text(
