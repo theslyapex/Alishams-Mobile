@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,11 +10,53 @@ import '../features/home/home_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/notifications/push_notification_service.dart';
 import '../motion/motion.dart';
+import '../providers/auth_provider.dart';
+
+class _RouterRefreshNotifier extends ChangeNotifier {
+  void refresh() => notifyListeners();
+}
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final refreshNotifier = _RouterRefreshNotifier();
+  ref.listen<AuthState>(authProvider, (previous, next) {
+    if (previous?.isSignedIn != next.isSignedIn ||
+        previous?.requiresMfa != next.requiresMfa ||
+        previous?.isLoading != next.isLoading) {
+      refreshNotifier.refresh();
+    }
+  });
+  ref.onDispose(refreshNotifier.dispose);
+
   return GoRouter(
     navigatorKey: pushNavigatorKey,
     initialLocation: '/',
+    refreshListenable: refreshNotifier,
+    redirect: (context, state) {
+      final auth = ref.read(authProvider);
+      final path = state.matchedLocation;
+      const publicPaths = {'/', '/sign-in', '/sign-up', '/forgot-password'};
+      const authPaths = {'/sign-in', '/sign-up', '/forgot-password'};
+
+      // Wait until the persisted Supabase session and its AAL are resolved.
+      if (auth.isLoading) return null;
+
+      if (auth.requiresMfa) {
+        return path == '/mfa-verify' ? null : '/mfa-verify';
+      }
+
+      if (auth.isSignedIn) {
+        if (authPaths.contains(path) || path == '/mfa-verify' || path == '/') {
+          return '/home';
+        }
+        return null;
+      }
+
+      if (!publicPaths.contains(path) && path != '/mfa-verify') {
+        return '/sign-in';
+      }
+      if (path == '/mfa-verify') return '/sign-in';
+      return null;
+    },
     routes: [
       GoRoute(
         path: '/',
