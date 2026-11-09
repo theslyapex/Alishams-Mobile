@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../theme/app_colors.dart';
 
@@ -21,6 +22,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   List<Map<String,dynamic>> _projects = [];
   List<Map<String,dynamic>> _payments = [];
   List<Map<String,dynamic>> _files = [];
+  List<Map<String,dynamic>> _history = [];
   final _money = NumberFormat('#,##0');
 
   @override
@@ -51,6 +53,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         _projects = (data['projects'] as List? ?? []).map((e)=>Map<String,dynamic>.from(e as Map)).toList();
         _payments = (data['payments'] as List? ?? []).map((e)=>Map<String,dynamic>.from(e as Map)).toList();
         _files = (data['files'] as List? ?? []).map((e)=>Map<String,dynamic>.from(e as Map)).toList();
+        _history = (data['history'] as List? ?? []).map((e)=>Map<String,dynamic>.from(e as Map)).toList();
         _loading = false;
       });
     } catch (e) {
@@ -85,6 +88,24 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       setState(() => _loading = false);
       _message(e.toString().replaceFirst('Exception: ', ''));
     }
+  }
+
+  Future<void> _downloadFile(Map<String,dynamic> file) async {
+    try {
+      final result = await _invoke('download_file', {'file_id': file['id']});
+      final uri = Uri.tryParse((result['url'] ?? '').toString());
+      if (uri == null || !uri.hasScheme) throw Exception('لینک دریافت فایل معتبر نیست.');
+      final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!opened) throw Exception('باز کردن فایل انجام نشد.');
+    } catch (e) {
+      if (mounted) _message(e.toString().replaceFirst('Exception: ', ''));
+    }
+  }
+
+  String _dateLabel(dynamic value) {
+    final date = DateTime.tryParse((value ?? '').toString());
+    if (date == null) return '—';
+    return DateFormat('yyyy/MM/dd  HH:mm').format(date.toLocal());
   }
 
   void _message(String text) {
@@ -155,6 +176,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     final payments = _payments.where((x)=>x['project_id']==id).toList();
     final files = _files.where((x)=>x['project_id']==id).toList();
     final receipts = files.where((x)=>(x['file_name']??'').toString().startsWith('رسید کارت‌به‌کارت') || (x['description']??'').toString().contains('رسید پرداخت کارت‌به‌کارت')).toList();
+    final history = _history.where((x)=>x['project_id']==id).toList();
     final total = (p['payable_amount'] as num?)?.toDouble() ?? ((p['total_price'] as num?)?.toDouble() ?? 0);
     final paid = (p['paid_amount'] as num?)?.toDouble() ?? 0;
     final remaining = (p['remaining_amount'] as num?)?.toDouble() ?? (total-paid).clamp(0,double.infinity);
@@ -177,6 +199,8 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         ]),
         const SizedBox(height:8),
         Text('کد پروژه: ${p['tracking_code'] ?? '—'}', style: Theme.of(context).textTheme.labelSmall?.copyWith(color:c.muted)),
+        const SizedBox(height:5),
+        Text('آخرین به‌روزرسانی: ${_dateLabel(p['updated_at'])}', style: Theme.of(context).textTheme.labelSmall?.copyWith(color:c.muted)),
         if ((p['description']??'').toString().trim().isNotEmpty) ...[
           const SizedBox(height:10),
           Text(p['description'].toString(), style: Theme.of(context).textTheme.bodySmall?.copyWith(color:c.muted,height:1.8)),
@@ -192,7 +216,24 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         _moneyRow(context,'مبلغ نهایی پروژه',total,c),
         _moneyRow(context,'پرداخت تأییدشده',paid,c,positive:true),
         _moneyRow(context,'مانده قابل پرداخت',remaining,c,emphasize:true),
-        if (payments.isNotEmpty) ...[
+        if (history.isNotEmpty) ...[
+          const SizedBox(height:16),
+          Text('روند اجرای پروژه',style:Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight:FontWeight.w800)),
+          const SizedBox(height:9),
+          ...history.take(8).map((event)=>Padding(
+            padding:const EdgeInsets.only(bottom:11),
+            child:Row(crossAxisAlignment:CrossAxisAlignment.start,children:[
+              Padding(padding:const EdgeInsets.only(top:3),child:Icon(Icons.radio_button_checked_rounded,size:16,color:c.secondary)),
+              const SizedBox(width:9),
+              Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+                Text(_status((event['status']??'').toString()),style:Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight:FontWeight.w800)),
+                if((event['note']??'').toString().trim().isNotEmpty) Text(event['note'].toString(),style:Theme.of(context).textTheme.bodySmall?.copyWith(color:c.muted,height:1.7)),
+                Text(_dateLabel(event['created_at']),style:Theme.of(context).textTheme.labelSmall?.copyWith(color:c.muted)),
+              ])),
+            ]),
+          )),
+        ],
+        if (payments.isNotEmpty) [
           const SizedBox(height:12),
           Text('سوابق پرداخت',style:Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight:FontWeight.w800)),
           const SizedBox(height:7),
@@ -205,9 +246,30 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
             ]),
           )),
         ],
+        if (files.isNotEmpty) ...[
+          const SizedBox(height:14),
+          Text('فایل‌ها و رسیدها',style:Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight:FontWeight.w800)),
+          const SizedBox(height:7),
+          ...files.map((file)=>Padding(
+            padding:const EdgeInsets.only(bottom:7),
+            child:Container(
+              padding:const EdgeInsets.symmetric(horizontal:10,vertical:9),
+              decoration:BoxDecoration(color:c.background,borderRadius:BorderRadius.circular(12),border:Border.all(color:c.line)),
+              child:Row(children:[
+                Icon((file['file_name']??'').toString().contains('رسید')?Icons.receipt_long_rounded:Icons.attach_file_rounded,size:18,color:c.secondary),
+                const SizedBox(width:8),
+                Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+                  Text((file['file_name']??'فایل پروژه').toString(),maxLines:2,overflow:TextOverflow.ellipsis,style:Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight:FontWeight.w700)),
+                  Text(_dateLabel(file['created_at']),style:Theme.of(context).textTheme.labelSmall?.copyWith(color:c.muted)),
+                ])),
+                IconButton(tooltip:'دریافت فایل',onPressed:()=>_downloadFile(file),icon:const Icon(Icons.download_rounded,size:20)),
+              ]),
+            ),
+          )),
+        ],
         if (receipts.isNotEmpty) ...[
-          const SizedBox(height:8),
-          Text('رسیدهای ارسال‌شده: ${receipts.length} مورد · در انتظار بررسی یا ثبت نتیجه',style:Theme.of(context).textTheme.bodySmall?.copyWith(color:c.muted)),
+          const SizedBox(height:3),
+          Text('${receipts.length} رسید ثبت‌شده در سوابق پروژه',style:Theme.of(context).textTheme.labelSmall?.copyWith(color:c.muted)),
         ],
         if (hasBalance) ...[
           const SizedBox(height:16),
