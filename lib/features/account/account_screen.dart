@@ -11,6 +11,8 @@ import '../club/club_screen.dart';
 import '../projects/projects_screen.dart';
 import '../notifications/notifications_screen.dart';
 import 'security_settings_screen.dart';
+import '../support/support_center_screen.dart';
+import '../orders/orders_screen.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -48,6 +50,8 @@ class AccountScreen extends ConsumerWidget {
                     const SizedBox(height: 9),
                     _menuTile(context, c, Icons.emoji_events_rounded, 'باشگاه مشتریان', overview?.when(data: (v) => 'امتیاز ثبت‌شده: ${v.points}', loading: () => 'در حال دریافت امتیازها…', error: (_, __) => 'دریافت امتیازها ممکن نشد') ?? 'برای مشاهده امتیازها وارد حساب شوید', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClubScreen())); } }, accent: c.secondary),
                     const SizedBox(height: 9),
+                    _menuTile(context, c, Icons.receipt_long_rounded, 'سفارش‌های من', 'مشاهده وضعیت، پیشنهاد مالی و روند سفارش‌ها', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OrdersScreen())); } }),
+                    const SizedBox(height: 9),
                     _menuTile(context, c, Icons.folder_copy_outlined, 'پروژه‌ها و پرداخت‌ها', 'پیگیری پروژه‌ها، مشاهده مانده و ارسال رسید پرداخت', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProjectsScreen())); } }, accent: c.tertiary),
                     const SizedBox(height: 24),
                     _sectionTitle(context, 'تنظیمات و پشتیبانی'),
@@ -56,9 +60,9 @@ class AccountScreen extends ConsumerWidget {
                     const SizedBox(height: 9),
                     _menuTile(context, c, Icons.shield_outlined, 'حریم خصوصی و امنیت', 'تغییر رمز عبور و مشاهده فعالیت‌های امنیتی', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SecuritySettingsScreen())); } }),
                     const SizedBox(height: 9),
-                    _menuTile(context, c, Icons.support_agent_rounded, 'ارتباط با پشتیبانی', 'راهنمایی درباره خدمات و سفارش‌ها', onTap: () => _message(context, 'راه ارتباطی پشتیبانی در نسخه بعدی اضافه می‌شود.')),
+                    _menuTile(context, c, Icons.support_agent_rounded, 'ارتباط با پشتیبانی', 'ثبت درخواست، مشاهده پاسخ‌ها و ارسال فایل', onTap: () { if (user == null) { _message(context, 'برای استفاده از پشتیبانی ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SupportCenterScreen())); } }),
                     const SizedBox(height: 9),
-                    _menuTile(context, c, Icons.info_outline_rounded, 'درباره علی‌شمس', 'استودیو دیجیتال علی‌شمس', onTap: () => _message(context, 'ALISHAMS • Digital Studio')),
+                    _menuTile(context, c, Icons.info_outline_rounded, 'درباره علی‌شمس', 'معرفی استودیو و اطلاعات اپلیکیشن', onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AboutAlishamsScreen()))),
                     const SizedBox(height: 22),
                     if (user != null)
                       OutlinedButton.icon(
@@ -81,7 +85,7 @@ class AccountScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     Center(child: Text('ALISHAMS  •  DIGITAL STUDIO', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c.muted, letterSpacing: 1.1))),
                     const SizedBox(height: 5),
-                    Center(child: Text('نسخه آزمایشی اپلیکیشن', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c.muted))),
+                    Center(child: Text('اپلیکیشن اندروید علی‌شمس', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c.muted))),
                   ]),
                 ),
               ),
@@ -117,7 +121,7 @@ class AccountScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(color: (signedIn ? c.success : c.warning).withValues(alpha: .12), borderRadius: BorderRadius.circular(20)),
-                child: Text(signedIn ? 'حساب آزمایشی فعال' : 'وضعیت مهمان', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: signedIn ? c.success : c.warning)),
+                child: Text(signedIn ? 'حساب فعال' : 'وضعیت مهمان', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: signedIn ? c.success : c.warning)),
               ),
             ]),
           ),
@@ -205,4 +209,82 @@ class AccountScreen extends ConsumerWidget {
   void _message(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
+}
+
+
+class AboutAlishamsScreen extends StatelessWidget {
+  const AboutAlishamsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: c.background,
+        appBar: AppBar(title: const Text('درباره علی‌شمس')),
+        body: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 30),
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  begin: Alignment.topRight, end: Alignment.bottomLeft,
+                  colors: [c.primary.withValues(alpha: .30), c.surface, c.surface],
+                ),
+                border: Border.all(color: c.line),
+              ),
+              child: Column(children: [
+                Container(
+                  width: 82, height: 82,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: c.background, borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: c.line),
+                  ),
+                  child: Image.asset(AppAssets.logoImage, fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Icon(Icons.auto_awesome_rounded, color: c.secondary, size: 42)),
+                ),
+                const SizedBox(height: 17),
+                const Text('علی‌شمس', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900)),
+                const SizedBox(height: 5),
+                Text('استودیو دیجیتال', style: TextStyle(color: c.secondary, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 13),
+                Text(
+                  'راهکارهای دیجیتال، طراحی وب‌سایت و تجربه‌های خلاقانه برای رشد کسب‌وکارها.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: c.muted, height: 1.9, fontSize: 12),
+                ),
+              ]),
+            ),
+            const SizedBox(height: 18),
+            _aboutInfo(c, Icons.apps_rounded, 'اپلیکیشن', 'ALISHAMS Android'),
+            const SizedBox(height: 9),
+            _aboutInfo(c, Icons.design_services_outlined, 'حوزه فعالیت', 'طراحی وب‌سایت و خدمات دیجیتال'),
+            const SizedBox(height: 9),
+            _aboutInfo(c, Icons.verified_user_outlined, 'حریم خصوصی', 'اطلاعات حساب و سفارش‌ها فقط از مسیرهای احراز هویت‌شده دریافت می‌شوند.'),
+            const SizedBox(height: 24),
+            Center(child: Text('ALISHAMS  •  DIGITAL STUDIO', style: TextStyle(color: c.muted, fontSize: 10, letterSpacing: 1.1))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _aboutInfo(AppColors c, IconData icon, String title, String detail) =>
+    Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16), border: Border.all(color: c.line)),
+      child: Row(children: [
+        Icon(icon, color: c.secondary, size: 22),
+        const SizedBox(width: 12),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
+          const SizedBox(height: 4),
+          Text(detail, style: TextStyle(color: c.muted, fontSize: 11, height: 1.6)),
+        ])),
+      ]),
+    );
 }
