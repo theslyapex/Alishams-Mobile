@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../assets/app_assets.dart';
 
 import '../../motion/motion.dart';
 import '../../theme/app_chrome.dart';
@@ -28,6 +30,12 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   bool _markDone = false;
   Timer? _routeTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _routeTimer = Timer(const Duration(milliseconds: 1700), _onMarkDone);
+  }
 
   @override
   void dispose() {
@@ -60,13 +68,12 @@ class _SplashScreenState extends State<SplashScreen> {
                 children: [
                   MotionSlot(
                     'splash.hero',
-                    child: AppBrandMark.fromSvgPath(
-                      kAlishamsMarkPath,
-                      color: c.secondary,
-                      size: 96,
-                      mode: BrandMarkMode.draw,
-                      onDone: _onMarkDone,
-                      semanticLabel: 'علی‌شمس',
+                    child: SvgPicture.asset(
+                      AppAssets.logoSvg,
+                      width: 290,
+                      height: 290,
+                      fit: BoxFit.contain,
+                      semanticsLabel: 'ALISHAMS Digital Studio',
                     ),
                   ),
                   const SizedBox(height: 28),

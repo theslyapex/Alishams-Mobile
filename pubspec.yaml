@@ -22,6 +22,12 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 flutter:
   uses-material-design: true
+  fonts:
+    - family: Estedad
+      fonts:
+        - asset: assets/fonts/Estedad[wght].ttf
+          weight: 100
+          # Variable font; Flutter uses this file for the full weight range.
   assets:
     - assets/icons/
     - assets/images/branding/

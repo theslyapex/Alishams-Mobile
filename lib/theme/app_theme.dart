@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../motion/app_motion.dart';
 import 'app_colors.dart';
@@ -21,7 +20,7 @@ class AppTheme {
       AnnotatedRegion<SystemUiOverlayStyle>(value: systemUi, child: child);
 
   static TextTheme _text(Color ink, Color muted) {
-    final base = GoogleFonts.vazirmatnTextTheme();
+    final base = const TextTheme().apply(fontFamily: 'Estedad');
     return base
         .apply(bodyColor: ink, displayColor: ink)
         .copyWith(
@@ -92,6 +91,7 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: 'Estedad',
       brightness: brightness,
       pageTransitionsTheme: AppMotion.pageTransitions,
       colorScheme: scheme,
