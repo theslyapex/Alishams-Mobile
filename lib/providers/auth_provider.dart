@@ -46,21 +46,37 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier() : super(const AuthState()) {
     _subscription = _client.auth.onAuthStateChange.listen((event) {
-      final session = event.session;
-      state = AuthState(user: session == null ? null : _mapUser(session.user));
-      if (session != null) {
-        unawaited(PushNotificationService.instance.registerForUser());
-      }
+      unawaited(_applySession(event.session));
     });
     final current = _client.auth.currentSession;
-    if (current != null) {
-      state = AuthState(user: _mapUser(current.user));
-      unawaited(PushNotificationService.instance.registerForUser());
-    }
+    if (current != null) unawaited(_applySession(current));
   }
 
   final SupabaseClient _client = Supabase.instance.client;
   late final StreamSubscription<dynamic> _subscription;
+
+  Future<void> _applySession(Session? session) async {
+    if (session == null) {
+      state = const AuthState();
+      return;
+    }
+    try {
+      final assurance = await _client.auth.mfa.getAuthenticatorAssuranceLevel();
+      final current = assurance.data.currentLevel;
+      final next = assurance.data.nextLevel;
+      final requiresMfa = next == 'aal2' && current != 'aal2';
+      if (!mounted) return;
+      state = AuthState(user: _mapUser(session.user), requiresMfa: requiresMfa);
+      if (!requiresMfa) {
+        unawaited(PushNotificationService.instance.registerForUser());
+      }
+    } catch (_) {
+      if (!mounted) return;
+      // Keep the account visible, but sensitive server actions independently
+      // enforce AAL2 for users who have enrolled a verified factor.
+      state = AuthState(user: _mapUser(session.user));
+    }
+  }
 
   AppUser _mapUser(User user) {
     final metadata = user.userMetadata ?? const <String, dynamic>{};
@@ -126,10 +142,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
         return false;
       }
-      final factors = await _client.auth.mfa.listFactors();
-      final hasVerifiedTotp = factors.totp.any((factor) => factor.status == FactorStatus.verified);
-      state = AuthState(user: _mapUser(response.user!), requiresMfa: hasVerifiedTotp);
-      if (!hasVerifiedTotp) {
+      final assurance = await _client.auth.mfa.getAuthenticatorAssuranceLevel();
+      final requiresMfa = assurance.data.nextLevel == 'aal2' &&
+          assurance.data.currentLevel != 'aal2';
+      state = AuthState(user: _mapUser(response.user!), requiresMfa: requiresMfa);
+      if (!requiresMfa) {
         unawaited(PushNotificationService.instance.registerForUser());
         unawaited(_recordSecurityEvent('login'));
       }
