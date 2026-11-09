@@ -1,7 +1,7 @@
 /// Official ALISHAMS website media, stored locally in the app bundle.
 class AppAssets {
-  static const logo = 'assets/images/branding/alishams-studio-logo.svg';
-  static const logoSvg = 'assets/images/branding/alishams-studio-logo.svg';
+  static const logo = 'assets/images/alishams-logo.png';
+  static const logoSvg = 'assets/images/alishams-logo.png';
   static const workspaceImage = 'assets/images/site/studio-workspace.jpg';
   static const iranMaImage = 'assets/images/site/iran-ma-website-preview.jpg';
   static const novaImage = 'assets/images/site/nova-image-lab.jpg';
