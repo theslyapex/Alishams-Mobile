@@ -29,9 +29,26 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
     if (widget.item.kind == PortfolioKind.video) _initializeVideo();
   }
 
+  String? _youtubeVideoId(String value) {
+    final uri = Uri.tryParse(value);
+    if (uri == null) return null;
+    final host = uri.host.toLowerCase().replaceFirst(RegExp(r'^www\\.'), '');
+    if (host == 'youtu.be') {
+      return uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
+    }
+    if (host == 'youtube.com' || host == 'm.youtube.com' || host == 'music.youtube.com') {
+      if (uri.path == '/watch') return uri.queryParameters['v'];
+      final segments = uri.pathSegments;
+      if (segments.length >= 2 && ['embed', 'shorts', 'live'].contains(segments.first)) {
+        return segments[1];
+      }
+    }
+    return null;
+  }
+
   Future<void> _initializeVideo() async {
     final raw = (widget.item.targetUrl ?? '').trim();
-    final youtubeId = YoutubePlayerController.convertUrlToId(raw);
+    final youtubeId = _youtubeVideoId(raw);
     if (youtubeId != null) {
       _youtubeController = YoutubePlayerController(
         initialVideoId: youtubeId,
