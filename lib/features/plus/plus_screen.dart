@@ -210,7 +210,7 @@ class _PlusScreenState extends State<PlusScreen> {
         _panel(c,Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
           Text('مزایای پلاس+',style:Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight:FontWeight.w800)),
           const SizedBox(height:10),
-          const Text('• تخفیف خرید اول و دوم عضویت: ۱۰٪\n• تخفیف از سومین خرید عضویت به بعد: ۱۸٪\n• روزانه ۵۰۰ بازدید هدیه ریلز\n• امکان درخواست دامنه .ir با شرایط مشخص'),
+          const Text('• تخفیف خرید اول و دوم عضویت: ۱۰٪\n• تخفیف از سومین خرید عضویت به بعد: ۱۸٪\n• سهمیه ۳۰ درخواست بازدید ریلز در هر دوره عضویت\n• امکان درخواست دامنه .ir با شرایط مشخص'),
           const SizedBox(height:8),
           Text('خرید دامنه به‌تنهایی مشمول تخفیف پلاس نیست.',style:Theme.of(context).textTheme.bodySmall?.copyWith(color:c.warning)),
         ])),
