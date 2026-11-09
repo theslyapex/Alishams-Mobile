@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/customer_orders_provider.dart';
+import '../orders/orders_screen.dart';
 import '../../theme/app_colors.dart';
 
 class OrderCreateScreen extends ConsumerStatefulWidget {
@@ -144,7 +145,19 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
       const SizedBox(height: 14),
       Text('برای مشاهده وضعیت، به بخش سفارش‌های من برو.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted)),
       const SizedBox(height: 18),
-      FilledButton(onPressed: () => Navigator.pop(context), child: const Text('بازگشت')),
+      SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OrdersScreen()),
+          ),
+          icon: const Icon(Icons.receipt_long_rounded),
+          label: const Text('مشاهده سفارش‌های من'),
+        ),
+      ),
+      const SizedBox(height: 8),
+      TextButton(onPressed: () => Navigator.pop(context), child: const Text('بازگشت')),
+
     ]),
   );
 
