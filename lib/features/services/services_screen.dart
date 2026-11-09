@@ -174,77 +174,35 @@ class ServicesScreen extends StatelessWidget {
       );
 
   Widget _introBanner(BuildContext context, AppColors c) => Container(
-        padding: const EdgeInsets.all(19),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(23),
-          image: DecorationImage(
-            image: const AssetImage(AppAssets.workspaceImage),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              const Color(0xFF070B18).withValues(alpha: .68),
-              BlendMode.darken,
-            ),
-          ),
-          border: Border.all(color: c.line),
-          boxShadow: [
-            BoxShadow(
-              color: c.primary.withValues(alpha: .13),
-              blurRadius: 24,
-              offset: const Offset(0, 9),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .12),
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: Colors.white.withValues(alpha: .16)),
-              ),
-              child: Text(
-                'از ایده تا اجرا',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: const Color(0xFFBDEFF8),
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'برای حضوری حرفه‌ای‌تر در دنیای دیجیتال',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.white,
-                    height: 1.5,
-                    fontWeight: FontWeight.w800,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'هر پروژه با شناخت نیاز شما آغاز می‌شود؛ راهکار و برآورد نهایی پس از بررسی جزئیات ارائه خواهد شد.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withValues(alpha: .78),
-                    height: 1.8,
-                  ),
-            ),
-            const SizedBox(height: 15),
-            Row(
-              children: [
-                const Icon(Icons.verified_outlined, color: Color(0xFF65E6C0), size: 18),
-                const SizedBox(width: 7),
-                Text(
-                  'پیشنهاد متناسب با نیاز هر پروژه',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Colors.white,
-                      ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
+    height: 262,
+    clipBehavior: Clip.antiAlias,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(23),
+      image: DecorationImage(image: const AssetImage(AppAssets.workspaceImage), fit: BoxFit.cover,
+        colorFilter: ColorFilter.mode(const Color(0xFF070B18).withValues(alpha: .60), BlendMode.darken)),
+      border: Border.all(color: c.line),
+      boxShadow: [BoxShadow(color: c.primary.withValues(alpha: .13), blurRadius: 24, offset: const Offset(0, 9))],
+    ),
+    child: Stack(children: [
+      Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight,
+        colors: [const Color(0xFF070B18).withValues(alpha: .18), const Color(0xFF070B18).withValues(alpha: .08), const Color(0xFF070B18).withValues(alpha: .62)])))),
+      Align(alignment: Alignment.centerLeft, child: Padding(padding: const EdgeInsets.all(18),
+        child: SizedBox(width: MediaQuery.of(context).size.width * .72,
+          child: Directionality(textDirection: TextDirection.rtl, child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.end, children: [
+            Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .12), borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.white.withValues(alpha: .16))),
+              child: Text('از ایده تا اجرا', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: const Color(0xFFBDEFF8), fontWeight: FontWeight.w700))),
+            const SizedBox(height: 12),
+            Text('برای حضوری حرفه‌ای‌تر در دنیای دیجیتال', textAlign: TextAlign.right, style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white, height: 1.45, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 7),
+            Text('هر پروژه با شناخت نیاز شما آغاز می‌شود؛ راهکار و برآورد نهایی پس از بررسی جزئیات ارائه خواهد شد.', textAlign: TextAlign.right, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white.withValues(alpha: .82), height: 1.7)),
+            const SizedBox(height: 12),
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              Text('پیشنهاد متناسب با نیاز هر پروژه', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+              const SizedBox(width: 7), const Icon(Icons.verified_outlined, color: Color(0xFF65E6C0), size: 18),
+            ]),
+          ]))))),
+    ]),
+  );
 
   Widget _countBadge(AppColors c, int count) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
