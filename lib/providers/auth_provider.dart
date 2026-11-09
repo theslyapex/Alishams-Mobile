@@ -154,6 +154,32 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<bool> updateProfileName(String name) async {
+    final cleanName = name.trim();
+    if (cleanName.length < 2 || cleanName.length > 60) {
+      state = state.copyWith(error: 'نام باید بین ۲ تا ۶۰ نویسه باشد.');
+      return false;
+    }
+    state = state.copyWith(isLoading: true, clearError: true, clearNotice: true);
+    try {
+      final response = await _client.auth.updateUser(
+        UserAttributes(data: {'full_name': cleanName}),
+      );
+      final user = response.user;
+      if (user == null) throw const AuthException('به‌روزرسانی حساب انجام نشد.');
+      await _client.from('user_profiles').upsert({
+        'user_id': user.id,
+        'display_name': cleanName,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }, onConflict: 'user_id');
+      state = AuthState(user: _mapUser(user), notice: 'نام حساب با موفقیت به‌روزرسانی شد.');
+      return true;
+    } catch (error) {
+      state = AuthState(user: state.user, error: _friendlyError(error));
+      return false;
+    }
+  }
+
   Future<bool> sendResetLink(String email) async {
     state = state.copyWith(isLoading: true, clearError: true, clearNotice: true);
     try {

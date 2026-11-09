@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import 'order_create_screen.dart';
 
 import '../../assets/app_assets.dart';
 import '../../theme/app_colors.dart';
@@ -122,6 +126,8 @@ class ServicesScreen extends StatelessWidget {
                     _projectsSection(context, c),
                     const SizedBox(height: 22),
                     _processCard(context, c),
+                    const SizedBox(height: 18),
+                    _orderCta(context, c),
                     const SizedBox(height: 22),
                     Center(
                       child: Text(
@@ -141,6 +147,19 @@ class ServicesScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _orderCta(BuildContext context, AppColors c) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), gradient: LinearGradient(begin: Alignment.topRight, end: Alignment.bottomLeft, colors: [c.primary.withValues(alpha: .22), c.surface]), border: Border.all(color: c.secondary.withValues(alpha: .25))),
+        child: Row(children: [
+          Container(width: 46, height: 46, decoration: BoxDecoration(color: c.secondary.withValues(alpha: .12), borderRadius: BorderRadius.circular(14)), child: Icon(Icons.add_task_rounded, color: c.secondary)),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('درخواست همکاری داری؟', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 4), Text('سفارش جدیدت را مستقیم از اپ ثبت کن.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted))])),
+          const SizedBox(width: 8),
+          FilledButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OrderCreateScreen())), child: const Text('ثبت سفارش')),
+        ]),
+      );
 
   Widget _header(BuildContext context, AppColors c) => Row(
         children: [

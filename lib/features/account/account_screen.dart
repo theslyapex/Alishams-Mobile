@@ -35,7 +35,7 @@ class AccountScreen extends ConsumerWidget {
                     const SizedBox(height: 6),
                     Text('مدیریت حساب و تنظیمات اپلیکیشن', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: c.muted)),
                     const SizedBox(height: 22),
-                    _profileCard(context, c, name, email, user != null),
+                    _profileCard(context, c, name, email, user != null, onEdit: user == null ? null : () => _editProfileName(context, ref, name)),
                     const SizedBox(height: 24),
                     _sectionTitle(context, 'باشگاه و عضویت'),
                     const SizedBox(height: 10),
@@ -85,7 +85,7 @@ class AccountScreen extends ConsumerWidget {
     );
   }
 
-  Widget _profileCard(BuildContext context, AppColors c, String name, String email, bool signedIn) {
+  Widget _profileCard(BuildContext context, AppColors c, String name, String email, bool signedIn, {VoidCallback? onEdit}) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -114,9 +114,37 @@ class AccountScreen extends ConsumerWidget {
               ),
             ]),
           ),
-          Icon(Icons.chevron_left_rounded, color: c.muted),
+          if (onEdit != null) IconButton(onPressed: onEdit, tooltip: 'ویرایش نام', icon: Icon(Icons.edit_outlined, color: c.secondary)),
         ],
       ),
+    );
+  }
+
+  Future<void> _editProfileName(BuildContext context, WidgetRef ref, String currentName) async {
+    final controller = TextEditingController(text: currentName);
+    final name = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('ویرایش نام نمایشی'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: 60,
+          textDirection: TextDirection.rtl,
+          decoration: const InputDecoration(labelText: 'نام و نام خانوادگی'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('انصراف')),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, controller.text), child: const Text('ذخیره')),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (name == null || !context.mounted) return;
+    final ok = await ref.read(authProvider.notifier).updateProfileName(name);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(ok ? 'اطلاعات حساب به‌روزرسانی شد.' : (ref.read(authProvider).error ?? 'ذخیره تغییرات انجام نشد.'))),
     );
   }
 
