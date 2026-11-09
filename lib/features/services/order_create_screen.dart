@@ -50,7 +50,7 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
     setState(() => _busy = true);
     try {
       final response = await Supabase.instance.client.functions.invoke(
-        'order-submit',
+        'mobile-order-submit',
         headers: {'Origin': 'https://alishams.ir'},
         body: {
           'client_name': _name.text.trim(),
