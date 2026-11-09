@@ -3,7 +3,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 final notificationUnreadCountProvider =
     FutureProvider.autoDispose.family<int, String>((ref, userId) async {
-  final response = await Supabase.instance.client.functions.invoke(
+  final client = Supabase.instance.client;
+  if (client.auth.currentUser?.id != userId) return 0;
+  final response = await client.functions.invoke(
     'mobile-project-account',
     headers: const {'Origin': 'https://alishams.ir'},
     body: const {'action': 'notifications'},
