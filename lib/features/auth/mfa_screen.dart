@@ -74,7 +74,7 @@ class _MfaSetupScreenState extends ConsumerState<MfaSetupScreen> {
   Future<void> _verifyEnrollment() async {
     final factorId = _factorId;
     final code = _code.text.trim();
-    if (factorId == null || !RegExp(r'^\d{6}).hasMatch(code)) {
+    if (factorId == null || !RegExp(r'^\d{6}$').hasMatch(code)) {
       setState(() => _error = 'کد شش‌رقمی برنامه احراز هویت را وارد کنید.');
       return;
     }
@@ -212,7 +212,7 @@ class _MfaVerifyScreenState extends ConsumerState<MfaVerifyScreen> {
 
   Future<void> _verify() async {
     final code = _code.text.trim();
-    if (!RegExp(r'^\\d{6}$').hasMatch(code)) {
+    if (!RegExp(r'^\d{6}$').hasMatch(code)) {
       setState(() => _error = 'کد شش‌رقمی را وارد کنید.');
       return;
     }
@@ -401,7 +401,7 @@ class _MfaVerifyScreenState extends ConsumerState<MfaVerifyScreen> {
 
   Future<void> _verify() async {
     final code = _code.text.trim();
-    if (!RegExp(r'^\d{6}).hasMatch(code)) {
+    if (!RegExp(r'^\d{6}$').hasMatch(code)) {
       setState(() => _error = 'کد شش‌رقمی را وارد کنید.');
       return;
     }
