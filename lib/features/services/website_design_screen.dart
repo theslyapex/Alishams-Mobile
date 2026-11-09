@@ -62,27 +62,107 @@ class WebsiteDesignScreen extends StatelessWidget {
                 )),
                 icon: const Icon(Icons.assignment_turned_in_outlined),
                 label: const Text('ثبت درخواست طراحی وب‌سایت'),
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(54)),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(56),
+                  backgroundColor: c.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
+                  elevation: 0,
+                ),
               ),
-              const SizedBox(height: 9),
+              const SizedBox(height: 10),
               OutlinedButton.icon(
                 onPressed: () => _open(_websitePage),
                 icon: const Icon(Icons.open_in_new_rounded),
                 label: const Text('مشاهده توضیحات کامل در وب‌سایت'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                  foregroundColor: c.secondary,
+                  side: BorderSide(color: c.secondary.withValues(alpha: .65), width: 1.2),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
+                ),
               ),
-              TextButton.icon(
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PortfolioScreen())),
-                icon: const Icon(Icons.collections_outlined),
-                label: const Text('مشاهده نمونه‌کارها'),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: _resourceAction(
+                      context,
+                      c,
+                      icon: Icons.collections_outlined,
+                      title: 'نمونه‌کارها',
+                      subtitle: 'مشاهده پروژه‌ها',
+                      accent: c.secondary,
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const PortfolioScreen()),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _resourceAction(
+                      context,
+                      c,
+                      icon: Icons.price_change_outlined,
+                      title: 'صفحه تعرفه‌ها',
+                      subtitle: 'بررسی قیمت‌ها',
+                      accent: const Color(0xFFB8A2FF),
+                      onTap: () => _open(_pricingPage),
+                    ),
+                  ),
+                ],
               ),
-              TextButton(onPressed: () => _open(_pricingPage), child: const Text('مشاهده صفحه تعرفه‌ها')),
             ],
           ),
         ),
       ),
     );
   }
+
+  Widget _resourceAction(
+    BuildContext context,
+    AppColors c, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color accent,
+    required VoidCallback onTap,
+  }) => Material(
+    color: c.surface,
+    borderRadius: BorderRadius.circular(16),
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 82),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: c.line.withValues(alpha: .9)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: accent, size: 22),
+            const SizedBox(width: 9),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 3),
+                  Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c.muted)),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_left_rounded, color: c.muted, size: 18),
+          ],
+        ),
+      ),
+    ),
+  );
 
   Widget _hero(BuildContext context, AppColors c) => Container(
     padding: const EdgeInsets.all(22),
