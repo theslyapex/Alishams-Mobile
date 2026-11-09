@@ -221,7 +221,7 @@ class _PlusScreenState extends State<PlusScreen> {
             Text('درخواست بازدید هدیه ریلز',style:Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight:FontWeight.w800)),
             const SizedBox(height:6),Text('لینک مستقیم Reel اینستاگرام را وارد کن. سهمیه و امکان ثبت درخواست توسط سرور بررسی می‌شود.',style:Theme.of(context).textTheme.bodySmall?.copyWith(color:c.muted,height:1.6)),
             const SizedBox(height:12),TextField(controller:_reel,keyboardType:TextInputType.url,decoration:const InputDecoration(labelText:'لینک ریلز اینستاگرام',hintText:'https://www.instagram.com/reel/...')),
-            const SizedBox(height:12),SizedBox(width:double.infinity,child:FilledButton(onPressed:_busy?null:_submitReel,child:Text(_busy?'در حال ثبت…':'ثبت درخواست'))),
+            const SizedBox(height:12),SizedBox(width:double.infinity,child:OutlinedButton(onPressed:_busy?null:_submitReel,child:Text(_busy?'در حال ثبت…':'ثبت درخواست'))),
           ])),
         ],
 
@@ -238,7 +238,7 @@ class _PlusScreenState extends State<PlusScreen> {
             const SizedBox(height:8),
             TextField(controller:_relatedOrder,decoration:const InputDecoration(labelText:'عنوان دقیق سفارش طراحی سایت')),
             const SizedBox(height:10),
-            SizedBox(width:double.infinity,child:FilledButton(onPressed:_busy?null:_submitDomain,child:Text(_busy?'در حال ثبت…':'ثبت درخواست دامنه'))),
+            SizedBox(width:double.infinity,child:OutlinedButton(onPressed:_busy?null:_submitDomain,child:Text(_busy?'در حال ثبت…':'ثبت درخواست دامنه'))),
           ])),
         ],
         if(domains.isNotEmpty)...[
