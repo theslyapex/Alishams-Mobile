@@ -17,12 +17,16 @@ class PushNotificationService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final StreamController<RemoteMessage> _foregroundMessages =
       StreamController<RemoteMessage>.broadcast();
+  StreamSubscription<String>? _tokenRefreshSubscription;
   Stream<RemoteMessage> get foregroundMessages => _foregroundMessages.stream;
   Stream<String> get tokenRefreshes => _messaging.onTokenRefresh;
 
   Future<void> initialize() async {
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     await _messaging.requestPermission(alert: true, badge: true, sound: true);
+    _tokenRefreshSubscription ??= _messaging.onTokenRefresh.listen((_) {
+      unawaited(registerForUser());
+    });
     FirebaseMessaging.onMessage.listen((message) {
       if (!_foregroundMessages.isClosed) _foregroundMessages.add(message);
     });
@@ -62,5 +66,8 @@ class PushNotificationService {
     }
   }
 
-  Future<void> dispose() async => _foregroundMessages.close();
+  Future<void> dispose() async {
+    await _tokenRefreshSubscription?.cancel();
+    await _foregroundMessages.close();
+  }
 }
