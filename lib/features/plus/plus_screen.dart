@@ -40,7 +40,7 @@ class _PlusScreenState extends State<PlusScreen> {
 
   Future<void> _loadStatus() async {
     try {
-      final r=await Supabase.instance.client.functions.invoke('plus-membership',headers:{'Origin':'https://alishams.ir'},body:{'action':'status'});
+      final r=await Supabase.instance.client.functions.invoke('mobile-plus-api',headers:{'Origin':'https://alishams.ir'},body:{'action':'status'});
       final d=r.data;
       if(r.status<200||r.status>=300||d is! Map||d['ok']!=true) throw Exception(d is Map?(d['error']??'دریافت وضعیت پلاس انجام نشد.').toString():'پاسخ نامعتبر سرور');
       if(mounted)setState(()=>_data=Map<String,dynamic>.from(d),);
@@ -96,7 +96,7 @@ class _PlusScreenState extends State<PlusScreen> {
       final bytes=await file.readAsBytes();
       final mime=file.name.toLowerCase().endsWith('.png')?'image/png':file.name.toLowerCase().endsWith('.webp')?'image/webp':'image/jpeg';
       final r=await Supabase.instance.client.functions.invoke(
-        'plus-membership',
+        'mobile-plus-api',
         headers:{'Origin':'https://alishams.ir'},
         body:{'action':'manual_submit','mime_type':mime,'image_base64':base64Encode(bytes)},
       );
@@ -122,7 +122,7 @@ class _PlusScreenState extends State<PlusScreen> {
     if(brand.isEmpty||domain.isEmpty||order.isEmpty){if(mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('همه فیلدهای درخواست دامنه را تکمیل کن.')));return;}
     setState(()=>_busy=true);
     try{
-      final r=await Supabase.instance.client.functions.invoke('plus-membership',headers:{'Origin':'https://alishams.ir'},body:{'action':'domain_submit','brand_name':brand,'desired_domain':domain,'related_order':order});
+      final r=await Supabase.instance.client.functions.invoke('mobile-plus-api',headers:{'Origin':'https://alishams.ir'},body:{'action':'domain_submit','brand_name':brand,'desired_domain':domain,'related_order':order});
       final d=r.data;
       if(r.status<200||r.status>=300||d is! Map||d['ok']!=true)throw Exception(d is Map?(d['error']??'ثبت درخواست دامنه انجام نشد.').toString():'پاسخ نامعتبر');
       _brand.clear();_domain.clear();_relatedOrder.clear();await _loadStatus();
@@ -136,7 +136,7 @@ class _PlusScreenState extends State<PlusScreen> {
     if(link.isEmpty)return;
     setState(()=>_busy=true);
     try{
-      final r=await Supabase.instance.client.functions.invoke('plus-membership',headers:{'Origin':'https://alishams.ir'},body:{'action':'reel_submit','reel_url':link});
+      final r=await Supabase.instance.client.functions.invoke('mobile-plus-api',headers:{'Origin':'https://alishams.ir'},body:{'action':'reel_submit','reel_url':link});
       final d=r.data;
       if(r.status<200||r.status>=300||d is! Map||d['ok']!=true)throw Exception(d is Map?(d['error']??'ثبت درخواست انجام نشد.').toString():'پاسخ نامعتبر');
       _reel.clear();await _loadStatus();
