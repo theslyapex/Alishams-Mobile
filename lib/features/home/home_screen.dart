@@ -330,14 +330,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     child: IconButton(onPressed: onTap, icon: Icon(icon, color: c.ink)),
   );
 
-  void _notice(BuildContext context, bool signedIn) {
+  Future<void> _notice(BuildContext context, bool signedIn) async {
     if (!signedIn) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('برای مشاهده اعلان‌ها ابتدا وارد حساب کاربری شوید.')),
       );
       return;
     }
-    Navigator.of(context).push(
+    await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const NotificationsScreen()),
     );
   }
