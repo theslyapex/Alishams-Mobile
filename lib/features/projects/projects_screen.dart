@@ -260,7 +260,13 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                 const SizedBox(width:8),
                 Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
                   Text((file['file_name']??'فایل پروژه').toString(),maxLines:2,overflow:TextOverflow.ellipsis,style:Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight:FontWeight.w700)),
-                  Text(_dateLabel(file['created_at']),style:Theme.of(context).textTheme.labelSmall?.copyWith(color:c.muted)),
+                  Text(
+                    (file['description']??'').toString().trim().isNotEmpty
+                      ? file['description'].toString()
+                      : _dateLabel(file['created_at']),
+                    maxLines:2,overflow:TextOverflow.ellipsis,
+                    style:Theme.of(context).textTheme.labelSmall?.copyWith(color:c.muted),
+                  ),
                 ])),
                 IconButton(tooltip:'دریافت فایل',onPressed:()=>_downloadFile(file),icon:const Icon(Icons.download_rounded,size:20)),
               ]),
