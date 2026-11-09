@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/customer_orders_provider.dart';
 import '../../theme/app_colors.dart';
 
 class OrderCreateScreen extends ConsumerStatefulWidget {
@@ -67,6 +68,7 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
         throw Exception(data is Map ? (data['error'] ?? 'ثبت سفارش انجام نشد.') : 'پاسخ نامعتبر از سرور دریافت شد.');
       }
       if (!mounted) return;
+      ref.invalidate(customerOrdersProvider(user.id));
       setState(() => _tracking = data['tracking_code']?.toString());
     } on FunctionException catch (e) {
       final details = e.details;
