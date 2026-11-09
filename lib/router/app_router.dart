@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/sign_in_screen.dart';
 import '../features/auth/sign_up_screen.dart';
+import '../features/auth/mfa_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/notifications/push_notification_service.dart';
@@ -48,6 +49,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           from: 'sign_in',
           to: 'forgot_password',
           child: const ForgotPasswordScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/mfa-verify',
+        pageBuilder: (context, state) => motionPage(
+          state,
+          from: 'sign_in',
+          to: 'mfa_verify',
+          child: const MfaVerifyScreen(),
         ),
       ),
       GoRoute(
