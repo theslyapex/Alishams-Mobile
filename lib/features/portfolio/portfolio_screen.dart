@@ -156,7 +156,7 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text('\u0024{visible.length} نمونه‌کار',
+                          Text('${visible.length} نمونه‌کار',
                               style: Theme.of(context).textTheme.labelMedium?.copyWith(color: c.secondary)),
                         ],
                       ),
