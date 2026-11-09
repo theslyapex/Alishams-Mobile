@@ -121,6 +121,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     const SizedBox(height: 9),
                     _menuTile(context, c, Icons.emoji_events_rounded, 'باشگاه مشتریان', overview?.when(data: (v) => 'امتیاز ثبت‌شده: ${v.points}', loading: () => 'در حال دریافت امتیازها…', error: (_, __) => 'دریافت امتیازها ممکن نشد') ?? 'برای مشاهده امتیازها وارد حساب شوید', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClubScreen())); } }, accent: c.secondary),
                     const SizedBox(height: 9),
+                    _menuTile(context, c, Icons.stairs_rounded, 'ارتقای سطح حساب', 'مشاهده سطح ۱، اتصال GitHub و درخواست بررسی سطح ۳', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AccountLevelScreen())); } }, accent: c.secondary),
+                    const SizedBox(height: 9),
                     _menuTile(context, c, Icons.receipt_long_rounded, 'سفارش‌های من', 'مشاهده وضعیت، پیشنهاد مالی و روند سفارش‌ها', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OrdersScreen())); } }),
                     const SizedBox(height: 9),
                     _menuTile(context, c, Icons.folder_copy_outlined, 'پروژه‌ها و پرداخت‌ها', 'پیگیری پروژه‌ها، مشاهده مانده و ارسال رسید پرداخت', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProjectsScreen())); } }, accent: c.tertiary),
@@ -401,4 +403,129 @@ class AboutAlishamsScreen extends StatelessWidget {
         ])),
       ]),
     );
+}
+
+
+class AccountLevelScreen extends StatelessWidget {
+  const AccountLevelScreen({super.key});
+
+  Future<void> _openWebsite() async {
+    final uri = Uri.parse('https://alishams.ir/account.html');
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: c.background,
+        appBar: AppBar(title: const Text('ارتقای سطح حساب')),
+        body: FutureBuilder<dynamic>(
+          future: Supabase.instance.client.rpc('get_my_account_level_status'),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Icon(Icons.cloud_off_rounded, size: 42),
+                  const SizedBox(height: 12),
+                  const Text('دریافت وضعیت سطح حساب ممکن نشد.', textAlign: TextAlign.center),
+                  const SizedBox(height: 10),
+                  OutlinedButton.icon(onPressed: () => _openWebsite(), icon: const Icon(Icons.open_in_new_rounded), label: const Text('مدیریت سطح در وب‌سایت')),
+                ]),
+              ));
+            }
+            final raw = snapshot.data;
+            final data = raw is List && raw.isNotEmpty ? raw.first : raw;
+            final d = data is Map ? data : <String, dynamic>{};
+            final level = (d['level'] as num?)?.toInt() ?? 0;
+            final emailVerified = d['email_verified'] == true;
+            final githubVerified = d['github_verified'] == true;
+            final status = (d['level3_status'] ?? 'not_submitted').toString();
+            final level3Done = status == 'approved';
+            final statusText = status == 'pending' ? 'در انتظار بررسی مدیریت' : status == 'rejected' ? 'نیازمند بررسی مجدد' : level3Done ? 'تأیید شده' : 'هنوز ارسال نشده';
+            return ListView(padding: const EdgeInsets.all(20), children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(22),
+                  gradient: LinearGradient(colors: [c.primary.withValues(alpha: .28), c.surface]),
+                  border: Border.all(color: c.line),
+                ),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('سطح فعلی حساب', style: TextStyle(color: c.muted, fontSize: 12)),
+                  const SizedBox(height: 7),
+                  Text(level == 3 ? 'سطح ۳ · ویژه' : level == 2 ? 'سطح ۲ · متصل' : level == 1 ? 'سطح ۱ · پایه' : 'تأیید ایمیل لازم است',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
+                  const SizedBox(height: 8),
+                  Text('وضعیت حساب از سرویس اصلی وب‌سایت خوانده می‌شود؛ تغییر سطح فقط پس از تکمیل مراحل و تأیید سرور انجام می‌شود.',
+                    style: TextStyle(color: c.muted, fontSize: 12, height: 1.8)),
+                ]),
+              ),
+              const SizedBox(height: 14),
+              _levelStep(c, '۱', 'سطح پایه', 'تأیید ایمیل حساب کاربری', emailVerified, level >= 1),
+              const SizedBox(height: 9),
+              _levelStep(c, '۲', 'سطح متصل', 'اتصال و تأیید حساب GitHub', githubVerified, level >= 2),
+              const SizedBox(height: 9),
+              _levelStep(c, '۳', 'سطح ویژه', 'ثبت پذیرش شرایط، امضا و تأیید مدیریت', level3Done, level >= 3),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16), border: Border.all(color: c.line)),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('مرحله بعدی', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 7),
+                  Text(
+                    !emailVerified ? 'ابتدا ایمیل حساب را تأیید کن.'
+                    : !githubVerified ? 'برای رسیدن به سطح ۲، حساب GitHub را متصل و تأیید کن.'
+                    : status == 'pending' ? 'درخواست سطح ۳ ثبت شده و باید منتظر بررسی مدیریت بمانی.'
+                    : level3Done ? 'سطح ۳ حساب تأیید شده است.'
+                    : 'برای سطح ۳، شرایط و قوانین را مطالعه کن و درخواست را همراه امضا برای بررسی مدیریت بفرست.',
+                    style: TextStyle(color: c.muted, fontSize: 12, height: 1.8),
+                  ),
+                  if (status == 'rejected' && (d['level3_admin_note'] ?? '').toString().isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text('توضیح مدیریت: ${d['level3_admin_note']}', style: TextStyle(color: c.warning, fontSize: 12)),
+                  ],
+                  const SizedBox(height: 12),
+                  SizedBox(width: double.infinity, child: FilledButton.icon(
+                    onPressed: _openWebsite,
+                    icon: const Icon(Icons.open_in_new_rounded),
+                    label: const Text('ادامه فرایند ارتقا در حساب وب‌سایت'),
+                  )),
+                ]),
+              ),
+              const SizedBox(height: 12),
+              Text('برای امنیت حساب، اتصال GitHub و ثبت امضای پذیرش شرایط از مسیر رسمی حساب وب‌سایت انجام می‌شود. اگر به سن قانونی نرسیده‌ای، پیش از هرگونه پذیرش یا امضای شرایط با ولی یا سرپرست قانونی هماهنگ کن.',
+                style: TextStyle(color: c.muted, fontSize: 11, height: 1.8)),
+            ]);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _levelStep(AppColors c, String number, String title, String description, bool done, bool active) {
+    final color = done ? c.success : active ? c.secondary : c.muted;
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16), border: Border.all(color: done ? c.success.withValues(alpha: .45) : c.line)),
+      child: Row(children: [
+        Container(width: 36, height: 36, alignment: Alignment.center, decoration: BoxDecoration(color: color.withValues(alpha: .14), shape: BoxShape.circle),
+          child: done ? Icon(Icons.check_rounded, color: color) : Text(number, style: TextStyle(color: color, fontWeight: FontWeight.w900))),
+        const SizedBox(width: 12),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 3),
+          Text(description, style: TextStyle(color: c.muted, fontSize: 11, height: 1.6)),
+        ])),
+        Icon(done ? Icons.verified_rounded : Icons.radio_button_unchecked_rounded, color: color, size: 19),
+      ]),
+    );
+  }
 }
