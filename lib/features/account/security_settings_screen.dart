@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_colors.dart';
 import '../notifications/notifications_screen.dart';
+import '../auth/mfa_screen.dart';
 
 class SecuritySettingsScreen extends ConsumerStatefulWidget {
   const SecuritySettingsScreen({super.key});
@@ -214,6 +215,15 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                     const SizedBox(width: 10),
                     Expanded(child: Text(email, textDirection: TextDirection.ltr, textAlign: TextAlign.right, style: Theme.of(context).textTheme.bodyMedium)),
                   ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MfaSetupScreen())),
+                  icon: const Icon(Icons.phonelink_lock_rounded),
+                  label: const Text('تنظیم تأیید دومرحله‌ای'),
                 ),
               ),
               const SizedBox(height: 22),
