@@ -37,9 +37,21 @@ class DomainRegistrationScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: c.muted, height: 1.9),
               ),
               const SizedBox(height: 18),
-              _extension(context, c, '.ir', 'دامنه ملی'),
-              _extension(context, c, '.com', 'دامنه بین‌المللی'),
-              _extension(context, c, '.net', 'دامنه بین‌المللی'),
+              Text('پسوندهای قابل انتخاب در آزمایشگاه دامنه', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final ext in ['.com', '.ir', '.net', '.org', '.co', '.info', '.biz', '.xyz', '.online', '.store'])
+                    _extensionChip(context, c, ext),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'این‌ها ۱۰ پسوند موجود در فهرست جست‌وجوی آزمایشگاه دامنه هستند. ثبت پسوندهای دیگر نیز در صورت پشتیبانی مرجع ثبت، قابل استعلام و پیگیری است.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted, height: 1.8),
+              ),
               const SizedBox(height: 9),
               Container(
                 padding: const EdgeInsets.all(14),
@@ -133,6 +145,23 @@ class DomainRegistrationScreen extends StatelessWidget {
       const SizedBox(height: 8),
       Text('بررسی نام، انتخاب پسوند و پیگیری ثبت دامنه متناسب با برند شما.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted, height: 1.8)),
     ]),
+  );
+
+  Widget _extensionChip(BuildContext context, AppColors c, String ext) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+    decoration: BoxDecoration(
+      color: c.surface,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: c.line),
+    ),
+    child: Text(
+      ext,
+      textDirection: TextDirection.ltr,
+      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+        color: c.secondary,
+        fontWeight: FontWeight.w900,
+      ),
+    ),
   );
 
   Widget _extension(BuildContext context, AppColors c, String ext, String label) => Container(
