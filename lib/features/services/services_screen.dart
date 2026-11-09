@@ -93,7 +93,7 @@ class ServicesScreen extends StatelessWidget {
                             return _ServiceCard(
                               item: item,
                               colors: c,
-                              onTap: () => _showDetails(context, c, item),
+                              onTap: () => _openService(context, c, item),
                             );
                           },
                         );
