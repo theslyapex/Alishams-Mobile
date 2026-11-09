@@ -12,16 +12,6 @@ import '../../theme/app_chrome.dart';
 import '../../theme/app_colors.dart';
 import '../../ui/studio_backdrop.dart';
 
-/// Single-path sun glyph for [AppBrandMark] draw animation.
-const kAlishamsMarkPath =
-    'M64 36 C76 36 86 46 86 58 C86 70 76 80 64 80 C52 80 42 70 42 58 '
-    'C42 46 52 36 64 36 Z '
-    'M64 18 L64 28 M64 88 L64 98 '
-    'M34 28 L42 36 M86 80 L94 88 '
-    'M94 28 L86 36 M42 80 L34 88 '
-    'M22 58 L34 58 M94 58 L106 58 '
-    'M28 108 C44 96 84 96 100 108';
-
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -30,35 +20,36 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
-  bool _markDone = false;
+  bool _expanded = false;
+  Timer? _expandTimer;
   Timer? _routeTimer;
 
   @override
   void initState() {
     super.initState();
-    _routeTimer = Timer(const Duration(milliseconds: 1700), _onMarkDone);
+    _expandTimer = Timer(const Duration(milliseconds: 1250), () {
+      if (mounted) setState(() => _expanded = true);
+    });
+    _routeTimer = Timer(const Duration(milliseconds: 3300), _continue);
   }
 
   @override
   void dispose() {
+    _expandTimer?.cancel();
     _routeTimer?.cancel();
     super.dispose();
   }
 
-  void _onMarkDone() {
+  void _continue() {
     if (!mounted) return;
-    setState(() => _markDone = true);
-    _routeTimer = Timer(AppMotion.lg + AppMotion.md, () {
-      if (!mounted) return;
-      final auth = ref.read(authProvider);
-      if (auth.requiresMfa) {
-        context.go('/mfa-verify');
-      } else if (auth.isSignedIn) {
-        context.go('/home');
-      } else {
-        context.go('/sign-in');
-      }
-    });
+    final auth = ref.read(authProvider);
+    if (auth.requiresMfa) {
+      context.go('/mfa-verify');
+    } else if (auth.isSignedIn) {
+      context.go('/home');
+    } else {
+      context.go('/sign-in');
+    }
   }
 
   @override
@@ -82,46 +73,73 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                       width: 290,
                       height: 290,
                       fit: BoxFit.contain,
-                      semanticsLabel: 'ALISHAMS Digital Studio',
+                      semanticsLabel: 'Alishams Digital Studio',
                     ),
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 30),
                   MotionSlot(
-                    'splash.content',
-                    index: 0,
-                    child: _markDone
-                        ? Column(
-                            children: [
-                              AppKineticText(
-                                'علی‌شمس',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium
-                                    ?.copyWith(
-                                      color: c.ink,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                kinetic: KineticStyle.rise,
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                              AppReveal(
-                                style: RevealStyle.fade,
-                                delay: AppMotion.sm,
-                                child: Text(
-                                  'استودیو دیجیتال',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        color: c.muted,
-                                        letterSpacing: 0.6,
-                                      ),
+                    'splash.brand',
+                    child: Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Alishams ',
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              color: c.ink,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.8,
+                            ),
+                          ),
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 850),
+                            curve: Curves.easeInOutCubic,
+                            alignment: Alignment.centerLeft,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 650),
+                              switchInCurve: Curves.easeOutCubic,
+                              switchOutCurve: Curves.easeInCubic,
+                              transitionBuilder: (child, animation) {
+                                final slide = Tween<Offset>(
+                                  begin: const Offset(0.0, 0.28),
+                                  end: Offset.zero,
+                                ).animate(animation);
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: SlideTransition(position: slide, child: child),
+                                );
+                              },
+                              child: Text(
+                                _expanded ? 'Digital Studio' : 'DS',
+                                key: ValueKey(_expanded),
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  color: c.accent,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.8,
                                 ),
                               ),
-                            ],
-                          )
-                        : const SizedBox(height: 48),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  AnimatedOpacity(
+                    opacity: _expanded ? 1 : 0,
+                    duration: const Duration(milliseconds: 500),
+                    child: Text(
+                      'CREATIVE • DIGITAL • EXPERIENCE',
+                      textDirection: TextDirection.ltr,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: c.muted,
+                        letterSpacing: 2.2,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
