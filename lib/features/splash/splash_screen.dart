@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../assets/app_assets.dart';
@@ -20,14 +22,14 @@ const kAlishamsMarkPath =
     'M22 58 L34 58 M94 58 L106 58 '
     'M28 108 C44 96 84 96 100 108';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool _markDone = false;
   Timer? _routeTimer;
 
@@ -48,7 +50,14 @@ class _SplashScreenState extends State<SplashScreen> {
     setState(() => _markDone = true);
     _routeTimer = Timer(AppMotion.lg + AppMotion.md, () {
       if (!mounted) return;
-      context.go('/sign-in');
+      final auth = ref.read(authProvider);
+      if (auth.requiresMfa) {
+        context.go('/mfa-verify');
+      } else if (auth.isSignedIn) {
+        context.go('/home');
+      } else {
+        context.go('/sign-in');
+      }
     });
   }
 
