@@ -443,12 +443,11 @@ class AccountLevelScreen extends StatelessWidget {
             final raw = snapshot.data;
             final data = raw is List && raw.isNotEmpty ? raw.first : raw;
             final d = data is Map ? data : <String, dynamic>{};
-            final level = (d['level'] as num?)?.toInt() ?? 0;
+            final level = int.tryParse((d['level'] ?? 0).toString()) ?? 0;
             final emailVerified = d['email_verified'] == true;
             final githubVerified = d['github_verified'] == true;
             final status = (d['level3_status'] ?? 'not_submitted').toString();
             final level3Done = status == 'approved';
-            final statusText = status == 'pending' ? 'در انتظار بررسی مدیریت' : status == 'rejected' ? 'نیازمند بررسی مجدد' : level3Done ? 'تأیید شده' : 'هنوز ارسال نشده';
             return ListView(padding: const EdgeInsets.all(20), children: [
               Container(
                 padding: const EdgeInsets.all(20),
