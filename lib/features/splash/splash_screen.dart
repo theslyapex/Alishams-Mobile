@@ -116,7 +116,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                                 key: ValueKey(_expanded),
                                 maxLines: 1,
                                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  color: c.accent,
+                                  color: c.secondary,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: -0.8,
                                 ),
