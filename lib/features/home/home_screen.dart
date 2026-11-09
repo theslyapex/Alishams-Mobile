@@ -146,24 +146,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _heroCard(BuildContext context, AppColors c) => Container(
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(24),
-      image: DecorationImage(image: AssetImage(AppAssets.workspaceImage), fit: BoxFit.cover, colorFilter: ColorFilter.mode(Colors.black.withValues(alpha: .58), BlendMode.darken)),
-      gradient: LinearGradient(begin: Alignment.topRight, end: Alignment.bottomLeft, colors: [const Color(0xFF5124B8).withValues(alpha: .76), const Color(0xFF191A49).withValues(alpha: .82), const Color(0xFF10192B).withValues(alpha: .88)]),
-      border: Border.all(color: Colors.white.withValues(alpha: 0.13)),
-      boxShadow: [BoxShadow(color: c.primary.withValues(alpha: 0.28), blurRadius: 32, offset: const Offset(0, 12))],
+  Widget _heroCard(BuildContext context, AppColors c) => ClipRRect(
+    borderRadius: BorderRadius.circular(24),
+    child: Container(
+      constraints: const BoxConstraints(minHeight: 238),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.white.withValues(alpha: .14)),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: c.primary.withValues(alpha: .28), blurRadius: 32, offset: const Offset(0, 12))],
+      ),
+      child: Stack(fit: StackFit.expand, children: [
+        Image.asset(AppAssets.portraitImage, fit: BoxFit.cover, alignment: Alignment.centerLeft,
+          errorBuilder: (_, __, ___) => Container(decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topRight, end: Alignment.bottomLeft, colors: [Color(0xFF152A52), Color(0xFF17102E), Color(0xFF070B18)])))),
+        DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerRight, end: Alignment.centerLeft,
+          colors: [const Color(0xFF070B18).withValues(alpha: .97), const Color(0xFF10152C).withValues(alpha: .78), const Color(0xFF10152C).withValues(alpha: .12)], stops: const [0, .58, 1]))),
+        Padding(padding: const EdgeInsets.fromLTRB(18, 20, 20, 20), child: Align(alignment: Alignment.centerRight,
+          child: SizedBox(width: MediaQuery.of(context).size.width * .68, child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.end, children: [
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              Text('استودیو دیجیتال علی‌شمس', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: const Color(0xFFBDEFF8), fontWeight: FontWeight.w800)),
+              const SizedBox(width: 7), const Icon(Icons.auto_awesome, color: Color(0xFF58D9EE), size: 18),
+            ]),
+            const SizedBox(height: 14),
+            Text('ایده‌ات را\nبه تجربه‌ای دیجیتال تبدیل کن.', textAlign: TextAlign.right, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, height: 1.42, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 8),
+            Text('از طراحی وب‌سایت تا راهکارهای خلاقانه دیجیتال', textAlign: TextAlign.right, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white.withValues(alpha: .82), height: 1.7)),
+            const SizedBox(height: 16),
+            Align(alignment: Alignment.centerRight, child: FilledButton.icon(onPressed: () => setState(() => _tab = 1), icon: const Icon(Icons.arrow_back_rounded, size: 18), label: const Text('مشاهده خدمات'), style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: const Color(0xFF211A48)))),
+          ]))))),
+      ]),
     ),
-    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [const Icon(Icons.auto_awesome, color: Color(0xFFBDEFF8), size: 18), const SizedBox(width: 7), Text('استودیو دیجیتال علی‌شمس', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w800))]),
-      const SizedBox(height: 16),
-      Text('ایده‌ات را\nبه تجربه‌ای دیجیتال تبدیل کن.', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, height: 1.45, fontWeight: FontWeight.w800)),
-      const SizedBox(height: 8),
-      Text('از طراحی وب‌سایت تا راهکارهای خلاقانه دیجیتال', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70)),
-      const SizedBox(height: 18),
-      Align(alignment: AlignmentDirectional.centerStart, child: FilledButton.icon(onPressed: () => setState(() => _tab = 1), icon: const Icon(Icons.arrow_back_rounded, size: 18), label: const Text('مشاهده خدمات'), style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: const Color(0xFF211A48)))),
-    ]),
   );
 
 
