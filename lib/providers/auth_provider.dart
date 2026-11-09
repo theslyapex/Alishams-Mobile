@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/app_user.dart';
+import '../features/notifications/push_notification_service.dart';
 
 class AuthState {
   const AuthState({
@@ -105,6 +106,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return false;
       }
       state = AuthState(user: _mapUser(response.user!));
+      unawaited(PushNotificationService.instance.registerForUser());
       return true;
     } catch (error) {
       state = AuthState(error: _friendlyError(error));
@@ -147,6 +149,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return false;
       }
       state = AuthState(user: _mapUser(user));
+      unawaited(PushNotificationService.instance.registerForUser());
       return true;
     } catch (error) {
       state = AuthState(error: _friendlyError(error));
@@ -196,6 +199,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   void clearError() => state = state.copyWith(clearError: true);
   Future<void> signOut() async {
+    await PushNotificationService.instance.unregisterForCurrentUser();
     await _client.auth.signOut();
     state = const AuthState();
   }
