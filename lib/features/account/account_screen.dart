@@ -52,7 +52,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           AndroidUiSettings(
             toolbarTitle: 'برش عکس پروفایل',
             toolbarColor: const Color(0xFF101827),
-            statusBarColor: const Color(0xFF101827),
             activeControlsWidgetColor: const Color(0xFFB7F34A),
             lockAspectRatio: true,
           ),
