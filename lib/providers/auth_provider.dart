@@ -231,12 +231,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true, clearNotice: true);
     try {
       await _client.auth.resetPasswordForEmail(email.trim().toLowerCase());
-      state = const AuthState(
+      state = state.copyWith(
+        isLoading: false,
         notice: 'اگر این ایمیل در سیستم ثبت شده باشد، لینک بازیابی برای آن ارسال می‌شود.',
+        clearError: true,
       );
       return true;
     } catch (error) {
-      state = AuthState(error: _friendlyError(error));
+      state = AuthState(user: state.user, error: _friendlyError(error));
       return false;
     }
   }
