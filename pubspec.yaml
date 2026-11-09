@@ -26,7 +26,5 @@ flutter:
     - assets/icons/
     - assets/images/branding/
     - assets/images/site/
-    - assets/images/sourced/home/
-    - assets/images/sourced/auth/
     - assets/animations/
     - assets/
