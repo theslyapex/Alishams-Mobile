@@ -6,6 +6,10 @@ import '../../providers/auth_provider.dart';
 import '../../providers/account_overview_provider.dart';
 import '../../providers/notification_unread_provider.dart';
 import '../../assets/app_assets.dart';
+import '../../models/portfolio_item.dart';
+import '../../providers/portfolio_provider.dart';
+import '../portfolio/portfolio_screen.dart';
+import '../portfolio/portfolio_detail_screen.dart';
 import '../services/services_screen.dart';
 import '../plus/plus_screen.dart';
 import '../club/club_screen.dart';
@@ -104,7 +108,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: 22),
             _heroCard(context, c),
             const SizedBox(height: 18),
-            _portfolioStrip(context, c),
+            _portfolioStrip(context, c, ref),
             const SizedBox(height: 22),
             _membershipBanner(context, c, userId == null ? null : ref.watch(accountOverviewProvider(userId)), () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlusScreen()))),
             const SizedBox(height: 24),
@@ -161,50 +165,107 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   );
 
 
-  Widget _portfolioStrip(BuildContext context, AppColors c) {
-    final items = [
-      ('ایران ما', AppAssets.iranMaImage),
-      ('جعبه ابزار نوا', AppAssets.novaImage),
-      ('فشرده‌ساز ویدئو', AppAssets.apexImage),
-    ];
+  Widget _portfolioStrip(BuildContext context, AppColors c, WidgetRef ref) {
+    final result = ref.watch(portfolioItemsProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('بخشی از دنیای پروژه‌ها', style: Theme.of(context).textTheme.titleMedium),
-            Text('نمونه‌کارها', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.secondary)),
+            Expanded(child: Text('بخشی از دنیای پروژه‌ها', style: Theme.of(context).textTheme.titleMedium)),
+            TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PortfolioScreen()),
+              ),
+              child: const Text('مشاهده همه'),
+            ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         SizedBox(
-          height: 116,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: SizedBox(
-                  width: 150,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.asset(item.$2, fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(color: c.surface, child: Icon(Icons.image_not_supported_outlined, color: c.muted))),
-                      DecoratedBox(decoration: BoxDecoration(
-                        gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, Colors.black.withValues(alpha: .78)]))),
-                      Align(alignment: Alignment.bottomRight, child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Text(item.$1, style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
-                      )),
-                    ],
-                  ),
-                ),
+          height: 148,
+          child: result.when(
+            loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            error: (_, __) => Center(
+              child: TextButton.icon(
+                onPressed: () => ref.invalidate(portfolioItemsProvider),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('دریافت نمونه‌کارها ناموفق بود؛ تلاش دوباره'),
+              ),
+            ),
+            data: (items) {
+              final featured = <PortfolioItem>[];
+              for (final kind in [
+                PortfolioKind.website,
+                PortfolioKind.logo,
+                PortfolioKind.adImage,
+                PortfolioKind.video,
+              ]) {
+                featured.addAll(items.where((item) => item.kind == kind).take(2));
+              }
+              if (featured.isEmpty) {
+                return Center(
+                  child: Text('هنوز نمونه‌کاری منتشر نشده است.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted)),
+                );
+              }
+              return ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: featured.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final item = featured[index];
+                  final image = item.isAsset
+                      ? Image.asset(item.imagePath, fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(color: c.surface, child: Icon(Icons.image_not_supported_outlined, color: c.muted)))
+                      : Image.network(item.imagePath, fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(color: c.surface, child: Icon(Icons.image_not_supported_outlined, color: c.muted)));
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => PortfolioDetailScreen(item: item)),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: SizedBox(
+                        width: 184,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            image,
+                            DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [Colors.transparent, Colors.black.withValues(alpha: .84)],
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              right: 9,
+                              top: 9,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(color: Colors.black.withValues(alpha: .62), borderRadius: BorderRadius.circular(30)),
+                                child: Text(item.categoryLabel, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.white, fontSize: 9)),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Text(item.title, maxLines: 2, overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
+                              ),
+                            ),
+                            if (item.kind == PortfolioKind.video)
+                              const Align(alignment: Alignment.center, child: Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 36)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
               );
             },
           ),
