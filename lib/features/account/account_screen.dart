@@ -6,6 +6,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/account_overview_provider.dart';
 import '../../assets/app_assets.dart';
 import '../../theme/app_colors.dart';
+import '../plus/plus_screen.dart';
+import '../club/club_screen.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -39,9 +41,9 @@ class AccountScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     _sectionTitle(context, 'باشگاه و عضویت'),
                     const SizedBox(height: 10),
-                    _menuTile(context, c, Icons.workspace_premium_rounded, 'عضویت پلاس+', overview?.when(data: (v) => v.plusSummary, loading: () => 'در حال دریافت وضعیت عضویت…', error: (_, __) => 'دریافت وضعیت عضویت ممکن نشد') ?? 'برای مشاهده وضعیت عضویت وارد حساب شوید', onTap: () => _message(context, overview?.valueOrNull?.plusSummary ?? 'ابتدا وارد حساب شوید.'), accent: c.tertiary),
+                    _menuTile(context, c, Icons.workspace_premium_rounded, 'عضویت پلاس+', overview?.when(data: (v) => v.plusSummary, loading: () => 'در حال دریافت وضعیت عضویت…', error: (_, __) => 'دریافت وضعیت عضویت ممکن نشد') ?? 'برای مشاهده وضعیت عضویت وارد حساب شوید', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlusScreen())); } }, accent: c.tertiary),
                     const SizedBox(height: 9),
-                    _menuTile(context, c, Icons.emoji_events_rounded, 'باشگاه مشتریان', overview?.when(data: (v) => 'امتیاز ثبت‌شده: ${v.points}', loading: () => 'در حال دریافت امتیازها…', error: (_, __) => 'دریافت امتیازها ممکن نشد') ?? 'برای مشاهده امتیازها وارد حساب شوید', onTap: () => _message(context, overview?.valueOrNull == null ? 'ابتدا وارد حساب شوید.' : 'مجموع امتیازهای ثبت‌شده: ${overview!.value!.points}'), accent: c.secondary),
+                    _menuTile(context, c, Icons.emoji_events_rounded, 'باشگاه مشتریان', overview?.when(data: (v) => 'امتیاز ثبت‌شده: ${v.points}', loading: () => 'در حال دریافت امتیازها…', error: (_, __) => 'دریافت امتیازها ممکن نشد') ?? 'برای مشاهده امتیازها وارد حساب شوید', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClubScreen())); } }, accent: c.secondary),
                     const SizedBox(height: 24),
                     _sectionTitle(context, 'تنظیمات و پشتیبانی'),
                     const SizedBox(height: 10),
