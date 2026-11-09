@@ -23,11 +23,14 @@ class _PlusScreenState extends State<PlusScreen> {
   String? _error, _levelMessage;
   XFile? _receipt;
   final _reel=TextEditingController();
+  final _brand=TextEditingController();
+  final _domain=TextEditingController();
+  final _relatedOrder=TextEditingController();
 
   @override
   void initState(){super.initState();_load();}
   @override
-  void dispose(){_reel.dispose();super.dispose();}
+  void dispose(){_reel.dispose();_brand.dispose();_domain.dispose();_relatedOrder.dispose();super.dispose();}
 
   Future<void> _load() async {
     if(mounted)setState(()=>_loading=true);
@@ -113,6 +116,21 @@ class _PlusScreenState extends State<PlusScreen> {
     if(mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('شماره کارت کپی شد.')));
   }
 
+
+  Future<void> _submitDomain() async {
+    final brand=_brand.text.trim(),domain=_domain.text.trim().toLowerCase(),order=_relatedOrder.text.trim();
+    if(brand.isEmpty||domain.isEmpty||order.isEmpty){if(mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('همه فیلدهای درخواست دامنه را تکمیل کن.')));return;}
+    setState(()=>_busy=true);
+    try{
+      final r=await Supabase.instance.client.functions.invoke('plus-membership',headers:{'Origin':'https://alishams.ir'},body:{'action':'domain_submit','brand_name':brand,'desired_domain':domain,'related_order':order});
+      final d=r.data;
+      if(r.status<200||r.status>=300||d is! Map||d['ok']!=true)throw Exception(d is Map?(d['error']??'ثبت درخواست دامنه انجام نشد.').toString():'پاسخ نامعتبر');
+      _brand.clear();_domain.clear();_relatedOrder.clear();await _loadStatus();
+      if(mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('درخواست دامنه ثبت شد و برای بررسی ارسال شد.')));
+    }catch(e){if(mounted)ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text(e.toString().replaceFirst('Exception: ',''))));}
+    finally{if(mounted)setState(()=>_busy=false);}
+  }
+
   Future<void> _submitReel() async {
     final link=_reel.text.trim();
     if(link.isEmpty)return;
@@ -135,6 +153,9 @@ class _PlusScreenState extends State<PlusScreen> {
     final end=DateTime.tryParse((m?['ends_at']??'').toString())?.toLocal();
     final history=(_data?['purchase_history'] as List? ?? const []);
     final reels=(_data?['reels'] as List? ?? const []);
+    final domains=(_data?['domains'] as List? ?? const []);
+    final reelUsed=(_data?['reel_quota_used'] as num?)?.toInt()??0;
+    final reelLimit=(_data?['reel_quota_limit'] as num?)?.toInt()??30;
     final latest=_data?['latest_manual_payment'] as Map?;
     final manualHistory=history.where((x)=>x is Map&&x['payment_provider']=='card_transfer').toList();
     final latestNote=manualHistory.isNotEmpty?(manualHistory.first as Map)['admin_note']?.toString():null;
@@ -149,7 +170,7 @@ class _PlusScreenState extends State<PlusScreen> {
           Row(children:[Icon(Icons.workspace_premium_rounded,color:c.tertiary,size:32),const SizedBox(width:10),Expanded(child:Text(active?'عضویت پلاس فعال است':'عضویت پلاس فعال نیست',style:Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight:FontWeight.w800)))]),
           const SizedBox(height:12),
           Text(active?'مزایای عضویت برای این حساب فعال است.':'عضویت با پرداخت یک‌باره و تأیید رسید توسط مدیریت فعال می‌شود.',style:Theme.of(context).textTheme.bodyMedium?.copyWith(color:c.muted,height:1.7)),
-          if(active)...[const SizedBox(height:12),_line('درصد تخفیف فعلی','${m?['discount_percent']??10}٪',c),_line('تعداد استفاده از تخفیف','${m?['discount_use_count']??0}',c),_line('پایان اعتبار',end==null?'ثبت نشده':'${end.year}/${end.month.toString().padLeft(2,'0')}/${end.day.toString().padLeft(2,'0')}',c)],
+          if(active)...[const SizedBox(height:12),_line('درصد تخفیف فعلی','${m?['discount_percent']??10}٪',c),_line('تعداد استفاده از تخفیف','${m?['discount_use_count']??0}',c),_line('پایان اعتبار',end==null?'ثبت نشده':'${end.year}/${end.month.toString().padLeft(2,'0')}/${end.day.toString().padLeft(2,'0')}',c),_line('سهمیه درخواست بازدید','${reelUsed} از ${reelLimit} درخواست در این دوره',c)],
         ])),
         const SizedBox(height:14),
         _panel(c,Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
@@ -202,6 +223,29 @@ class _PlusScreenState extends State<PlusScreen> {
             const SizedBox(height:12),SizedBox(width:double.infinity,child:FilledButton(onPressed:_busy?null:_submitReel,child:Text(_busy?'در حال ثبت…':'ثبت درخواست'))),
           ])),
         ],
+
+        if(active)...[
+          const SizedBox(height:14),
+          _panel(c,Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+            Text('درخواست دامنه .ir',style:Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight:FontWeight.w800)),
+            const SizedBox(height:6),
+            Text('این درخواست فقط برای اعضای فعال پلاس و سفارش واجد شرایط طراحی وب‌سایت قابل ثبت است. دامنه به‌تنهایی تخفیف پلاس نمی‌گیرد.',style:Theme.of(context).textTheme.bodySmall?.copyWith(color:c.muted,height:1.6)),
+            const SizedBox(height:10),
+            TextField(controller:_brand,decoration:const InputDecoration(labelText:'نام برند')),
+            const SizedBox(height:8),
+            TextField(controller:_domain,keyboardType:TextInputType.url,decoration:const InputDecoration(labelText:'دامنه درخواستی',hintText:'example.ir')),
+            const SizedBox(height:8),
+            TextField(controller:_relatedOrder,decoration:const InputDecoration(labelText:'عنوان دقیق سفارش طراحی سایت')),
+            const SizedBox(height:10),
+            SizedBox(width:double.infinity,child:FilledButton(onPressed:_busy?null:_submitDomain,child:Text(_busy?'در حال ثبت…':'ثبت درخواست دامنه'))),
+          ])),
+        ],
+        if(domains.isNotEmpty)...[
+          const SizedBox(height:16),
+          Text('درخواست‌های دامنه من',style:Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight:FontWeight.w800)),
+          ...domains.map((x)=>_historyTile(c,'${x['desired_domain']??'دامنه'} • ${x['status']??'در انتظار'}','${x['brand_name']??''} • ${x['admin_note']??''}')),
+        ],
+
         if(reels.isNotEmpty)...[const SizedBox(height:18),Text('درخواست‌های بازدید',style:Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight:FontWeight.w800)),...reels.map((x)=>_historyTile(c,'بازدید ریلز • ${x['status']??'در انتظار'}','${x['reel_url']??''}'))],
         if(history.isNotEmpty)...[const SizedBox(height:18),Text('سوابق عضویت و پرداخت',style:Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight:FontWeight.w800)),...history.map((x)=>_historyTile(c,'${x['payment_status']??'نامشخص'} • ${x['amount_toman']??0} تومان','${x['admin_note']??''}'))],
       ])),
