@@ -47,7 +47,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       setState(() => _status = ActionStatus.done);
       await Future<void>.delayed(AppMotion.md);
       if (!mounted) return;
-      context.go('/home');
+      context.go(ref.read(authProvider).requiresMfa ? '/mfa-verify' : '/home');
     } else {
       setState(() => _status = ActionStatus.idle);
     }
