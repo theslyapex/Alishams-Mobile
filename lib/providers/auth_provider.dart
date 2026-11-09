@@ -70,7 +70,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final next = assurance.nextLevel;
       final requiresMfa = next == 'aal2' && current != 'aal2';
       if (!mounted) return;
-      state = AuthState(user: _mapUser(session.user), requiresMfa: requiresMfa);
+      String? profileAvatar;
+      try {
+        final profile = await _client
+            .from('user_profiles')
+            .select('avatar_url')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+        profileAvatar = profile?['avatar_url']?.toString();
+      } catch (_) {
+        // Auth metadata remains a fallback if the profile row is unavailable.
+      }
+      if (!mounted) return;
+      state = AuthState(
+        user: _mapUser(session.user, avatarUrl: profileAvatar),
+        requiresMfa: requiresMfa,
+      );
       if (!requiresMfa) {
         unawaited(PushNotificationService.instance.registerForUser());
       }
@@ -82,7 +97,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  AppUser _mapUser(User user) {
+  AppUser _mapUser(User user, {String? avatarUrl}) {
     final metadata = user.userMetadata ?? const <String, dynamic>{};
     final displayName = (metadata['full_name'] ??
             metadata['name'] ??
@@ -93,7 +108,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       id: user.id,
       name: displayName,
       email: user.email ?? '',
-      avatarUrl: metadata['avatar_url']?.toString(),
+      avatarUrl: avatarUrl ?? metadata['avatar_url']?.toString(),
     );
   }
 
