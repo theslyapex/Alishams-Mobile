@@ -33,7 +33,7 @@ class FlutterGoApp extends ConsumerWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: AppTheme.systemUi,
       child: MaterialApp.router(
-        title: 'ALISHAMS',
+        title: 'Alishams DS',
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
         themeMode: AppTheme.defaultMode,
