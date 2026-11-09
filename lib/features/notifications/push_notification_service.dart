@@ -179,13 +179,13 @@ class PushNotificationService {
       _pendingTapData = data;
       return;
     }
-    final target = (data['category'] ?? data['target_type'] ?? '').toString();
+    final target = (data['category'] ?? data['cat'] ?? data['target_type'] ?? data['source'] ?? data['notification_type'] ?? '').toString().toLowerCase();
     String category = 'account';
-    if (target == 'order' || target == 'orders') category = 'orders';
-    if (target == 'project' || target == 'projects') category = 'projects';
-    if (target == 'payment' || target == 'payments') category = 'payments';
-    if (target == 'club') category = 'club';
-    if (target == 'plus') category = 'plus';
+    if (target == 'order' || target == 'orders' || target.contains('order')) category = 'orders';
+    if (target == 'project' || target == 'projects' || target.contains('project')) category = 'projects';
+    if (target == 'payment' || target == 'payments' || target.contains('payment') || target.contains('receipt')) category = 'payments';
+    if (target == 'club' || target.contains('club')) category = 'club';
+    if (target == 'plus' || target.contains('plus')) category = 'plus';
     final navigator = pushNavigatorKey.currentState;
     if (navigator == null) {
       _pendingTapData = data;
