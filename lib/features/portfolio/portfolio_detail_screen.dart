@@ -39,6 +39,7 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
       _videoController = controller;
       await controller.initialize();
       await controller.setLooping(false);
+      controller.addListener(() { if (mounted) setState(() {}); });
       if (mounted) setState(() => _videoLoading = false);
     } catch (_) {
       await _videoController?.dispose();
@@ -116,7 +117,7 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
       ]));
     }
     return GestureDetector(
-      onTap: () => setState(() => controller.value.isPlaying ? controller.pause() : controller.play()),
+      onTap: () => controller.value.isPlaying ? controller.pause() : controller.play(),
       child: Stack(fit: StackFit.expand, alignment: Alignment.center, children: [
         FittedBox(fit: BoxFit.contain, child: SizedBox(width: controller.value.size.width, height: controller.value.size.height, child: VideoPlayer(controller))),
         if (!controller.value.isPlaying) const Center(child: Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 58)),
@@ -156,21 +157,6 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
                     fit: StackFit.expand,
                     children: [
                       if (isVideo) _videoPlayer(c) else _image(c),
-                      if (false)
-                        Align(
-                          alignment: Alignment.center,
-                          child: Container(
-                            width: 58,
-                            height: 58,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: .62),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white38),
-                            ),
-                            child: const Icon(Icons.play_arrow_rounded,
-                                color: Colors.white, size: 38),
-                          ),
-                        ),
                     ],
                   ),
                 ),
@@ -228,9 +214,9 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
                 ),
               if (isVideo && _videoController != null && _videoController!.value.isInitialized) ...[
                 const SizedBox(height: 10),
-                OutlinedButton.icon(onPressed: () => setState(() => _videoController!.value.isPlaying ? _videoController!.pause() : _videoController!.play()), icon: Icon(_videoController!.value.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded), label: Text(_videoController!.value.isPlaying ? 'توقف ویدئو' : 'پخش ویدئو')),
+                OutlinedButton.icon(onPressed: () => _videoController!.value.isPlaying ? _videoController!.pause() : _videoController!.play(), icon: Icon(_videoController!.value.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded), label: Text(_videoController!.value.isPlaying ? 'توقف ویدئو' : 'پخش ویدئو')),
               ],
-              if ((item.caseStudyUrl ?? '').isNotEmpty) [
+              if ((item.caseStudyUrl ?? '').isNotEmpty) ...[
                 const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
