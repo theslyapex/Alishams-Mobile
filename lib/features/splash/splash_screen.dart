@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../assets/app_assets.dart';
 
 import '../../motion/motion.dart';
@@ -68,12 +67,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 children: [
                   MotionSlot(
                     'splash.hero',
-                    child: SvgPicture.asset(
-                      AppAssets.logoSvg,
+                    child: Image.asset(
+                      AppAssets.logo,
                       width: 290,
                       height: 290,
                       fit: BoxFit.contain,
-                      semanticsLabel: 'Alishams Digital Studio',
+                      errorBuilder: (_, __, ___) => const Icon(Icons.auto_awesome, size: 120, color: Colors.white),
                     ),
                   ),
                   const SizedBox(height: 30),
