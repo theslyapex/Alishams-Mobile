@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'order_create_screen.dart';
+import 'website_design_screen.dart';
+import 'domain_registration_screen.dart';
 
 import '../../assets/app_assets.dart';
 import '../../theme/app_colors.dart';
@@ -69,7 +71,7 @@ class ServicesScreen extends StatelessWidget {
                                     child: _ServiceCard(
                                       item: item,
                                       colors: c,
-                                      onTap: () => _showDetails(context, c, item),
+                                      onTap: () => _openService(context, c, item),
                                     ),
                                   ),
                                 )
@@ -391,6 +393,18 @@ class ServicesScreen extends StatelessWidget {
           ],
         ),
       );
+
+  void _openService(BuildContext context, AppColors c, _ServiceItem item) {
+    if (item.title == 'طراحی وبسایت و قالب وبلاگ') {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WebsiteDesignScreen()));
+      return;
+    }
+    if (item.title == 'خرید دامنه') {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DomainRegistrationScreen()));
+      return;
+    }
+    _showDetails(context, c, item);
+  }
 
   void _showDetails(BuildContext context, AppColors c, _ServiceItem item) {
     showModalBottomSheet<void>(
