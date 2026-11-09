@@ -52,7 +52,7 @@ class PushNotificationService {
     if (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)) return;
 
     const initializationSettings = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: AndroidInitializationSettings('@drawable/ic_stat_alishams'),
       iOS: DarwinInitializationSettings(
         requestAlertPermission: false,
         requestBadgePermission: false,
@@ -103,7 +103,7 @@ class PushNotificationService {
         importance: Importance.max,
         priority: Priority.high,
         playSound: true,
-        icon: '@mipmap/ic_launcher',
+        icon: 'ic_stat_alishams',
       ),
       iOS: DarwinNotificationDetails(
         presentAlert: true,
