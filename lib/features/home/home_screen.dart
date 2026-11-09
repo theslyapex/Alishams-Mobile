@@ -9,6 +9,7 @@ import '../services/services_screen.dart';
 import '../orders/orders_screen.dart';
 import '../account/account_screen.dart';
 import '../notifications/notifications_screen.dart';
+import '../support/support_center_screen.dart';
 import '../../theme/app_colors.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -77,7 +78,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Text('علی‌شمس', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
                 Text('استودیو دیجیتال', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted)),
               ])),
-              _roundIcon(c, Icons.notifications_none_rounded, () => _notice(context, userId != null)),
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                _roundIcon(c, Icons.support_agent_rounded, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SupportCenterScreen()))),
+                const SizedBox(width: 8),
+                _roundIcon(c, Icons.notifications_none_rounded, () => _notice(context, userId != null)),
+              ]),
             ]),
             const SizedBox(height: 26),
             Text('سلام، $userName', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -.4)),
