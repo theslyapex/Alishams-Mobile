@@ -387,10 +387,10 @@ class _SupportConversationScreenState extends State<SupportConversationScreen> {
   Future<void> _attachFile() async {
     if (_uploading || _sending) return;
     try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.any, withData: true, allowMultiple: false);
-      if (result == null || result.files.isEmpty) return;
-      final file = result.files.single, bytes = file.bytes;
-      if (bytes == null || bytes.isEmpty) throw Exception('خواندن فایل انتخاب‌شده ممکن نشد.');
+      final file = await FilePicker.pickFile(type: FileType.any);
+      if (file == null) return;
+      final bytes = await file.readAsBytes();
+      if (bytes.isEmpty) throw Exception('خواندن فایل انتخاب‌شده ممکن نشد.');
       if (bytes.length > 50 * 1024 * 1024) throw Exception('حجم فایل نباید بیشتر از ۵۰ مگابایت باشد.');
       final mime = _mime((file.extension ?? '').toLowerCase());
       if (mime == 'application/octet-stream') throw Exception('این نوع فایل پشتیبانی نمی‌شود.');
@@ -399,7 +399,7 @@ class _SupportConversationScreenState extends State<SupportConversationScreen> {
         'file_name':file.name,'mime_type':mime,'size_bytes':bytes.length});
       await Supabase.instance.client.storage.from('communication-attachments').uploadBinaryToSignedUrl(
         init['path'].toString(), init['token'].toString(), bytes,
-        fileOptions: FileOptions(contentType: mime),
+        const FileOptions(contentType: mime),
       );
       await _invoke({'action':'upload_complete','request_id':widget.requestId,'path':init['path'],
         'file_name':file.name,'mime_type':mime,'size_bytes':bytes.length,'message_kind':_kind(mime)});
