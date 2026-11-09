@@ -43,7 +43,9 @@
 					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
 					<key>UISceneStoryboardFile</key>
 					<string>Main</string>
-				</dict>
+				  <key>NSPhotoLibraryUsageDescription</key>
+  <string>برای انتخاب تصویر رسید پرداخت عضویت پلاس+ به دسترسی گالری نیاز داریم.</string>
+</dict>
 			</array>
 		</dict>
 	</dict>
