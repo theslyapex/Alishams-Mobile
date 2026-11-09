@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../providers/customer_orders_provider.dart';
+import '../projects/projects_screen.dart';
 import '../../theme/app_colors.dart';
 
 class OrderDetailScreen extends ConsumerStatefulWidget {
@@ -156,6 +157,19 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                   SizedBox(width: 10),
                   Expanded(child: Text('پیشنهاد با موفقیت پذیرفته شد. وضعیت سفارش به‌روزرسانی شده است.')),
                 ])),
+              ],
+              if ((order.data['project_id'] ?? '').toString().isNotEmpty || order.status == 'converted') ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ProjectsScreen()),
+                    ),
+                    icon: const Icon(Icons.folder_open_rounded),
+                    label: const Text('مشاهده پروژه و پرداخت‌ها'),
+                  ),
+                ),
               ],
               if (order.publicMessage.isNotEmpty) ...[
                 const SizedBox(height: 12),
