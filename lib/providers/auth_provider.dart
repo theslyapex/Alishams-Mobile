@@ -66,8 +66,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
     try {
       final assurance = await _client.auth.mfa.getAuthenticatorAssuranceLevel();
-      final current = assurance.data.currentLevel;
-      final next = assurance.data.nextLevel;
+      final current = assurance.currentLevel;
+      final next = assurance.nextLevel;
       final requiresMfa = next == 'aal2' && current != 'aal2';
       if (!mounted) return;
       state = AuthState(user: _mapUser(session.user), requiresMfa: requiresMfa);
@@ -147,8 +147,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return false;
       }
       final assurance = await _client.auth.mfa.getAuthenticatorAssuranceLevel();
-      final requiresMfa = assurance.data.nextLevel == 'aal2' &&
-          assurance.data.currentLevel != 'aal2';
+      final requiresMfa = assurance.nextLevel == 'aal2' &&
+          assurance.currentLevel != 'aal2';
       state = AuthState(user: _mapUser(response.user!), requiresMfa: requiresMfa);
       if (!requiresMfa) {
         unawaited(PushNotificationService.instance.registerForUser());
