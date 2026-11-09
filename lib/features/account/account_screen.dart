@@ -10,6 +10,7 @@ import '../plus/plus_screen.dart';
 import '../club/club_screen.dart';
 import '../projects/projects_screen.dart';
 import '../notifications/notifications_screen.dart';
+import 'security_settings_screen.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -53,7 +54,7 @@ class AccountScreen extends ConsumerWidget {
                     const SizedBox(height: 10),
                     _menuTile(context, c, Icons.notifications_none_rounded, 'اعلان‌ها', 'پیگیری پیام‌های سفارش، پروژه، پرداخت، پلاس و باشگاه', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationsScreen())); } }),
                     const SizedBox(height: 9),
-                    _menuTile(context, c, Icons.shield_outlined, 'حریم خصوصی و امنیت', 'اطلاعات و امنیت حساب', onTap: () => _message(context, 'بخش حریم خصوصی در حال آماده‌سازی است.')),
+                    _menuTile(context, c, Icons.shield_outlined, 'حریم خصوصی و امنیت', 'تغییر رمز عبور و مشاهده فعالیت‌های امنیتی', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SecuritySettingsScreen())); } }),
                     const SizedBox(height: 9),
                     _menuTile(context, c, Icons.support_agent_rounded, 'ارتباط با پشتیبانی', 'راهنمایی درباره خدمات و سفارش‌ها', onTap: () => _message(context, 'راه ارتباطی پشتیبانی در نسخه بعدی اضافه می‌شود.')),
                     const SizedBox(height: 9),
