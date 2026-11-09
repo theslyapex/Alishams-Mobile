@@ -14,9 +14,9 @@ final accountOverviewProvider = FutureProvider.family<AccountOverview, String>((
   }
 
   final responses = await Future.wait([
-    client.functions.invoke('club-api',
+    client.functions.invoke('mobile-club-api',
       headers: {'Origin': 'https://alishams.ir'}, body: {'action': 'status'}),
-    client.functions.invoke('plus-membership',
+    client.functions.invoke('mobile-plus-api',
       headers: {'Origin': 'https://alishams.ir'}, body: {'action': 'status'}),
   ]);
 
