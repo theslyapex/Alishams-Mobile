@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../models/portfolio_item.dart';
 import '../../theme/app_colors.dart';
@@ -17,6 +18,7 @@ class PortfolioDetailScreen extends StatefulWidget {
 class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
   bool _opening = false;
   VideoPlayerController? _videoController;
+  YoutubePlayerController? _youtubeController;
   bool _videoLoading = false;
   String? _videoError;
 
@@ -29,6 +31,15 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
 
   Future<void> _initializeVideo() async {
     final raw = (widget.item.targetUrl ?? '').trim();
+    final youtubeId = YoutubePlayerController.convertUrlToId(raw);
+    if (youtubeId != null) {
+      _youtubeController = YoutubePlayerController(
+        initialVideoId: youtubeId,
+        flags: const YoutubePlayerFlags(autoPlay: false, mute: false, enableCaption: true),
+      );
+      if (mounted) setState(() {});
+      return;
+    }
     final uri = Uri.tryParse(raw);
     final path = (uri?.path ?? '').toLowerCase();
     final isDirectVideo = ['.mp4', '.m4v', '.mov', '.webm', '.m3u8'].any(path.endsWith);
@@ -51,6 +62,7 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
   @override
   void dispose() {
     _videoController?.dispose();
+    _youtubeController?.dispose();
     super.dispose();
   }
 
@@ -107,6 +119,8 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
   }
 
   Widget _videoPlayer(AppColors c) {
+    final youtube = _youtubeController;
+    if (youtube != null) return YoutubePlayer(controller: youtube, showVideoProgressIndicator: true, progressIndicatorColor: c.secondary);
     final controller = _videoController;
     if (_videoLoading) return const Center(child: CircularProgressIndicator());
     if (controller == null || !controller.value.isInitialized) {
@@ -195,7 +209,7 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
                         )),
               ],
               const SizedBox(height: 22),
-              if (item.hasExternalAction && (!isVideo || _videoController == null))
+              if (item.hasExternalAction && (!isVideo || (_videoController == null && _youtubeController == null)))
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
