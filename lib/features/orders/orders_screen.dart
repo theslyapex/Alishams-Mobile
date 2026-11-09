@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../providers/auth_provider.dart';
+import 'order_detail_screen.dart';
 import '../../providers/customer_orders_provider.dart';
 import '../../theme/app_colors.dart';
 
@@ -123,7 +124,10 @@ class _OrderCard extends StatelessWidget {
             : order.status == 'awaiting_payment' ? color.warning : color.secondary;
     final date = DateTime.tryParse(order.createdAt)?.toLocal();
     final price = order.payableAmount > 0 ? order.payableAmount : order.quotedPrice;
-    return Container(
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => OrderDetailScreen(order: order))),
+      child: Container(
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
         color: color.surface,
@@ -190,6 +194,7 @@ class _OrderCard extends StatelessWidget {
           }),
         ],
       ]),
+      ),
     );
   }
 }
