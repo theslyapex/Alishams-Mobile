@@ -22,8 +22,41 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   bool _earlyStartConsent = false;
   bool _submitting = false;
   bool _offerAccepted = false;
+  bool _refreshing = false;
+  CustomerOrder? _latestOrder;
 
-  CustomerOrder get order => widget.order;
+  CustomerOrder get order => _latestOrder ?? widget.order;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshOrder(showError: false));
+  }
+
+  Future<void> _refreshOrder({bool showError = true}) async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null || _refreshing) return;
+    if (mounted) setState(() => _refreshing = true);
+    try {
+      ref.invalidate(customerOrdersProvider(userId));
+      final items = await ref.read(customerOrdersProvider(userId).future);
+      final matches = items.where((item) => item.id == widget.order.id);
+      if (mounted && matches.isNotEmpty) {
+        setState(() {
+          _latestOrder = matches.first;
+          _offerAccepted = _latestOrder?.data['offer_accepted_at'] != null;
+        });
+      }
+    } catch (error) {
+      if (showError && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _refreshing = false);
+    }
+  }
 
   Future<void> _acceptOffer() async {
     if (!_termsAccepted || _submitting) return;
@@ -50,7 +83,14 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         _submitting = false;
       });
       final userId = Supabase.instance.client.auth.currentUser?.id;
-      if (userId != null) ref.invalidate(customerOrdersProvider(userId));
+      if (userId != null) {
+        ref.invalidate(customerOrdersProvider(userId));
+        try {
+          final items = await ref.read(customerOrdersProvider(userId).future);
+          final matches = items.where((item) => item.id == widget.order.id);
+          if (mounted && matches.isNotEmpty) setState(() => _latestOrder = matches.first);
+        } catch (_) {}
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(payload['message']?.toString() ?? 'پیشنهاد پذیرفته شد.')),
       );
@@ -74,10 +114,24 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       textDirection: ui.TextDirection.rtl,
       child: Scaffold(
         backgroundColor: c.background,
-        appBar: AppBar(title: const Text('جزئیات سفارش')),
+        appBar: AppBar(
+          title: const Text('جزئیات سفارش'),
+          actions: [
+            IconButton(
+              tooltip: 'به‌روزرسانی وضعیت سفارش',
+              onPressed: _refreshing ? null : _refreshOrder,
+              icon: _refreshing
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.refresh_rounded),
+            ),
+          ],
+        ),
         body: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 12, 18, 28),
+          child: RefreshIndicator(
+            onRefresh: _refreshOrder,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+              padding: const EdgeInsets.fromLTRB(18, 12, 18, 28),
             children: [
               _panel(c, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(order.title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
@@ -204,6 +258,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
               const SizedBox(height: 12),
               Text('اطلاعات این صفحه از سوابق ثبت‌شده سفارش دریافت می‌شود. پرداخت پس از تبدیل سفارش به پروژه و اعلام مرحله پرداخت در دسترس قرار می‌گیرد.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c.muted, height: 1.8)),
             ],
+            ),
           ),
         ),
       ),
