@@ -17,14 +17,14 @@ class _ClubScreenState extends State<ClubScreen>{
   void dispose(){_brief.dispose();super.dispose();}
   Future<void> _load()async{
     setState(()=>_loading=true);
-    try{final r=await Supabase.instance.client.functions.invoke('club-api',headers:{'Origin':'https://alishams.ir'},body:{'action':'status'});final d=r.data;if(r.status<200||r.status>=300||d is! Map||d['ok']!=true)throw Exception(d is Map?(d['error']??'دریافت اطلاعات باشگاه انجام نشد.').toString():'پاسخ نامعتبر');if(mounted)setState(()=>_data=Map<String,dynamic>.from(d));}
+    try{final r=await Supabase.instance.client.functions.invoke('mobile-club-api',headers:{'Origin':'https://alishams.ir'},body:{'action':'status'});final d=r.data;if(r.status<200||r.status>=300||d is! Map||d['ok']!=true)throw Exception(d is Map?(d['error']??'دریافت اطلاعات باشگاه انجام نشد.').toString():'پاسخ نامعتبر');if(mounted)setState(()=>_data=Map<String,dynamic>.from(d));}
     catch(e){if(mounted)setState(()=>_error=e.toString().replaceFirst('Exception: ',''));}
     finally{if(mounted)setState(()=>_loading=false);}
   }
   Future<void> _redeem(int points,int reward)async{
     final ok=await showDialog<bool>(context:context,builder:(ctx)=>AlertDialog(title:const Text('دریافت پاداش'),content:Text('برای تبدیل $points امتیاز به پاداش $reward تومان مطمئنی؟ این عملیات قابل بازگشت نیست.'),actions:[TextButton(onPressed:()=>Navigator.pop(ctx,false),child:const Text('انصراف')),FilledButton(onPressed:()=>Navigator.pop(ctx,true),child:const Text('تأیید دریافت'))]));
     if(ok!=true)return;setState(()=>_busy=true);
-    try{final r=await Supabase.instance.client.functions.invoke('club-api',headers:{'Origin':'https://alishams.ir'},body:{'action':'redeem','points':points,'reward_toman':reward});final d=r.data;if(r.status<200||r.status>=300||d is! Map||d['ok']!=true)throw Exception(d is Map?(d['error']??'صدور پاداش انجام نشد.').toString():'پاسخ نامعتبر');await _load();if(mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('کد پاداش صادر شد.')));}
+    try{final r=await Supabase.instance.client.functions.invoke('mobile-club-api',headers:{'Origin':'https://alishams.ir'},body:{'action':'redeem','points':points,'reward_toman':reward});final d=r.data;if(r.status<200||r.status>=300||d is! Map||d['ok']!=true)throw Exception(d is Map?(d['error']??'صدور پاداش انجام نشد.').toString():'پاسخ نامعتبر');await _load();if(mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('کد پاداش صادر شد.')));}
     catch(e){if(mounted)ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text(e.toString().replaceFirst('Exception: ',''))));}
     finally{if(mounted)setState(()=>_busy=false);}
   }
@@ -34,7 +34,7 @@ class _ClubScreenState extends State<ClubScreen>{
     if(brief.length<20){ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('توضیحات باید حداقل ۲۰ نویسه باشد.')));return;}
     setState(()=>_busy=true);
     try{
-      final r=await Supabase.instance.client.functions.invoke('club-api',headers:{'Origin':'https://alishams.ir'},body:{'action':'teaser_submit','brief':brief});
+      final r=await Supabase.instance.client.functions.invoke('mobile-club-api',headers:{'Origin':'https://alishams.ir'},body:{'action':'teaser_submit','brief':brief});
       final d=r.data;
       if(r.status<200||r.status>=300||d is! Map||d['ok']!=true)throw Exception(d is Map?(d['error']??'ثبت درخواست انجام نشد.').toString():'پاسخ نامعتبر');
       _brief.clear();await _load();
