@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.fluttergo.alishams_mobile"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
