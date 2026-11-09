@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/account_overview_provider.dart';
@@ -16,11 +21,77 @@ import 'security_settings_screen.dart';
 import '../support/support_center_screen.dart';
 import '../orders/orders_screen.dart';
 
-class AccountScreen extends ConsumerWidget {
+class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends ConsumerState<AccountScreen> {
+  bool _uploadingAvatar = false;
+
+  Future<void> _changeAvatar() async {
+    final user = ref.read(authProvider).user;
+    if (user == null || _uploadingAvatar) return;
+    final picker = ImagePicker();
+    try {
+      final picked = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 92,
+        maxWidth: 1800,
+        maxHeight: 1800,
+      );
+      if (picked == null || !mounted) return;
+      final cropped = await ImageCropper().cropImage(
+        sourcePath: picked.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 88,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'برش عکس پروفایل',
+            toolbarColor: const Color(0xFF101827),
+            statusBarColor: const Color(0xFF101827),
+            activeControlsWidgetColor: const Color(0xFFB7F34A),
+            lockAspectRatio: true,
+          ),
+          IOSUiSettings(title: 'برش عکس پروفایل', aspectRatioLockEnabled: true),
+        ],
+      );
+      if (cropped == null || !mounted) return;
+      setState(() => _uploadingAvatar = true);
+      final bytes = await File(cropped.path).readAsBytes();
+      final path = '${user.id}/profile.jpg';
+      final storage = Supabase.instance.client.storage.from('user-avatars');
+      await storage.uploadBinary(
+        path,
+        bytes,
+        fileOptions: const FileOptions(
+          contentType: 'image/jpeg',
+          cacheControl: '3600',
+          upsert: true,
+        ),
+      );
+      final url = '${storage.getPublicUrl(path)}?v=${DateTime.now().millisecondsSinceEpoch}';
+      final saved = await ref.read(authProvider.notifier).updateProfileAvatar(url);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(saved ? 'عکس پروفایل با موفقیت تغییر کرد.' : (ref.read(authProvider).error ?? 'ذخیره عکس انجام نشد.'))),
+      );
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تغییر عکس انجام نشد: $error')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _uploadingAvatar = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final auth = ref.watch(authProvider);
     final user = auth.user;
@@ -44,7 +115,7 @@ class AccountScreen extends ConsumerWidget {
                     const SizedBox(height: 6),
                     Text('مدیریت حساب و تنظیمات اپلیکیشن', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: c.muted)),
                     const SizedBox(height: 22),
-                    _profileCard(context, c, name, email, user != null, onEdit: user == null ? null : () => _editProfileName(context, ref, name)),
+                    _profileCard(context, c, name, email, user != null, avatarUrl: user?.avatarUrl, uploadingAvatar: _uploadingAvatar, onAvatarTap: user == null ? null : _changeAvatar, onEdit: user == null ? null : () => _editProfileName(context, ref, name)),
                     const SizedBox(height: 24),
                     _sectionTitle(context, 'باشگاه و عضویت'),
                     const SizedBox(height: 10),
@@ -98,7 +169,7 @@ class AccountScreen extends ConsumerWidget {
     );
   }
 
-  Widget _profileCard(BuildContext context, AppColors c, String name, String email, bool signedIn, {VoidCallback? onEdit}) {
+  Widget _profileCard(BuildContext context, AppColors c, String name, String email, bool signedIn, {String? avatarUrl, bool uploadingAvatar = false, VoidCallback? onAvatarTap, VoidCallback? onEdit}) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -108,10 +179,33 @@ class AccountScreen extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 58, height: 58,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: c.primary.withValues(alpha: .24), border: Border.all(color: c.tertiary.withValues(alpha: .55))),
-            child: ClipOval(child: Image.asset(AppAssets.portraitImage, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(Icons.person_rounded, color: c.tertiary, size: 31))),
+          GestureDetector(
+            onTap: onAvatarTap,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 62, height: 62,
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: c.primary.withValues(alpha: .24), border: Border.all(color: c.tertiary.withValues(alpha: .65), width: 1.5)),
+                  child: ClipOval(
+                    child: avatarUrl != null && avatarUrl.isNotEmpty
+                        ? Image.network(avatarUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(Icons.person_rounded, color: c.tertiary, size: 32))
+                        : Icon(Icons.person_rounded, color: c.tertiary, size: 32),
+                  ),
+                ),
+                if (onAvatarTap != null)
+                  Positioned(
+                    bottom: -2, right: -2,
+                    child: Container(
+                      width: 23, height: 23,
+                      decoration: BoxDecoration(color: c.secondary, shape: BoxShape.circle, border: Border.all(color: c.surface, width: 2)),
+                      child: uploadingAvatar
+                          ? const Padding(padding: EdgeInsets.all(5), child: CircularProgressIndicator(strokeWidth: 1.8, color: Colors.black))
+                          : const Icon(Icons.camera_alt_rounded, size: 12, color: Colors.black),
+                    ),
+                  ),
+              ],
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
