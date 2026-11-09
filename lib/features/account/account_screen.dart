@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -52,7 +51,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           AndroidUiSettings(
             toolbarTitle: 'برش عکس پروفایل',
             toolbarColor: const Color(0xFF101827),
-            activeControlsWidgetColor: const Color(0xFFB7F34A),
+            activeControlsWidgetColor: const Color(0xFF22D3EE),
             lockAspectRatio: true,
           ),
           IOSUiSettings(title: 'برش عکس پروفایل', aspectRatioLockEnabled: true),
@@ -339,7 +338,7 @@ class AboutAlishamsScreen extends StatelessWidget {
                     color: c.background, borderRadius: BorderRadius.circular(22),
                     border: Border.all(color: c.line),
                   ),
-                  child: SvgPicture.asset(AppAssets.logoSvg, fit: BoxFit.contain),
+                  child: Image.asset(AppAssets.logo, fit: BoxFit.contain, errorBuilder: (_, __, ___) => const Icon(Icons.auto_awesome, color: Colors.white)),
                 ),
                 const SizedBox(height: 17),
                 const Text('علی‌شمس', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900)),
