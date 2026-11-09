@@ -127,7 +127,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return false;
       }
       final factors = await _client.auth.mfa.listFactors();
-      final hasVerifiedTotp = factors.data.totp.any((factor) => factor.status == FactorStatus.verified);
+      final hasVerifiedTotp = factors.totp.any((factor) => factor.status == FactorStatus.verified);
       state = AuthState(user: _mapUser(response.user!), requiresMfa: hasVerifiedTotp);
       if (!hasVerifiedTotp) {
         unawaited(PushNotificationService.instance.registerForUser());
