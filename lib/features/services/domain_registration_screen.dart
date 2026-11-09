@@ -106,11 +106,41 @@ class DomainRegistrationScreen extends StatelessWidget {
                 ]),
               ),
               const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: () => _open(_domainLab),
-                icon: const Icon(Icons.travel_explore_rounded),
-                label: const Text('بررسی و جست‌وجوی دامنه‌ها'),
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(54)),
+              Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: c.secondary.withValues(alpha: .08),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: c.secondary.withValues(alpha: .25)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      Icon(Icons.open_in_new_rounded, color: c.secondary, size: 19),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(
+                        'آزمایشگاه دامنه در وب‌سایت',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
+                      )),
+                    ]),
+                    const SizedBox(height: 6),
+                    Text(
+                      'برای مشاهده فهرست کامل پسوندها، تعرفه‌های به‌روز و بررسی هم‌زمان نام دامنه‌ها وارد صفحه آزمایشگاه دامنه شو.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted, height: 1.8),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: () => _open(_domainLab),
+                        icon: const Icon(Icons.travel_explore_rounded),
+                        label: const Text('ورود به آزمایشگاه دامنه وب‌سایت'),
+                        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 9),
               OutlinedButton.icon(
