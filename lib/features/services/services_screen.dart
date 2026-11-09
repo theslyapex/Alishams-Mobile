@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'order_create_screen.dart';
 
@@ -9,42 +10,18 @@ class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
 
   static const _services = <_ServiceItem>[
-    _ServiceItem(
-      icon: Icons.language_rounded,
-      title: 'طراحی وب‌سایت',
-      description: 'طراحی و پیاده‌سازی وب‌سایت متناسب با هویت برند، هدف کسب‌وکار و نیاز کاربران.',
-      detail: 'از ساختار صفحات و تجربه کاربری تا طراحی رابط، پیاده‌سازی و آماده‌سازی برای انتشار؛ جزئیات هر پروژه پس از بررسی نیازها مشخص می‌شود.',
-      tag: 'طراحی اختصاصی',
-      image: AppAssets.iranMaImage,
-      accent: Color(0xFF9B7CFF),
-    ),
-    _ServiceItem(
-      icon: Icons.alternate_email_rounded,
-      title: 'بررسی و انتخاب دامنه',
-      description: 'کمک به انتخاب نام و پسوند مناسب برای هویت آنلاین کسب‌وکار.',
-      detail: 'نام پیشنهادی و پسوندهای مناسب بررسی می‌شوند تا انتخاب دامنه با نام برند و هدف وب‌سایت هماهنگ باشد.',
-      tag: 'آزمایشگاه دامنه',
-      image: AppAssets.workspaceImage,
-      accent: Color(0xFF58D9EE),
-    ),
-    _ServiceItem(
-      icon: Icons.movie_creation_outlined,
-      title: 'موشن‌گرافیک',
-      description: 'ساخت محتوای متحرک برای معرفی خدمات، محصولات و ایده‌های برند.',
-      detail: 'سبک بصری، مدت‌زمان و خروجی موردنیاز بر اساس کاربرد محتوا و بستر انتشار تعیین می‌شود.',
-      tag: 'محتوای متحرک',
-      image: AppAssets.iranMaSocialImage,
-      accent: Color(0xFFB69BFF),
-    ),
-    _ServiceItem(
-      icon: Icons.smart_display_outlined,
-      title: 'ویدئوی تبلیغاتی و ریلز',
-      description: 'تولید ویدئوهای کوتاه و هدفمند برای معرفی حرفه‌ای برند در فضای دیجیتال.',
-      detail: 'ایده و سناریو، لحن بصری و قالب خروجی با توجه به مخاطب و شبکه انتشار برنامه‌ریزی می‌شود.',
-      tag: 'ویدئوی تبلیغاتی',
-      image: AppAssets.apexImage,
-      accent: Color(0xFF58BFEF),
-    ),
+    _ServiceItem(icon: Icons.movie_creation_outlined, title: 'موشن‌گرافیک', description: 'ساخت تیزر تبلیغاتی ویدیویی از نوع موشن‌گرافیک حرفه‌ای برای معرفی جذاب برند، محصول یا خدمات.', detail: 'ساخت تیزرهای موشن‌گرافیک برای معرفی برند، محصول یا خدمات؛ سبک بصری و سناریو متناسب با هدف پروژه تعیین می‌شود.', tag: 'ویدئو و انیمیشن', url: 'https://alishams.ir/services/motion-graphics.html', isActive: true, accent: Color(0xFF9B7CFF)),
+    _ServiceItem(icon: Icons.web_rounded, title: 'طراحی وبسایت و قالب وبلاگ', description: 'رابط کاربری چشم‌نواز، منظم و سازگار با موبایل و دسکتاپ.', detail: 'طراحی رابط کاربری و ساخت وب‌سایت یا قالب وبلاگ با ساختار منظم و نمایش سازگار در موبایل و دسکتاپ. جزئیات و برآورد پروژه پس از بررسی نیازها مشخص می‌شود.', tag: 'طراحی اختصاصی', url: 'https://alishams.ir/services/website-design.html', isActive: true, accent: Color(0xFF58D9EE)),
+    _ServiceItem(icon: Icons.smart_display_outlined, title: 'ریلز و محتوای ویدئویی', description: 'ویدئوهای کوتاه با شروع گیرا، ریتم درست و روایت روشن.', detail: 'تولید ویدئوهای کوتاه با شروع جذاب، ریتم مناسب و روایت روشن برای معرفی محتوا یا برند.', tag: 'فعلاً غیرفعال', url: 'https://alishams.ir/services/reels-video.html', isActive: false, accent: Color(0xFF58BFEF)),
+    _ServiceItem(icon: Icons.campaign_outlined, title: 'تیزر تبلیغاتی', description: 'معرفی محصول یا خدمات با ساختار تبلیغاتی هدفمند و ماندگار.', detail: 'طراحی و تولید تیزر تبلیغاتی برای معرفی هدفمند محصول یا خدمات با پیام روشن و ساختار ماندگار.', tag: 'تبلیغات و ویدئو', url: 'https://alishams.ir/services/ad-trailer.html', isActive: true, accent: Color(0xFFFFB86B)),
+    _ServiceItem(icon: Icons.shield_outlined, title: 'امنیت شبکه‌های اجتماعی', description: 'راهنمایی برای ایمن‌سازی حساب‌ها و کاهش ریسک دسترسی ناخواسته.', detail: 'ارائه راهنمایی برای افزایش امنیت حساب‌های شبکه‌های اجتماعی، بررسی تنظیمات مهم و کاهش ریسک دسترسی ناخواسته.', tag: 'فعلاً غیرفعال', url: 'https://alishams.ir/services/social-security.html', isActive: false, accent: Color(0xFF65D6B2)),
+    _ServiceItem(icon: Icons.article_outlined, title: 'نگارش مقاله وب‌سایت', description: 'محتوای خواندنی و ساختارمند با توجه به مخاطب و هدف صفحه.', detail: 'نگارش محتوای خواندنی و ساختارمند با توجه به مخاطب، موضوع و هدف صفحه؛ همراه با توجه به نظم محتوایی و خوانایی.', tag: 'تولید محتوا', url: 'https://alishams.ir/services/website-articles.html', isActive: true, accent: Color(0xFFB69BFF)),
+    _ServiceItem(icon: Icons.campaign_rounded, title: 'تبلیغات و معرفی', description: 'طراحی پیام و محتوای معرفی برای رساندن پیشنهاد به مخاطب مناسب.', detail: 'طراحی پیام و محتوای معرفی متناسب با پیشنهاد، مخاطب هدف و بستر انتشار.', tag: 'فعلاً غیرفعال', url: 'https://alishams.ir/services/promotion.html', isActive: false, accent: Color(0xFFFF9F9F)),
+    _ServiceItem(icon: Icons.lightbulb_outline_rounded, title: 'مشاوره کسب‌وکار آنلاین', description: 'بررسی ایده، مسیر محتوا و فرصت‌های بهتر برای حضور دیجیتال.', detail: 'بررسی ایده و وضعیت حضور آنلاین، مسیر محتوا و فرصت‌های بهبود برای تصمیم‌گیری آگاهانه‌تر در فضای دیجیتال.', tag: 'مشاوره', url: 'https://alishams.ir/services/online-business-consulting.html', isActive: true, accent: Color(0xFFFFD166)),
+    _ServiceItem(icon: Icons.groups_2_outlined, title: 'خدمات شبکه‌های اجتماعی', description: 'خدمات مرتبط با مدیریت و رشد حضور برند در شبکه‌های اجتماعی.', detail: 'خدمات مرتبط با حضور و فعالیت برند در شبکه‌های اجتماعی؛ محدوده و جزئیات هر درخواست پیش از شروع بررسی می‌شود.', tag: 'شبکه‌های اجتماعی', url: 'https://alishams.ir/services/social-media-services.html', isActive: true, accent: Color(0xFF6DB6FF)),
+    _ServiceItem(icon: Icons.draw_outlined, title: 'طراحی لوگو اختصاصی', description: 'بررسی ایده، طراحی با جزئیات منحصربه‌فرد برای ماندگاری در ذهن مخاطب.', detail: 'تبدیل ایده و هویت برند به نشان بصری اختصاصی با توجه به جزئیات، کاربردها و ماندگاری در ذهن مخاطب.', tag: 'هویت بصری', url: 'https://alishams.ir/services/custom-logo-design.html', isActive: true, accent: Color(0xFFE8C77A)),
+    _ServiceItem(icon: Icons.search_rounded, title: 'خدمات SEO', description: 'بهینه‌سازی فنی و محتوایی وب‌سایت برای درک بهتر موتورهای جست‌وجو و جذب بازدیدکننده مرتبط.', detail: 'بهینه‌سازی فنی و محتوایی وب‌سایت برای کمک به درک بهتر موتورهای جست‌وجو و جذب بازدیدکننده مرتبط و هدفمند.', tag: 'بهینه‌سازی سایت', url: 'https://alishams.ir/services/seo.html', isActive: true, accent: Color(0xFF65D6B2)),
+    _ServiceItem(icon: Icons.language_rounded, title: 'خرید دامنه', description: 'انتخاب و ثبت دامنه مناسب برای برند یا وب‌سایت؛ همراه با بررسی نام، پسوند و تعرفه پیش از ثبت نهایی.', detail: 'بررسی نام و پسوندهای مناسب، مشاهده تعرفه و راهنمایی برای ثبت دامنه متناسب با برند یا وب‌سایت.', tag: 'ثبت دامنه', url: 'https://alishams.ir/services/domain-purchase.html', isActive: true, accent: Color(0xFF58D9EE)),
   ];
 
   @override
@@ -508,11 +485,44 @@ class ServicesScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
+                if (!item.isActive)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(13),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withValues(alpha: .09),
+                      borderRadius: BorderRadius.circular(13),
+                      border: Border.all(color: Colors.orange.withValues(alpha: .28)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.pause_circle_outline_rounded, color: Colors.orange, size: 19),
+                        SizedBox(width: 8),
+                        Expanded(child: Text('این خدمت در حال حاضر غیرفعال است.')),
+                      ],
+                    ),
+                  ),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: item.isActive
+                        ? () async {
+                            final uri = Uri.parse(item.url);
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri, mode: LaunchMode.externalApplication);
+                            }
+                          }
+                        : null,
+                    icon: const Icon(Icons.open_in_new_rounded),
+                    label: Text(item.isActive ? 'مشاهده صفحه خدمت' : 'به‌زودی فعال می‌شود'),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(sheetContext).pop(),
-                    child: const Text('متوجه شدم'),
+                    child: const Text('بستن'),
                   ),
                 ),
               ],
@@ -530,7 +540,8 @@ class _ServiceItem {
   final String description;
   final String detail;
   final String tag;
-  final String image;
+  final String url;
+  final bool isActive;
   final Color accent;
 
   const _ServiceItem({
@@ -539,7 +550,8 @@ class _ServiceItem {
     required this.description,
     required this.detail,
     required this.tag,
-    required this.image,
+    required this.url,
+    required this.isActive,
     required this.accent,
   });
 }
@@ -580,45 +592,44 @@ class _ServiceCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(
+              Container(
                 height: 112,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: [item.accent.withValues(alpha: .28), colors.background, item.accent.withValues(alpha: .10)],
+                  ),
+                ),
                 child: Stack(
-                  fit: StackFit.expand,
                   children: [
-                    Image.asset(
-                      item.image,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: colors.surfaceContainer,
-                        child: Icon(item.icon, color: item.accent, size: 32),
-                      ),
-                    ),
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withValues(alpha: .04),
-                            Colors.black.withValues(alpha: .58),
-                          ],
+                    Positioned(left: 18, top: 8, child: Icon(item.icon, size: 78, color: item.accent.withValues(alpha: .13))),
+                    Center(
+                      child: Container(
+                        width: 54,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          color: item.accent.withValues(alpha: .15),
+                          borderRadius: BorderRadius.circular(17),
+                          border: Border.all(color: item.accent.withValues(alpha: .35)),
                         ),
+                        child: Icon(item.icon, color: item.accent, size: 29),
                       ),
                     ),
                     Positioned(
-                      right: 13,
-                      bottom: 12,
+                      right: 12,
+                      bottom: 10,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: .35),
+                          color: colors.surface.withValues(alpha: .88),
                           borderRadius: BorderRadius.circular(30),
-                          border: Border.all(color: Colors.white.withValues(alpha: .18)),
+                          border: Border.all(color: colors.line),
                         ),
                         child: Text(
-                          item.tag,
+                          item.isActive ? item.tag : 'غیرفعال',
                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: Colors.white,
+                                color: item.isActive ? item.accent : colors.muted,
                                 fontWeight: FontWeight.w700,
                               ),
                         ),
@@ -666,7 +677,7 @@ class _ServiceCard extends StatelessWidget {
                           Row(
                             children: [
                               Text(
-                                'جزئیات خدمت',
+                                item.isActive ? 'جزئیات خدمت' : 'مشاهده وضعیت خدمت',
                                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                       color: colors.secondary,
                                       fontWeight: FontWeight.w700,
