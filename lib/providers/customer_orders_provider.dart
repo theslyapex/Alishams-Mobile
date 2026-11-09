@@ -20,24 +20,25 @@ class CustomerOrder {
 final customerOrdersProvider =
     FutureProvider.family<List<CustomerOrder>, String>((ref, userId) async {
   final client = Supabase.instance.client;
-  final rows = await client
-      .from('client_orders')
-      .select('id,tracking_code,service,services,title,details,budget,status,quoted_price,eta_date,public_message,project_id,created_at,updated_at,discount_percent,discount_amount,payable_amount,offer_accepted_at,offer_terms_version,early_start_consent')
-      .eq('user_id', userId)
-      .order('created_at', ascending: false)
-      .limit(100);
-  final orders = (rows as List)
+  if (client.auth.currentUser?.id != userId) return const [];
+  final response = await client.functions.invoke(
+    'mobile-order-account',
+    body: const {'action': 'list'},
+  );
+  final payload = response.data;
+  if (response.status < 200 || response.status >= 300 ||
+      payload is! Map || payload['ok'] != true) {
+    final message = payload is Map ? payload['error']?.toString() : null;
+    throw Exception(message?.isNotEmpty == true
+        ? message
+        : 'دریافت سفارش‌ها از سرویس امن انجام نشد.');
+  }
+  final orders = (payload['orders'] as List? ?? const [])
       .map((row) => Map<String, dynamic>.from(row as Map))
       .toList(growable: false);
-  if (orders.isEmpty) return const [];
-  final ids = orders.map((order) => order['id'].toString()).toList();
-  final eventRows = await client
-      .from('client_order_events')
-      .select('id,order_id,status,public_message,created_at')
-      .inFilter('order_id', ids)
-      .order('created_at', ascending: false);
+  final eventRows = (payload['events'] as List? ?? const []);
   final grouped = <String, List<Map<String, dynamic>>>{};
-  for (final row in (eventRows as List)) {
+  for (final row in eventRows) {
     final event = Map<String, dynamic>.from(row as Map);
     final orderId = (event['order_id'] ?? '').toString();
     grouped.putIfAbsent(orderId, () => []).add(event);
