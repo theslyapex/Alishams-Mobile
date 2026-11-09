@@ -25,7 +25,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _confirmPassword = TextEditingController();
   bool _obscure = true;
+  bool _obscureConfirm = true;
   ActionStatus _status = ActionStatus.idle;
 
   @override
@@ -33,6 +35,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     _name.dispose();
     _email.dispose();
     _password.dispose();
+    _confirmPassword.dispose();
     super.dispose();
   }
 
@@ -171,6 +174,23 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                     ],
                                     textDirection: TextDirection.ltr,
                                     validator: validatePassword,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  AuthField(
+                                    controller: _confirmPassword,
+                                    label: 'تکرار رمز عبور',
+                                    hint: 'رمز عبور را دوباره وارد کنید',
+                                    iconPath: AppAssets.iconLock,
+                                    obscureText: _obscureConfirm,
+                                    onToggleObscure: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                                    textInputAction: TextInputAction.done,
+                                    autofillHints: const [AutofillHints.newPassword],
+                                    textDirection: TextDirection.ltr,
+                                    validator: (value) => (value ?? '').isEmpty
+                                        ? 'تکرار رمز عبور را وارد کنید.'
+                                        : value != _password.text
+                                            ? 'رمزهای عبور یکسان نیستند.'
+                                            : null,
                                   ),
                                   if (auth.error != null) ...[
                                     const SizedBox(height: 10),
