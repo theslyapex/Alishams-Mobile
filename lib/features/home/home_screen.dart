@@ -268,7 +268,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted)),
       ]),
     ),
-  ));
+  );
 
   Widget _infoCard(BuildContext context, AppColors c, IconData icon, String title, String body, String action, VoidCallback onTap) => Container(
     padding: const EdgeInsets.all(16),
