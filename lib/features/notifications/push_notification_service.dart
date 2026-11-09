@@ -32,6 +32,7 @@ class PushNotificationService {
   StreamSubscription<RemoteMessage>? _foregroundSubscription;
   bool _localNotificationsReady = false;
   Map<String, dynamic>? _pendingTapData;
+  int _navigationRetries = 0;
 
   Stream<RemoteMessage> get foregroundMessages => _foregroundMessages.stream;
   Stream<String> get tokenRefreshes => _messaging.onTokenRefresh;
@@ -96,6 +97,19 @@ class PushNotificationService {
         ?.createNotificationChannel(channel);
 
     _localNotificationsReady = true;
+    final launchDetails = await _localNotifications.getNotificationAppLaunchDetails();
+    final launchPayload = launchDetails?.notificationResponse?.payload;
+    if (launchDetails?.didNotificationLaunchApp == true &&
+        launchPayload != null && launchPayload.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(launchPayload);
+        if (decoded is Map) {
+          _pendingTapData = Map<String, dynamic>.from(decoded);
+        }
+      } catch (error) {
+        debugPrint('Notification launch payload parse failed: $error');
+      }
+    }
   }
 
   Future<void> _showForegroundNotification(RemoteMessage message) async {
@@ -175,8 +189,19 @@ class PushNotificationService {
     final navigator = pushNavigatorKey.currentState;
     if (navigator == null) {
       _pendingTapData = data;
+      if (_navigationRetries < 5) {
+        _navigationRetries++;
+        Future.delayed(const Duration(milliseconds: 600), () {
+          final pending = _pendingTapData;
+          if (pending != null) {
+            _pendingTapData = null;
+            unawaited(_openNotification(pending));
+          }
+        });
+      }
       return;
     }
+    _navigationRetries = 0;
     navigator.push(MaterialPageRoute(
       builder: (_) => NotificationsScreen(initialCategory: category),
     ));
