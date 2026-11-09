@@ -399,7 +399,7 @@ class _SupportConversationScreenState extends State<SupportConversationScreen> {
         'file_name':file.name,'mime_type':mime,'size_bytes':bytes.length});
       await Supabase.instance.client.storage.from('communication-attachments').uploadBinaryToSignedUrl(
         init['path'].toString(), init['token'].toString(), bytes,
-        const FileOptions(contentType: mime),
+        FileOptions(contentType: mime),
       );
       await _invoke({'action':'upload_complete','request_id':widget.requestId,'path':init['path'],
         'file_name':file.name,'mime_type':mime,'size_bytes':bytes.length,'message_kind':_kind(mime)});
