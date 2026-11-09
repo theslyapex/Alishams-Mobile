@@ -11,6 +11,8 @@ import '../../providers/portfolio_provider.dart';
 import '../portfolio/portfolio_screen.dart';
 import '../portfolio/portfolio_detail_screen.dart';
 import '../services/services_screen.dart';
+import '../services/website_design_screen.dart';
+import '../services/domain_registration_screen.dart';
 import '../plus/plus_screen.dart';
 import '../club/club_screen.dart';
 import '../orders/orders_screen.dart';
@@ -118,9 +120,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ]),
             const SizedBox(height: 12),
             Row(children: [
-              Expanded(child: _quickAction(context, c, Icons.language_rounded, 'طراحی سایت', 'سفارش اختصاصی', () => setState(() => _tab = 1))),
+              Expanded(child: _quickAction(context, c, Icons.language_rounded, 'طراحی سایت', 'سفارش اختصاصی', () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WebsiteDesignScreen())))),
               const SizedBox(width: 10),
-              Expanded(child: _quickAction(context, c, Icons.alternate_email_rounded, 'ثبت دامنه', 'بررسی و سفارش', () => setState(() => _tab = 1))),
+              Expanded(child: _quickAction(context, c, Icons.alternate_email_rounded, 'ثبت دامنه', 'بررسی و سفارش', () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DomainRegistrationScreen())))),
             ]),
             const SizedBox(height: 10),
             Row(children: [
