@@ -103,42 +103,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 }),
               ]),
             ]),
-            const SizedBox(height: 26),
+            const SizedBox(height: 24),
             Text('سلام، $userName', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -.4)),
-            const SizedBox(height: 6),
-            Text('برای ساختن تجربه‌ای بهتر، از اینجا شروع کن.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: c.muted)),
-            const SizedBox(height: 22),
+            const SizedBox(height: 5),
+            Text('اینجا نقطه شروع ایده‌های دیجیتال توست.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: c.muted)),
+            const SizedBox(height: 20),
             _heroCard(context, c),
-            const SizedBox(height: 18),
-            _portfolioStrip(context, c, ref),
-            const SizedBox(height: 22),
-            _membershipBanner(context, c, userId == null ? null : ref.watch(accountOverviewProvider(userId)), () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlusScreen()))),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('دسترسی سریع', style: Theme.of(context).textTheme.titleMedium),
-              Text('خدمات استودیو', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.secondary)),
-            ]),
-            const SizedBox(height: 12),
-            Row(children: [
-              Expanded(child: _quickAction(context, c, Icons.language_rounded, 'طراحی سایت', 'سفارش اختصاصی', () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WebsiteDesignScreen())))),
-              const SizedBox(width: 10),
-              Expanded(child: _quickAction(context, c, Icons.alternate_email_rounded, 'ثبت دامنه', 'بررسی و سفارش', () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DomainRegistrationScreen())))),
+              Text('شروع سریع', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+              TextButton(onPressed: () => setState(() => _tab = 1), child: const Text('همه خدمات')),
             ]),
             const SizedBox(height: 10),
             Row(children: [
-              Expanded(child: _quickAction(context, c, Icons.workspace_premium_outlined, 'پلاس+', 'مزایای عضویت', () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlusScreen())))),
-              const SizedBox(width: 10),
-              Expanded(child: _quickAction(context, c, Icons.emoji_events_outlined, 'باشگاه مشتریان', 'امتیاز و جوایز', () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClubScreen())))),
+              Expanded(child: _quickAction(context, c, Icons.language_rounded, 'طراحی وب‌سایت', 'شروع سفارش', () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WebsiteDesignScreen())))),
+              const SizedBox(width: 12),
+              Expanded(child: _quickAction(context, c, Icons.alternate_email_rounded, 'ثبت دامنه', 'بررسی دامنه‌ها', () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DomainRegistrationScreen())))),
             ]),
-            const SizedBox(height: 24),
-            Text('باشگاه مشتریان', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            _clubCard(context, c, userId == null ? null : ref.watch(accountOverviewProvider(userId)), () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClubScreen()))),
-            const SizedBox(height: 22),
-            Text('پیگیری سفارش', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 10),
-            _infoCard(context, c, Icons.track_changes_rounded, 'همه سفارش‌ها در یک نگاه', 'وضعیت سفارش‌هایی را که با همین حساب ثبت کرده‌اید، اینجا ببینید.', 'مشاهده سفارش‌ها', () => setState(() => _tab = 2)),
-            const SizedBox(height: 24),
+            const SizedBox(height: 26),
+            _portfolioStrip(context, c, ref),
+            const SizedBox(height: 28),
+            _accountHighlights(
+              context,
+              c,
+              userId == null ? null : ref.watch(accountOverviewProvider(userId)),
+              () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ClubScreen())),
+              () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlusScreen())),
+            ),
+            const SizedBox(height: 26),
+            InkWell(
+              onTap: () => setState(() => _tab = 2),
+              borderRadius: BorderRadius.circular(18),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: c.line),
+                  borderRadius: BorderRadius.circular(18),
+                  gradient: LinearGradient(begin: Alignment.centerRight, end: Alignment.centerLeft, colors: [c.surface, c.background]),
+                ),
+                child: Row(children: [
+                  Container(width: 44, height: 44, decoration: BoxDecoration(color: c.secondary.withValues(alpha: .13), borderRadius: BorderRadius.circular(14)), child: Icon(Icons.receipt_long_rounded, color: c.secondary)),
+                  const SizedBox(width: 12),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('پیگیری سفارش‌ها', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 3),
+                    Text('مشاهده درخواست‌ها و دنبال‌کردن روند انجام آن‌ها', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted)),
+                  ])),
+                  Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: c.muted),
+                ]),
+              ),
+            ),
+            const SizedBox(height: 28),
             Center(child: Text('ALISHAMS  •  DIGITAL STUDIO', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c.muted, letterSpacing: 1.2))),
           ])),
         ),
@@ -372,6 +387,82 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _accountHighlights(
+    BuildContext context,
+    AppColors c,
+    AsyncValue<AccountOverview>? overview,
+    VoidCallback onClubTap,
+    VoidCallback onPlusTap,
+  ) {
+    final points = overview?.when(
+          data: (value) => value.points.toString(),
+          loading: () => '…',
+          error: (_, __) => '—',
+        ) ?? 'ورود لازم است';
+    final plus = overview?.when(
+          data: (value) => value.plusSummary,
+          loading: () => 'در حال دریافت وضعیت عضویت…',
+          error: (_, __) => 'وضعیت عضویت در دسترس نیست',
+        ) ?? 'برای مشاهده وضعیت حساب وارد شوید';
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: c.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(Icons.dashboard_customize_rounded, color: c.secondary, size: 21),
+            const SizedBox(width: 9),
+            Expanded(child: Text('حساب و مزایای شما', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
+          ]),
+          const SizedBox(height: 16),
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(child: _accountMetric(
+              context, c, Icons.stars_rounded, 'امتیاز باشگاه', points,
+            )),
+            Container(width: 1, height: 62, margin: const EdgeInsets.symmetric(horizontal: 13), color: c.line),
+            Expanded(child: _accountMetric(
+              context, c, Icons.workspace_premium_rounded, 'عضویت پلاس+', plus,
+            )),
+          ]),
+          const SizedBox(height: 16),
+          Row(children: [
+            Expanded(child: OutlinedButton.icon(
+              onPressed: onClubTap,
+              icon: const Icon(Icons.emoji_events_outlined, size: 17),
+              label: const Text('باشگاه مشتریان'),
+            )),
+            const SizedBox(width: 10),
+            Expanded(child: FilledButton.icon(
+              onPressed: onPlusTap,
+              icon: const Icon(Icons.arrow_back_rounded, size: 17),
+              label: const Text('جزئیات پلاس+'),
+            )),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _accountMetric(BuildContext context, AppColors c, IconData icon, String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(children: [
+          Icon(icon, color: c.secondary, size: 17),
+          const SizedBox(width: 6),
+          Expanded(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: c.muted))),
+        ]),
+        const SizedBox(height: 8),
+        Text(value, maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
       ],
     );
   }
