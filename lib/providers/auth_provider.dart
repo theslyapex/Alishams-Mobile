@@ -44,9 +44,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _subscription = _client.auth.onAuthStateChange.listen((event) {
       final session = event.session;
       state = AuthState(user: session == null ? null : _mapUser(session.user));
+      if (session != null) {
+        unawaited(PushNotificationService.instance.registerForUser());
+      }
     });
     final current = _client.auth.currentSession;
-    if (current != null) state = AuthState(user: _mapUser(current.user));
+    if (current != null) {
+      state = AuthState(user: _mapUser(current.user));
+      unawaited(PushNotificationService.instance.registerForUser());
+    }
   }
 
   final SupabaseClient _client = Supabase.instance.client;
