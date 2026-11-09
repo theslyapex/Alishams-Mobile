@@ -1,4 +1,6 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'features/notifications/push_notification_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +12,8 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await PushNotificationService.instance.initialize();
   await Supabase.initialize(
     url: 'https://srfldjfrzmtnlabusssq.supabase.co',
     anonKey: 'sb_publishable_UW2Wzzp8Y-KKd82nZHQUKA_RGl876RB',
