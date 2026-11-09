@@ -1,0 +1,504 @@
+{
+  "version": "1.2",
+  "app": "ALISHAMS",
+  "signals": {
+    "archetype": "auth",
+    "archetype_note": "DRAFT: no perception row matched",
+    "emotion": "premium calm",
+    "adjectives": [],
+    "content_shape": [
+      "hierarchy"
+    ],
+    "constraints": []
+  },
+  "candidates": [
+    {
+      "direction": "Quiet Precision",
+      "score": 0,
+      "why": "no row"
+    },
+    {
+      "direction": "Calm Flow",
+      "score": 0,
+      "why": "no row"
+    },
+    {
+      "direction": "Focus Pull",
+      "score": 0,
+      "why": "no row"
+    },
+    {
+      "direction": "Data Alive",
+      "score": 0,
+      "why": "no row"
+    },
+    {
+      "direction": "Layered Depth",
+      "score": 0,
+      "why": "no row"
+    },
+    {
+      "direction": "Kinetic Editorial",
+      "score": 0,
+      "why": "no row"
+    },
+    {
+      "direction": "Fluid Morph",
+      "score": 0,
+      "why": "no row"
+    },
+    {
+      "direction": "Cinematic Story",
+      "score": 0,
+      "why": "no row"
+    },
+    {
+      "direction": "Tactile Play",
+      "score": 0,
+      "why": "no row"
+    }
+  ],
+  "direction": {
+    "primary": "Quiet Precision",
+    "kind": "preset",
+    "why": "DRAFT: highest archetype score (0); ties go to the quieter direction",
+    "runner_up": {
+      "name": "Calm Flow",
+      "why": "DRAFT: next score"
+    },
+    "accent": null
+  },
+  "signature": {
+    "name": null,
+    "element": null,
+    "compact_screens": [],
+    "full_screens": [],
+    "why": "DRAFT: no completion screen found"
+  },
+  "spatial_model": "DRAFT: Quiet Precision — describe the space in one sentence",
+  "grammar": {
+    "parent_child": "shared_axis_x",
+    "sibling": "shared_axis_x",
+    "tab": "instant",
+    "overlay": "sheet",
+    "create": "slide_up"
+  },
+  "routes": [
+    {
+      "from": "sign_in",
+      "to": "pending",
+      "relation": "sibling"
+    },
+    {
+      "from": "pending",
+      "to": "sign_in",
+      "relation": "sibling",
+      "free": "back"
+    },
+    {
+      "from": "sign_in",
+      "to": "forgot_password",
+      "relation": "sibling"
+    },
+    {
+      "from": "forgot_password",
+      "to": "sign_in",
+      "relation": "sibling",
+      "free": "back"
+    },
+    {
+      "from": "sign_in",
+      "to": "sign_up",
+      "relation": "create"
+    },
+    {
+      "from": "sign_up",
+      "to": "sign_in",
+      "relation": "create",
+      "free": "back"
+    },
+    {
+      "from": "sign_up",
+      "to": "pending",
+      "relation": "sibling"
+    },
+    {
+      "from": "pending",
+      "to": "sign_up",
+      "relation": "sibling",
+      "free": "back"
+    },
+    {
+      "from": "splash",
+      "to": "sign_in",
+      "relation": "sibling",
+      "free": "first_root"
+    },
+    {
+      "from": "sign_in",
+      "to": "splash",
+      "relation": "sibling",
+      "free": "back"
+    }
+  ],
+  "continuity": [],
+  "screens": {
+    "pending": {
+      "title": "Pending",
+      "phase": "core_loop",
+      "frequency": "tens",
+      "kind": "screen",
+      "elements": [
+        {
+          "id": "pending.hero",
+          "role": "LEAD",
+          "name": "pending hero",
+          "trigger": "enter",
+          "motion": "fade",
+          "duration": "md",
+          "replay": "once_per_session",
+          "group": "arrival",
+          "purpose": "orientation",
+          "reduced": "crossfade",
+          "note": "DRAFT: wrap the screen's main visual or headline",
+          "curve": "out"
+        },
+        {
+          "id": "pending.content",
+          "role": "FOLLOWER",
+          "name": "content",
+          "trigger": "enter",
+          "motion": "fade",
+          "duration": "sm",
+          "curve": "out",
+          "delay": "stagger",
+          "group": "content",
+          "items": 1,
+          "replay": "once_per_session",
+          "purpose": "orientation",
+          "reduced": "settled",
+          "note": "DRAFT: wrap each row/card with MotionSlot(id, index: i)"
+        }
+      ],
+      "states": {
+        "enter": [
+          "pending.hero",
+          "pending.content"
+        ],
+        "loading": "n/a: DRAFT — no loading handling found in code; review",
+        "empty": "still: DRAFT — empty state text appears without motion",
+        "error": "n/a: DRAFT — no error handling found in code; review",
+        "success": "n/a: DRAFT — no success handling found in code; review",
+        "insert": "n/a: DRAFT — no insert handling found in code; review",
+        "remove": "n/a: DRAFT — no remove handling found in code; review",
+        "refresh": "n/a: DRAFT — no refresh handling found in code; review",
+        "scroll": "n/a: DRAFT — no scroll handling found in code; review",
+        "keyboard": "n/a: DRAFT — no keyboard handling found in code; review",
+        "offline": "n/a: DRAFT — no offline handling found in code; review"
+      }
+    },
+    "home": {
+      "title": "Home",
+      "phase": "core_loop",
+      "frequency": "tens",
+      "kind": "screen",
+      "elements": [
+        {
+          "id": "home.hero",
+          "role": "LEAD",
+          "name": "home hero",
+          "trigger": "enter",
+          "motion": "fade",
+          "duration": "md",
+          "replay": "once_per_session",
+          "group": "arrival",
+          "purpose": "orientation",
+          "reduced": "crossfade",
+          "note": "DRAFT: wrap the screen's main visual or headline",
+          "curve": "out"
+        },
+        {
+          "id": "home.content",
+          "role": "FOLLOWER",
+          "name": "content",
+          "trigger": "enter",
+          "motion": "fade",
+          "duration": "sm",
+          "curve": "out",
+          "delay": "stagger",
+          "group": "content",
+          "items": 1,
+          "replay": "once_per_session",
+          "purpose": "orientation",
+          "reduced": "settled",
+          "note": "DRAFT: wrap each row/card with MotionSlot(id, index: i)"
+        }
+      ],
+      "states": {
+        "enter": [
+          "home.hero",
+          "home.content"
+        ],
+        "loading": "n/a: DRAFT — no loading handling found in code; review",
+        "empty": "still: DRAFT — empty state text appears without motion",
+        "error": "n/a: DRAFT — no error handling found in code; review",
+        "success": "n/a: DRAFT — no success handling found in code; review",
+        "insert": "n/a: DRAFT — no insert handling found in code; review",
+        "remove": "n/a: DRAFT — no remove handling found in code; review",
+        "refresh": "n/a: DRAFT — no refresh handling found in code; review",
+        "scroll": "n/a: DRAFT — no scroll handling found in code; review",
+        "keyboard": "n/a: DRAFT — no keyboard handling found in code; review",
+        "offline": "n/a: DRAFT — no offline handling found in code; review"
+      }
+    },
+    "sign_in": {
+      "title": "Sign In",
+      "phase": "task",
+      "frequency": "few",
+      "kind": "screen",
+      "elements": [
+        {
+          "id": "sign_in.hero",
+          "role": "LEAD",
+          "name": "sign_in hero",
+          "trigger": "enter",
+          "motion": "fade",
+          "duration": "md",
+          "replay": "once_per_visit",
+          "group": "arrival",
+          "purpose": "orientation",
+          "reduced": "crossfade",
+          "note": "DRAFT: wrap the screen's main visual or headline",
+          "curve": "out"
+        },
+        {
+          "id": "sign_in.content",
+          "role": "FOLLOWER",
+          "name": "content",
+          "trigger": "enter",
+          "motion": "fade",
+          "duration": "sm",
+          "curve": "out",
+          "delay": "stagger",
+          "group": "content",
+          "items": 3,
+          "replay": "once_per_visit",
+          "purpose": "orientation",
+          "reduced": "settled",
+          "note": "DRAFT: wrap each row/card with MotionSlot(id, index: i)"
+        }
+      ],
+      "states": {
+        "enter": [
+          "sign_in.hero",
+          "sign_in.content"
+        ],
+        "loading": "n/a: DRAFT — no loading handling found in code; review",
+        "empty": "still: DRAFT — empty state text appears without motion",
+        "error": "n/a: DRAFT — no error handling found in code; review",
+        "success": "n/a: DRAFT — no success handling found in code; review",
+        "insert": "n/a: DRAFT — no insert handling found in code; review",
+        "remove": "n/a: DRAFT — no remove handling found in code; review",
+        "refresh": "n/a: DRAFT — no refresh handling found in code; review",
+        "scroll": "n/a: DRAFT — no scroll handling found in code; review",
+        "keyboard": "n/a: DRAFT — no keyboard handling found in code; review",
+        "offline": "n/a: DRAFT — no offline handling found in code; review"
+      }
+    },
+    "sign_up": {
+      "title": "Sign Up",
+      "phase": "task",
+      "frequency": "few",
+      "kind": "screen",
+      "elements": [
+        {
+          "id": "sign_up.hero",
+          "role": "ANCHOR",
+          "name": "sign_up hero",
+          "trigger": "enter",
+          "motion": "none",
+          "reduced": "none",
+          "note": "DRAFT: wrap the screen's main visual or headline"
+        },
+        {
+          "id": "sign_up.content",
+          "role": "ANCHOR",
+          "name": "content",
+          "trigger": "enter",
+          "motion": "none",
+          "reduced": "none",
+          "note": "DRAFT: wrap each row/card with MotionSlot(id, index: i)"
+        },
+        {
+          "id": "sign_up.action_1",
+          "role": "CONTROL",
+          "name": "action 1",
+          "trigger": "tap",
+          "motion": "tint",
+          "duration": "xs",
+          "curve": "standard",
+          "action_frequency": "few",
+          "purpose": "feedback",
+          "reduced": "keep_feedback",
+          "note": "DRAFT: MotionSlot(id, onTap: ..., child: ...)"
+        },
+        {
+          "id": "sign_up.surface",
+          "role": "SURFACE",
+          "name": "surface",
+          "trigger": "route",
+          "motion": "morph_shape",
+          "duration": "lg",
+          "spring": "springSmooth",
+          "purpose": "continuity",
+          "reduced": "crossfade",
+          "in_code": false
+        }
+      ],
+      "states": {
+        "enter": "still: the route transition is the arrival",
+        "loading": "n/a: DRAFT — no loading handling found in code; review",
+        "empty": "still: DRAFT — empty state text appears without motion",
+        "error": "n/a: DRAFT — no error handling found in code; review",
+        "success": "n/a: DRAFT — no success handling found in code; review",
+        "insert": "n/a: DRAFT — no insert handling found in code; review",
+        "remove": "n/a: DRAFT — no remove handling found in code; review",
+        "refresh": "n/a: DRAFT — no refresh handling found in code; review",
+        "scroll": "n/a: DRAFT — no scroll handling found in code; review",
+        "keyboard": "n/a: DRAFT — no keyboard handling found in code; review",
+        "offline": "n/a: DRAFT — no offline handling found in code; review"
+      },
+      "lead": "still: the route transition is this screen's arrival (budget)"
+    },
+    "forgot_password": {
+      "title": "Forgot Password",
+      "phase": "core_loop",
+      "frequency": "tens",
+      "kind": "screen",
+      "elements": [
+        {
+          "id": "forgot_password.hero",
+          "role": "LEAD",
+          "name": "forgot_password hero",
+          "trigger": "enter",
+          "motion": "fade",
+          "duration": "md",
+          "replay": "once_per_session",
+          "group": "arrival",
+          "purpose": "orientation",
+          "reduced": "crossfade",
+          "note": "DRAFT: wrap the screen's main visual or headline",
+          "curve": "out"
+        },
+        {
+          "id": "forgot_password.content",
+          "role": "FOLLOWER",
+          "name": "content",
+          "trigger": "enter",
+          "motion": "fade",
+          "duration": "sm",
+          "curve": "out",
+          "delay": "stagger",
+          "group": "content",
+          "items": 4,
+          "replay": "once_per_session",
+          "purpose": "orientation",
+          "reduced": "settled",
+          "note": "DRAFT: wrap each row/card with MotionSlot(id, index: i)"
+        },
+        {
+          "id": "forgot_password.action_1",
+          "role": "CONTROL",
+          "name": "action 1",
+          "trigger": "tap",
+          "motion": "tint",
+          "duration": "xs",
+          "curve": "standard",
+          "action_frequency": "tens",
+          "purpose": "feedback",
+          "reduced": "keep_feedback",
+          "note": "DRAFT: MotionSlot(id, onTap: ..., child: ...)"
+        }
+      ],
+      "states": {
+        "enter": [
+          "forgot_password.hero",
+          "forgot_password.content"
+        ],
+        "loading": "n/a: DRAFT — no loading handling found in code; review",
+        "empty": "still: DRAFT — empty state text appears without motion",
+        "error": "n/a: DRAFT — no error handling found in code; review",
+        "success": "n/a: DRAFT — no success handling found in code; review",
+        "insert": "n/a: DRAFT — no insert handling found in code; review",
+        "remove": "n/a: DRAFT — no remove handling found in code; review",
+        "refresh": "n/a: DRAFT — no refresh handling found in code; review",
+        "scroll": "n/a: DRAFT — no scroll handling found in code; review",
+        "keyboard": "n/a: DRAFT — no keyboard handling found in code; review",
+        "offline": "n/a: DRAFT — no offline handling found in code; review"
+      }
+    },
+    "splash": {
+      "title": "Splash",
+      "phase": "first_run",
+      "frequency": "rare",
+      "kind": "screen",
+      "elements": [
+        {
+          "id": "splash.hero",
+          "role": "LEAD",
+          "name": "splash hero",
+          "trigger": "enter",
+          "motion": "settle",
+          "duration": "lg",
+          "replay": "once_per_visit",
+          "group": "arrival",
+          "purpose": "orientation",
+          "reduced": "crossfade",
+          "note": "DRAFT: wrap the screen's main visual or headline",
+          "spring": "springSmooth"
+        },
+        {
+          "id": "splash.content",
+          "role": "FOLLOWER",
+          "name": "content",
+          "trigger": "enter",
+          "motion": "fade",
+          "duration": "sm",
+          "curve": "out",
+          "delay": "stagger",
+          "group": "content",
+          "items": 1,
+          "replay": "once_per_visit",
+          "purpose": "orientation",
+          "reduced": "settled",
+          "note": "DRAFT: wrap each row/card with MotionSlot(id, index: i)"
+        }
+      ],
+      "states": {
+        "enter": [
+          "splash.hero",
+          "splash.content"
+        ],
+        "loading": "n/a: DRAFT — no loading handling found in code; review",
+        "empty": "still: DRAFT — empty state text appears without motion",
+        "error": "n/a: DRAFT — no error handling found in code; review",
+        "success": "n/a: DRAFT — no success handling found in code; review",
+        "insert": "n/a: DRAFT — no insert handling found in code; review",
+        "remove": "n/a: DRAFT — no remove handling found in code; review",
+        "refresh": "n/a: DRAFT — no refresh handling found in code; review",
+        "scroll": "n/a: DRAFT — no scroll handling found in code; review",
+        "keyboard": "n/a: DRAFT — no keyboard handling found in code; review",
+        "offline": "n/a: DRAFT — no offline handling found in code; review"
+      }
+    }
+  },
+  "safety": {
+    "reduced_motion": "every element declares reduced; vestibular motion removed",
+    "tier_b": "heavy effects fall back to fades",
+    "loops": "loops stop and pause off-screen"
+  },
+  "cuts": [
+    "sign_up: followers join the LEAD's cascade (one group)",
+    "sign_up: entrance dropped, the route transition carries the arrival"
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "version": "3.0",
+  "app": {
+    "motion_direction": "Quiet Precision",
+    "spatial_model": "DRAFT: Quiet Precision — describe the space in one sentence",
+    "signature_move": "none (still by design)",
+    "accent": null,
+    "grammar": {
+      "parent_child": "shared_axis_x",
+      "sibling": "shared_axis_x",
+      "tab": "instant",
+      "overlay": "sheet",
+      "create": "slide_up"
+    },
+    "motion_brain": "1.2"
+  },
+  "screens": {
+    "pending": {
+      "intensity": 1,
+      "lead": "pending.hero",
+      "signature": "none",
+      "entrance": [
+        "pending.hero",
+        "pending.content"
+      ],
+      "feedback": [],
+      "loading": "n/a: DRAFT — no loading handling found in code; review",
+      "reduced": "pending.hero: crossfade; pending.content: settled",
+      "travellers": [],
+      "kept_still": [],
+      "elements": [
+        "pending.hero",
+        "pending.content"
+      ]
+    },
+    "home": {
+      "intensity": 1,
+      "lead": "home.hero",
+      "signature": "none",
+      "entrance": [
+        "home.hero",
+        "home.content"
+      ],
+      "feedback": [],
+      "loading": "n/a: DRAFT — no loading handling found in code; review",
+      "reduced": "home.hero: crossfade; home.content: settled",
+      "travellers": [],
+      "kept_still": [],
+      "elements": [
+        "home.hero",
+        "home.content"
+      ]
+    },
+    "sign_in": {
+      "intensity": 1,
+      "lead": "sign_in.hero",
+      "signature": "none",
+      "entrance": [
+        "sign_in.hero",
+        "sign_in.content"
+      ],
+      "feedback": [],
+      "loading": "n/a: DRAFT — no loading handling found in code; review",
+      "reduced": "sign_in.hero: crossfade; sign_in.content: settled",
+      "travellers": [],
+      "kept_still": [],
+      "elements": [
+        "sign_in.hero",
+        "sign_in.content"
+      ]
+    },
+    "sign_up": {
+      "intensity": 1,
+      "lead": "still: the route transition is this screen's arrival (budget)",
+      "signature": "none",
+      "entrance": [],
+      "feedback": [
+        "sign_up.action_1"
+      ],
+      "loading": "n/a: DRAFT — no loading handling found in code; review",
+      "reduced": "sign_up.action_1: keep_feedback; sign_up.surface: crossfade",
+      "travellers": [],
+      "kept_still": [
+        "sign_up.hero",
+        "sign_up.content"
+      ],
+      "elements": [
+        "sign_up.hero",
+        "sign_up.content",
+        "sign_up.action_1",
+        "sign_up.surface"
+      ]
+    },
+    "forgot_password": {
+      "intensity": 1,
+      "lead": "forgot_password.hero",
+      "signature": "none",
+      "entrance": [
+        "forgot_password.hero",
+        "forgot_password.content"
+      ],
+      "feedback": [
+        "forgot_password.action_1"
+      ],
+      "loading": "n/a: DRAFT — no loading handling found in code; review",
+      "reduced": "forgot_password.hero: crossfade; forgot_password.content: settled; forgot_password.action_1: keep_feedback",
+      "travellers": [],
+      "kept_still": [],
+      "elements": [
+        "forgot_password.hero",
+        "forgot_password.content",
+        "forgot_password.action_1"
+      ]
+    },
+    "splash": {
+      "intensity": 3,
+      "lead": "splash.hero",
+      "signature": "none",
+      "entrance": [
+        "splash.hero",
+        "splash.content"
+      ],
+      "feedback": [],
+      "loading": "n/a: DRAFT — no loading handling found in code; review",
+      "reduced": "splash.hero: crossfade; splash.content: settled",
+      "travellers": [],
+      "kept_still": [],
+      "elements": [
+        "splash.hero",
+        "splash.content"
+      ]
+    }
+  }
+}
