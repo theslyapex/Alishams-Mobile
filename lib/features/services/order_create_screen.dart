@@ -8,7 +8,8 @@ import '../orders/orders_screen.dart';
 import '../../theme/app_colors.dart';
 
 class OrderCreateScreen extends ConsumerStatefulWidget {
-  const OrderCreateScreen({super.key});
+  final String? initialService;
+  const OrderCreateScreen({super.key, this.initialService});
   @override
   ConsumerState<OrderCreateScreen> createState() => _OrderCreateScreenState();
 }
@@ -20,17 +21,30 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
   final _title = TextEditingController();
   final _details = TextEditingController();
   final _budget = TextEditingController();
-  String _service = 'طراحی وب‌سایت';
+  String _service = 'طراحی وبسایت و قالب وبلاگ';
   bool _busy = false;
   String? _tracking;
 
-  static const _services = ['طراحی وب‌سایت', 'موشن‌گرافیک', 'ویدئوی تبلیغاتی و ریلز', 'بررسی و انتخاب دامنه'];
+  static const _services = [
+    'موشن‌گرافیک',
+    'طراحی وبسایت و قالب وبلاگ',
+    'تیزر تبلیغاتی',
+    'نگارش مقاله وب‌سایت',
+    'مشاوره کسب‌وکار آنلاین',
+    'خدمات شبکه‌های اجتماعی',
+    'طراحی لوگو اختصاصی',
+    'خدمات SEO',
+    'خرید دامنه',
+  ];
 
   @override
   void initState() {
     super.initState();
     final user = Supabase.instance.client.auth.currentUser;
     _name.text = (user?.userMetadata?['full_name'] ?? '').toString();
+    if (widget.initialService != null && _services.contains(widget.initialService)) {
+      _service = widget.initialService!;
+    }
   }
 
   @override
