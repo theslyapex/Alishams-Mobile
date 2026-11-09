@@ -44,12 +44,16 @@ class AuthState {
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier() : super(const AuthState()) {
+  AuthNotifier() : super(const AuthState(isLoading: true)) {
     _subscription = _client.auth.onAuthStateChange.listen((event) {
       unawaited(_applySession(event.session));
     });
     final current = _client.auth.currentSession;
-    if (current != null) unawaited(_applySession(current));
+    if (current != null) {
+      unawaited(_applySession(current));
+    } else {
+      state = const AuthState();
+    }
   }
 
   final SupabaseClient _client = Supabase.instance.client;
