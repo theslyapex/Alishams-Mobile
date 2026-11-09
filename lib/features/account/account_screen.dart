@@ -9,6 +9,7 @@ import '../../theme/app_colors.dart';
 import '../plus/plus_screen.dart';
 import '../club/club_screen.dart';
 import '../projects/projects_screen.dart';
+import '../notifications/notifications_screen.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -50,7 +51,7 @@ class AccountScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     _sectionTitle(context, 'تنظیمات و پشتیبانی'),
                     const SizedBox(height: 10),
-                    _menuTile(context, c, Icons.notifications_none_rounded, 'اعلان‌ها', 'مدیریت پیام‌ها و اطلاع‌رسانی‌ها', onTap: () => _message(context, 'تنظیمات اعلان‌ها در نسخه بعدی فعال می‌شود.')),
+                    _menuTile(context, c, Icons.notifications_none_rounded, 'اعلان‌ها', 'پیگیری پیام‌های سفارش، پروژه، پرداخت، پلاس و باشگاه', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationsScreen())); } }),
                     const SizedBox(height: 9),
                     _menuTile(context, c, Icons.shield_outlined, 'حریم خصوصی و امنیت', 'اطلاعات و امنیت حساب', onTap: () => _message(context, 'بخش حریم خصوصی در حال آماده‌سازی است.')),
                     const SizedBox(height: 9),
