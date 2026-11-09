@@ -233,7 +233,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
             ]),
           )),
         ],
-        if (payments.isNotEmpty) [
+        if (payments.isNotEmpty) ...[
           const SizedBox(height:12),
           Text('سوابق پرداخت',style:Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight:FontWeight.w800)),
           const SizedBox(height:7),
