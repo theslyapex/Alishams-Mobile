@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -12,7 +11,7 @@ const String _notificationChannelName = 'اعلان‌های علی‌شمس';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Notification payloads are displayed by FCM while the app is backgrounded.
+  // FCM displays notification payloads automatically while Android is backgrounded.
 }
 
 class PushNotificationService {
@@ -32,6 +31,8 @@ class PushNotificationService {
   Stream<String> get tokenRefreshes => _messaging.onTokenRefresh;
 
   Future<void> initialize() async {
+    if (kIsWeb || !Platform.isAndroid) return;
+
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     await _initializeLocalNotifications();
     await _messaging.requestPermission(alert: true, badge: true, sound: true);
@@ -49,37 +50,28 @@ class PushNotificationService {
   }
 
   Future<void> _initializeLocalNotifications() async {
-    if (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)) return;
-
     const initializationSettings = InitializationSettings(
-      android: AndroidInitializationSettings('@drawable/ic_stat_alishams'),
-      iOS: DarwinInitializationSettings(
-        requestAlertPermission: false,
-        requestBadgePermission: false,
-        requestSoundPermission: false,
-      ),
+      android: AndroidInitializationSettings('ic_stat_alishams'),
     );
 
     await _localNotifications.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (response) {
-        // The app remains responsible for routing from notification payloads.
+        // Notification routing can be connected to the app router later.
       },
     );
 
-    if (Platform.isAndroid) {
-      const channel = AndroidNotificationChannel(
-        _notificationChannelId,
-        _notificationChannelName,
-        description: 'به‌روزرسانی سفارش‌ها، پروژه‌ها و حساب کاربری',
-        importance: Importance.max,
-        playSound: true,
-      );
-      await _localNotifications
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(channel);
-    }
+    const channel = AndroidNotificationChannel(
+      _notificationChannelId,
+      _notificationChannelName,
+      description: 'به‌روزرسانی سفارش‌ها، پروژه‌ها و حساب کاربری',
+      importance: Importance.max,
+      playSound: true,
+    );
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
 
     _localNotificationsReady = true;
   }
@@ -105,24 +97,20 @@ class PushNotificationService {
         playSound: true,
         icon: 'ic_stat_alishams',
       ),
-      iOS: DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-      ),
     );
 
     await _localNotifications.show(
-      message.messageId?.hashCode ?? DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      message.messageId?.hashCode ??
+          DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title,
       body,
       details,
-      payload: jsonEncode(message.data),
+      payload: message.data.toString(),
     );
   }
 
   Future<void> registerForUser() async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (kIsWeb || !Platform.isAndroid) return;
     final client = Supabase.instance.client;
     if (client.auth.currentUser == null) return;
     try {
@@ -137,8 +125,8 @@ class PushNotificationService {
       await client.functions.invoke('mobile-push-devices', body: {
         'action': 'register',
         'fcm_token': token,
-        'platform': Platform.isIOS ? 'ios' : 'android',
-        'device_label': Platform.operatingSystem,
+        'platform': 'android',
+        'device_label': 'android',
       });
     } catch (error) {
       debugPrint('FCM device registration failed: $error');
@@ -146,7 +134,7 @@ class PushNotificationService {
   }
 
   Future<void> unregisterForCurrentUser() async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (kIsWeb || !Platform.isAndroid) return;
     try {
       final token = await _messaging.getToken();
       if (token == null || token.isEmpty) return;
