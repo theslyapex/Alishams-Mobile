@@ -93,6 +93,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       id: user.id,
       name: displayName,
       email: user.email ?? '',
+      avatarUrl: metadata['avatar_url']?.toString(),
     );
   }
 
@@ -225,6 +226,35 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }, onConflict: 'user_id');
       state = AuthState(user: _mapUser(user), notice: 'نام حساب با موفقیت به‌روزرسانی شد.');
       unawaited(_recordSecurityEvent('profile_updated'));
+      return true;
+    } catch (error) {
+      state = AuthState(user: state.user, error: _friendlyError(error));
+      return false;
+    }
+  }
+
+  Future<bool> updateProfileAvatar(String avatarUrl) async {
+    final cleanUrl = avatarUrl.trim();
+    if (cleanUrl.isEmpty || !cleanUrl.startsWith('https://')) {
+      state = state.copyWith(error: 'آدرس تصویر معتبر نیست.');
+      return false;
+    }
+    final current = _client.auth.currentUser;
+    if (current == null) return false;
+    state = state.copyWith(isLoading: true, clearError: true, clearNotice: true);
+    try {
+      final response = await _client.auth.updateUser(
+        UserAttributes(data: {'avatar_url': cleanUrl}),
+      );
+      final user = response.user;
+      if (user == null) throw const AuthException('به‌روزرسانی تصویر حساب انجام نشد.');
+      await _client.from('user_profiles').upsert({
+        'user_id': user.id,
+        'avatar_url': cleanUrl,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }, onConflict: 'user_id');
+      state = AuthState(user: _mapUser(user), notice: 'تصویر پروفایل به‌روزرسانی شد.');
+      unawaited(_recordSecurityEvent('profile_avatar_updated'));
       return true;
     } catch (error) {
       state = AuthState(user: state.user, error: _friendlyError(error));
