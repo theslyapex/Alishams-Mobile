@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../models/portfolio_item.dart';
 import '../../theme/app_colors.dart';
@@ -15,11 +16,41 @@ class PortfolioDetailScreen extends StatefulWidget {
 
 class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
   bool _opening = false;
+  VideoPlayerController? _videoController;
+  bool _videoLoading = false;
+  String? _videoError;
 
   @override
   void initState() {
     super.initState();
     _recordView();
+    if (widget.item.kind == PortfolioKind.video) _initializeVideo();
+  }
+
+  Future<void> _initializeVideo() async {
+    final raw = (widget.item.targetUrl ?? '').trim();
+    final uri = Uri.tryParse(raw);
+    final path = (uri?.path ?? '').toLowerCase();
+    final isDirectVideo = ['.mp4', '.m4v', '.mov', '.webm', '.m3u8'].any(path.endsWith);
+    if (!isDirectVideo || uri == null || !uri.hasScheme) return;
+    setState(() => _videoLoading = true);
+    try {
+      final controller = VideoPlayerController.networkUrl(uri);
+      _videoController = controller;
+      await controller.initialize();
+      await controller.setLooping(false);
+      if (mounted) setState(() => _videoLoading = false);
+    } catch (_) {
+      await _videoController?.dispose();
+      _videoController = null;
+      if (mounted) setState(() { _videoLoading = false; _videoError = 'پخش این فایل ویدئویی در دستگاه انجام نشد.'; });
+    }
+  }
+
+  @override
+  void dispose() {
+    _videoController?.dispose();
+    super.dispose();
   }
 
   Future<void> _recordView() async {
@@ -74,6 +105,26 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
     );
   }
 
+  Widget _videoPlayer(AppColors c) {
+    final controller = _videoController;
+    if (_videoLoading) return const Center(child: CircularProgressIndicator());
+    if (controller == null || !controller.value.isInitialized) {
+      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.play_circle_outline_rounded, color: Colors.white70, size: 48),
+        const SizedBox(height: 8),
+        Text(_videoError ?? 'برای این ویدئو پخش‌کننده مستقیم در دسترس نیست.', style: TextStyle(color: Colors.white70, fontSize: 11), textAlign: TextAlign.center),
+      ]));
+    }
+    return GestureDetector(
+      onTap: () => setState(() => controller.value.isPlaying ? controller.pause() : controller.play()),
+      child: Stack(fit: StackFit.expand, alignment: Alignment.center, children: [
+        FittedBox(fit: BoxFit.contain, child: SizedBox(width: controller.value.size.width, height: controller.value.size.height, child: VideoPlayer(controller))),
+        if (!controller.value.isPlaying) const Center(child: Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 58)),
+        Positioned(left: 8, right: 8, bottom: 8, child: VideoProgressIndicator(controller, allowScrubbing: true, colors: const VideoProgressColors(playedColor: Color(0xFF22D3EE), bufferedColor: Colors.white38, backgroundColor: Colors.white24))),
+      ]),
+    );
+  }
+
   Widget _imageFallback(AppColors c) => Container(
         color: c.surface,
         alignment: Alignment.center,
@@ -104,8 +155,8 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      _image(c),
-                      if (isVideo)
+                      if (isVideo) _videoPlayer(c) else _image(c),
+                      if (false)
                         Align(
                           alignment: Alignment.center,
                           child: Container(
@@ -158,7 +209,7 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
                         )),
               ],
               const SizedBox(height: 22),
-              if (item.hasExternalAction)
+              if (item.hasExternalAction && (!isVideo || _videoController == null))
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
@@ -169,13 +220,17 @@ class _PortfolioDetailScreenState extends State<PortfolioDetailScreen> {
                     label: Text(_opening
                         ? 'در حال باز کردن…'
                         : isVideo
-                            ? 'پخش ویدئو'
+                            ? 'پخش ویدئو در مرورگر'
                             : item.kind == PortfolioKind.social
                                 ? 'مشاهده صفحه'
                                 : 'مشاهده پروژه زنده'),
                   ),
                 ),
-              if ((item.caseStudyUrl ?? '').isNotEmpty) ...[
+              if (isVideo && _videoController != null && _videoController!.value.isInitialized) ...[
+                const SizedBox(height: 10),
+                OutlinedButton.icon(onPressed: () => setState(() => _videoController!.value.isPlaying ? _videoController!.pause() : _videoController!.play()), icon: Icon(_videoController!.value.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded), label: Text(_videoController!.value.isPlaying ? 'توقف ویدئو' : 'پخش ویدئو')),
+              ],
+              if ((item.caseStudyUrl ?? '').isNotEmpty) [
                 const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
