@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../theme/app_colors.dart';
@@ -18,6 +19,90 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
   final _confirm = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+  bool _devicesLoading = true;
+  bool _revokingSessions = false;
+  List<Map<String, dynamic>> _devices = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDevices();
+  }
+
+  Future<void> _loadDevices() async {
+    try {
+      final result = await Supabase.instance.client.functions.invoke(
+        'mobile-push-devices',
+        body: {'action': 'list'},
+      );
+      final data = result.data;
+      final raw = data is Map ? data['devices'] : null;
+      if (!mounted) return;
+      setState(() {
+        _devices = raw is List
+            ? raw.whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList()
+            : [];
+        _devicesLoading = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _devicesLoading = false);
+    }
+  }
+
+  Future<void> _deactivateDevice(Map<String, dynamic> device) async {
+    final id = device['id']?.toString() ?? '';
+    if (id.isEmpty) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('غیرفعال‌سازی اعلان دستگاه'),
+        content: const Text('اعلان‌های این دستگاه از حساب شما قطع می‌شود. این کار به‌تنهایی نشست ورود آن دستگاه را نمی‌بندد.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('انصراف')),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('غیرفعال‌سازی')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await Supabase.instance.client.functions.invoke(
+        'mobile-push-devices',
+        body: {'action': 'deactivate', 'device_id': id},
+      );
+      await _loadDevices();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('اعلان این دستگاه غیرفعال شد.')));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('غیرفعال‌سازی انجام نشد؛ دوباره تلاش کنید.')));
+    }
+  }
+
+  Future<void> _signOutOtherSessions() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('خروج از دستگاه‌های دیگر'),
+        content: const Text('نشست ورود سایر دستگاه‌ها و مرورگرها لغو می‌شود. حساب در این دستگاه باز می‌ماند.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('انصراف')),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('خروج از سایر دستگاه‌ها')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    setState(() => _revokingSessions = true);
+    try {
+      await ref.read(authProvider.notifier).signOutOtherSessions();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('درخواست خروج از سایر نشست‌ها با موفقیت انجام شد.')));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('لغو نشست‌های دیگر انجام نشد؛ اتصال را بررسی و دوباره تلاش کنید.')));
+    } finally {
+      if (mounted) setState(() => _revokingSessions = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -56,6 +141,17 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
             : (auth.error ?? 'ارسال لینک بازیابی انجام نشد.')),
       ),
     );
+  }
+
+  String _formatDeviceDate(dynamic value) {
+    if (value == null) return 'نامشخص';
+    final date = DateTime.tryParse(value.toString())?.toLocal();
+    if (date == null) return 'نامشخص';
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final h = date.hour.toString().padLeft(2, '0');
+    final min = date.minute.toString().padLeft(2, '0');
+    return '$d/$m • $h:$min';
   }
 
   @override
@@ -118,6 +214,53 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                     const SizedBox(width: 10),
                     Expanded(child: Text(email, textDirection: TextDirection.ltr, textAlign: TextAlign.right, style: Theme.of(context).textTheme.bodyMedium)),
                   ],
+                ),
+              ),
+              const SizedBox(height: 22),
+              Text('دستگاه‌های متصل', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+              const SizedBox(height: 7),
+              Text('این فهرست دستگاه‌هایی را نشان می‌دهد که اعلان‌های حساب روی آن‌ها فعال شده است؛ فهرست نشست‌های ورود نیست.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted, height: 1.5)),
+              const SizedBox(height: 10),
+              if (_devicesLoading)
+                const Center(child: Padding(padding: EdgeInsets.all(18), child: CircularProgressIndicator()))
+              else if (_devices.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(15), border: Border.all(color: c.line)),
+                  child: Text('دستگاه ثبت‌شده‌ای برای اعلان‌ها پیدا نشد.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted)),
+                )
+              else
+                ..._devices.map((device) => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+                  decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(15), border: Border.all(color: c.line)),
+                  child: Row(children: [
+                    Icon(Icons.phone_android_rounded, color: c.secondary, size: 25),
+                    const SizedBox(width: 10),
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text((device['device_label'] ?? 'دستگاه اندرویدی').toString(), style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 3),
+                      Text('آخرین فعالیت: ${_formatDeviceDate(device['last_seen_at'])}', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted)),
+                    ])),
+                    IconButton(
+                      tooltip: 'غیرفعال‌سازی اعلان',
+                      onPressed: () => _deactivateDevice(device),
+                      icon: Icon(Icons.notifications_off_outlined, color: c.danger),
+                    ),
+                  ]),
+                )),
+              OutlinedButton.icon(
+                onPressed: _loadDevices,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('به‌روزرسانی فهرست دستگاه‌ها'),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _revokingSessions ? null : _signOutOtherSessions,
+                  icon: const Icon(Icons.phonelink_erase_rounded),
+                  label: Text(_revokingSessions ? 'در حال لغو نشست‌ها…' : 'خروج از همه دستگاه‌های دیگر'),
                 ),
               ),
               const SizedBox(height: 24),
