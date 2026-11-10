@@ -83,7 +83,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
           sliver: SliverList(delegate: SliverChildListDelegate([
             Row(children: [
-              Container(width: 48, height: 48, padding: const EdgeInsets.all(7), decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(begin: Alignment.topRight, end: Alignment.bottomLeft, colors: [c.primary.withValues(alpha: .25), c.secondary.withValues(alpha: .12)]), border: Border.all(color: c.line)), child: Image.asset(AppAssets.logo, fit: BoxFit.contain, errorBuilder: (_, __, ___) => const Icon(Icons.auto_awesome, color: Colors.white))),
+              SizedBox(width: 48, height: 48, child: Image.asset(AppAssets.logo, fit: BoxFit.contain, errorBuilder: (_, __, ___) => const Icon(Icons.auto_awesome, color: Colors.white))),
               const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('علی‌شمس', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
