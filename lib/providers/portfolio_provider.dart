@@ -18,6 +18,8 @@ final portfolioItemsProvider = FutureProvider<List<PortfolioItem>>((ref) async {
 
   final visibilityRows = await client.from('mobile_app_portfolio_visibility')
       .select('item_key,is_visible');
+  final homeFeaturedRows = await client.from('mobile_app_home_featured_portfolio')
+      .select('slot,item_key').order('slot');
   final visibilityMap = <String, bool>{
     for (final row in visibilityRows as List)
       (row as Map)['item_key'].toString(): (row as Map)['is_visible'] == true,
@@ -85,5 +87,28 @@ final portfolioItemsProvider = FutureProvider<List<PortfolioItem>>((ref) async {
       .where((item) => isVisibleInApp('video:${item.id}'))
       .toList();
 
-  return <PortfolioItem>[...visibleWebsites, ...visibleGallery, ...visibleVideos];
+  final allVisible = <PortfolioItem>[...visibleWebsites, ...visibleGallery, ...visibleVideos];
+  final configuredHome = (homeFeaturedRows as List)
+      .where((row) => (row as Map)['item_key'] != null)
+      .toList()
+    ..sort((a, b) => ((a as Map)['slot'] as num).compareTo((b as Map)['slot'] as num));
+  if (configuredHome.isNotEmpty) {
+    final byKey = <String, PortfolioItem>{};
+    for (final item in allVisible) {
+      final key = item.id.startsWith('website-')
+          ? item.id
+          : item.kind == PortfolioKind.video
+              ? 'video:${item.id}'
+              : 'portfolio:${item.id}';
+      byKey[key] = item;
+    }
+    final selected = <PortfolioItem>[];
+    for (final row in configuredHome) {
+      final key = (row as Map)['item_key'].toString();
+      final item = byKey[key];
+      if (item != null && !selected.any((existing) => existing.id == item.id)) selected.add(item);
+    }
+    return selected;
+  }
+  return allVisible;
 });
