@@ -209,9 +209,16 @@ class SmartEstimateCardState extends State<SmartEstimateCard> {
                   onPressed: _selected.isEmpty
                       ? null
                       : () {
-                          final firstService = _selected.keys.first;
+                          final quantities = <String, int>{
+                            for (final entry in _selected.entries)
+                              entry.key: entry.value.quantity,
+                          };
+                          final firstService = quantities.keys.first;
                           Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => OrderCreateScreen(initialService: firstService),
+                            builder: (_) => OrderCreateScreen(
+                              initialService: firstService,
+                              initialServiceQuantities: quantities,
+                            ),
                           ));
                         },
                   icon: const Icon(Icons.assignment_turned_in_outlined),
