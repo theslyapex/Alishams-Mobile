@@ -70,10 +70,10 @@ class _CommunityVoiceMessageState extends State<CommunityVoiceMessage> {
           builder: (_, snap) {
             final duration = _player.duration ?? Duration.zero;
             final pos = snap.data ?? Duration.zero;
-            final max = duration.inMilliseconds.toDouble().clamp(1, double.infinity);
+            final max = duration.inMilliseconds.toDouble().clamp(1.0, double.infinity).toDouble();
             return Column(children: [
               Slider(
-                value: pos.inMilliseconds.toDouble().clamp(0, max), max: max,
+                value: pos.inMilliseconds.toDouble().clamp(0.0, max).toDouble(), max: max,
                 onChanged: _ready ? (v) => _player.seek(Duration(milliseconds: v.toInt())) : null,
                 activeColor: const Color(0xFF9E83FF),
                 inactiveColor: color.withValues(alpha: .18),
