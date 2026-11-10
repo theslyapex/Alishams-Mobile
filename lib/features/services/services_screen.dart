@@ -102,7 +102,7 @@ class ServicesScreen extends StatelessWidget {
                       },
                     ),
                     const SizedBox(height: 24),
-                    _SmartEstimateCard(colors: c),
+                    SmartEstimateCard(colors: c),
                     const SizedBox(height: 22),
                     _processCard(context, c),
                     const SizedBox(height: 18),
