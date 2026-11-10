@@ -23,17 +23,17 @@ List<Map<String,dynamic>> _avangaarHtmlToDelta(String html){
   if(tag=='a'){final href=node.attributes['href']??'';if(href.startsWith('https://')||href.startsWith('http://')||href.startsWith('mailto:'))attrs['link']=href;}
   if(tag=='span'&&(node.attributes['style']??'').toLowerCase().contains('#d9ff72'))attrs['color']='#D9FF72';
   for(final child in node.nodes){walk(child,attrs);}
-  if(['p','div','li'].contains(tag))add('\\n',{});
+  if(['p','div','li'].contains(tag))add('\n',{});
  }
  for(final node in fragment.nodes){walk(node,{});}
- if(ops.isEmpty||!(ops.last['insert'] as String).endsWith('\\n'))add('\\n',{});
+ if(ops.isEmpty||!(ops.last['insert'] as String).endsWith('\n'))add('\n',{});
  return ops;
 }
 String _avangaarDeltaToHtml(QuillController controller){
  final out=StringBuffer();
  for(final raw in controller.document.toDelta().toJson()){
   final value=raw['insert'];if(value is! String)continue;final a=Map<String,dynamic>.from(raw['attributes']??{});
-  final chunks=value.split('\\n');
+  final chunks=value.split('\n');
   for(var i=0;i<chunks.length;i++){
    var t=chunks[i];if(t.isNotEmpty){t=t.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');if(a['bold']==true)t='<strong>$t</strong>';if(a['italic']==true)t='<em>$t</em>';if(a['underline']==true)t='<u>$t</u>';if(a['color']?.toString().toUpperCase()=='#D9FF72')t='<span style="color:#D9FF72">$t</span>';if(a['link']!=null){final href=a['link'].toString();if(href.startsWith('https://')||href.startsWith('http://')||href.startsWith('mailto:'))t='<a href="$href">$t</a>'; }out.write(t);}
    if(i<chunks.length-1)out.write('<br>');
