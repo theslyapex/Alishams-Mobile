@@ -238,7 +238,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: -.2,
             )),
             const SizedBox(height: 5),
-            Text('با اعضای Alishams گفتگو کن؛ تجربه‌هایت را به اشتراک بگذار.',
+            Text('با اعضای Alishams گفت‌و‌گو کن',
               maxLines: 2, overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white.withValues(alpha: .78), height: 1.7)),
           ],
