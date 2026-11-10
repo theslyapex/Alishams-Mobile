@@ -21,7 +21,6 @@ dependencies:
   lottie: ^3.7.0
   image_picker: ^1.1.2
   flutter_quill: ^11.4.2
-  flutter_html: ^3.0.0
   html: ^0.15.6
   image_cropper: ^13.0.0
   image: ^4.12.0
