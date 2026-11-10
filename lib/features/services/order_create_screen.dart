@@ -145,7 +145,7 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
     }
     final requested = widget.initialServiceQuantities ?? const <String, int>{};
     for (final entry in requested.entries) {
-      if (_services.contains(entry.key)) _estimatedServices[entry.key] = entry.value.clamp(1, 100);
+      if (_services.contains(entry.key)) _estimatedServices[entry.key] = entry.value.clamp(1, 100).toInt();
     }
     if (_estimatedServices.isNotEmpty) _service = _estimatedServices.keys.first;
   }
