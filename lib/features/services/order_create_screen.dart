@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -144,15 +142,15 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('برای ثبت سفارش ابتدا وارد حساب کاربری شوید.')));
       return;
     }
-    final structured = <String, dynamic>{
+    final answerLines = <String>[
       for (final entry in _answers.entries)
-        if (entry.value.trim().isNotEmpty) entry.key: entry.value.trim(),
+        if (entry.value.trim().isNotEmpty) '• ${entry.key}: ${entry.value.trim()}',
       for (final entry in _multiAnswers.entries)
-        if (entry.value.isNotEmpty) entry.key: entry.value.toList(),
-    };
+        if (entry.value.isNotEmpty) '• ${entry.key}: ${entry.value.join('، ')}',
+    ];
     final fullDetails = [
+      if (answerLines.isNotEmpty) 'اطلاعات اختصاصی خدمت:\n${answerLines.join('\n')}',
       if (_details.text.trim().isNotEmpty) 'توضیحات تکمیلی:\n${_details.text.trim()}',
-      'پاسخ‌های اختصاصی فرم:\n${JsonEncoder.withIndent('  ').convert(structured)}',
     ].join('\n\n');
 
     setState(() => _busy = true);
