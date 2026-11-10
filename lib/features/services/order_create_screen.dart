@@ -42,32 +42,32 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
 
   static const Map<String, List<_OrderField>> _formFields = {
     'طراحی وبسایت و قالب وبلاگ': [
-      _OrderField('نوع وب‌سایت', choices: ['شرکتی', 'فروشگاهی', 'شخصی و رزومه', 'خبری و مجله‌ای', 'وبلاگ', 'آموزشی', 'خدماتی', 'سایر']),
-      _OrderField('تعداد صفحات تقریبی', choices: ['۱ تا ۵ صفحه', '۶ تا ۱۰ صفحه', '۱۱ تا ۲۰ صفحه', 'بیش از ۲۰ صفحه', 'نیاز به مشاوره دارم']),
+      _OrderField('نوع وب‌سایت', isRequired: true, choices: ['شرکتی', 'فروشگاهی', 'شخصی و رزومه', 'خبری و مجله‌ای', 'وبلاگ', 'آموزشی', 'خدماتی', 'سایر']),
+      _OrderField('تعداد صفحات تقریبی', isRequired: true, choices: ['۱ تا ۵ صفحه', '۶ تا ۱۰ صفحه', '۱۱ تا ۲۰ صفحه', 'بیش از ۲۰ صفحه', 'نیاز به مشاوره دارم']),
       _OrderField('دامنه موردنظر', hint: 'مثلاً example.com یا هنوز انتخاب نکرده‌ام'),
-      _OrderField('مهلت تحویل', choices: ['کمتر از یک هفته', '۱ تا ۲ هفته', '۲ تا ۴ هفته', '۱ تا ۲ ماه', 'شناور / با مشورت']),
+      _OrderField('مهلت تحویل', isRequired: true, choices: ['کمتر از یک هفته', '۱ تا ۲ هفته', '۲ تا ۴ هفته', '۱ تا ۲ ماه', 'شناور / با مشورت']),
       _OrderField('امکانات موردنیاز', multi: true, choices: ['فروشگاه و سبد خرید', 'درگاه پرداخت', 'پنل مدیریت', 'عضویت و ورود کاربران', 'فرم تماس و درخواست', 'چندزبانه', 'رزرو و نوبت‌دهی', 'گالری تصاویر و ویدئو', 'اتصال به شبکه‌های اجتماعی']),
       _OrderField('سئوی سایت', choices: ['بله، سئوی پایه', 'بله، سئوی کامل‌تر', 'خیر', 'نیاز به مشاوره دارم']),
       _OrderField('وبلاگ داشته باشد؟', choices: ['بله', 'خیر', 'بعداً تصمیم می‌گیرم']),
       _OrderField('ویژگی‌های اختصاصی', multiline: true, hint: 'هر قابلیت یا نمونه‌ای که مدنظر دارید توضیح دهید.'),
     ],
     'خرید دامنه': [
-      _OrderField('نام دامنه (بدون پسوند)', hint: 'مثلاً mybrand'),
-      _OrderField('پسوندهای موردنظر', multi: true, choices: ['.com', '.ir', '.net', '.org', '.co', '.info', '.biz', '.xyz', '.online', '.store', 'سایر پسوندها']),
+      _OrderField('نام دامنه (بدون پسوند)', isRequired: true, hint: 'مثلاً mybrand'),
+      _OrderField('پسوندهای موردنظر', isRequired: true, multi: true, choices: ['.com', '.ir', '.net', '.org', '.co', '.info', '.biz', '.xyz', '.online', '.store', 'سایر پسوندها']),
       _OrderField('وضعیت درخواست', choices: ['ثبت دامنه جدید', 'انتقال دامنه فعلی', 'تمدید دامنه']),
       _OrderField('مدت ثبت', choices: ['۱ سال', '۲ سال', '۵ سال', 'نیاز به راهنمایی']),
       _OrderField('نام مالک دامنه', hint: 'نام شخص یا مجموعه‌ای که دامنه به نام او ثبت می‌شود'),
     ],
     'موشن‌گرافیک': [
-      _OrderField('مدت ویدئو', choices: ['۱۵ تا ۳۰ ثانیه', '۳۰ تا ۶۰ ثانیه', '۱ تا ۲ دقیقه', 'بیش از ۲ دقیقه', 'نیاز به پیشنهاد دارم']),
-      _OrderField('سبک بصری', choices: ['مینیمال', 'دو‌بعدی', 'سه‌بعدی', 'تایپوگرافی متحرک', 'ترکیبی', 'پیشنهاد استودیو']),
+      _OrderField('مدت ویدئو', isRequired: true, choices: ['۱۵ تا ۳۰ ثانیه', '۳۰ تا ۶۰ ثانیه', '۱ تا ۲ دقیقه', 'بیش از ۲ دقیقه', 'نیاز به پیشنهاد دارم']),
+      _OrderField('سبک بصری', isRequired: true, choices: ['مینیمال', 'دو‌بعدی', 'سه‌بعدی', 'تایپوگرافی متحرک', 'ترکیبی', 'پیشنهاد استودیو']),
       _OrderField('سناریو', choices: ['آماده دارم', 'ایده اولیه دارم', 'نیاز به سناریونویسی دارم']),
       _OrderField('گویندگی و موسیقی', choices: ['گویندگی و موسیقی', 'فقط موسیقی', 'بدون صدا', 'نیاز به مشاوره']),
       _OrderField('متن یا توضیح سناریو', multiline: true),
       _OrderField('ابعاد خروجی', choices: ['عمودی ۹:۱۶', 'افقی ۱۶:۹', 'مربعی ۱:۱', 'چند خروجی']),
     ],
     'تیزر تبلیغاتی': [
-      _OrderField('محصول یا خدمت مورد تبلیغ', hint: 'نام و توضیح کوتاه'),
+      _OrderField('محصول یا خدمت مورد تبلیغ', isRequired: true, hint: 'نام و توضیح کوتاه'),
       _OrderField('هدف تیزر', choices: ['معرفی برند', 'معرفی محصول', 'افزایش فروش', 'معرفی خدمات', 'کمپین تبلیغاتی']),
       _OrderField('مدت تیزر', choices: ['۱۵ تا ۳۰ ثانیه', '۳۰ تا ۶۰ ثانیه', '۱ تا ۲ دقیقه', 'بیش از ۲ دقیقه']),
       _OrderField('سبک تولید', choices: ['موشن‌گرافیک', 'ویدئوی واقعی و تدوین', 'ترکیبی', 'پیشنهاد استودیو']),
@@ -75,7 +75,7 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
       _OrderField('توضیحات و پیام اصلی', multiline: true),
     ],
     'نگارش مقاله وب‌سایت': [
-      _OrderField('موضوع یا حوزه مقاله', hint: 'موضوع دقیق یا حوزه کلی'),
+      _OrderField('موضوع یا حوزه مقاله', isRequired: true, hint: 'موضوع دقیق یا حوزه کلی'),
       _OrderField('تعداد مقاله', choices: ['۱ مقاله', '۲ تا ۵ مقاله', '۶ تا ۱۰ مقاله', 'بیش از ۱۰ مقاله']),
       _OrderField('حجم هر مقاله', choices: ['۵۰۰ تا ۸۰۰ کلمه', '۸۰۰ تا ۱۲۰۰ کلمه', '۱۲۰۰ تا ۲۰۰۰ کلمه', 'بیش از ۲۰۰۰ کلمه', 'پیشنهاد نویسنده']),
       _OrderField('لحن نگارش', choices: ['رسمی و تخصصی', 'آموزشی و ساده', 'تبلیغاتی', 'صمیمی و محاوره‌ای']),
@@ -83,21 +83,21 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
       _OrderField('مخاطب و منابع مدنظر', multiline: true),
     ],
     'مشاوره کسب‌وکار آنلاین': [
-      _OrderField('حوزه فعالیت', hint: 'مثلاً فروشگاه، خدمات، آموزش و ...'),
+      _OrderField('حوزه فعالیت', isRequired: true, hint: 'مثلاً فروشگاه، خدمات، آموزش و ...'),
       _OrderField('مرحله کسب‌وکار', choices: ['ایده اولیه', 'شروع فعالیت', 'فعال و نیازمند توسعه', 'فعال و نیازمند بازطراحی مسیر']),
-      _OrderField('موضوع مشاوره', choices: ['شروع کسب‌وکار آنلاین', 'استراتژی و بازاریابی', 'برندینگ', 'محتوا و شبکه‌های اجتماعی', 'وب‌سایت و فروش آنلاین', 'سایر']),
+      _OrderField('موضوع مشاوره', isRequired: true, choices: ['شروع کسب‌وکار آنلاین', 'استراتژی و بازاریابی', 'برندینگ', 'محتوا و شبکه‌های اجتماعی', 'وب‌سایت و فروش آنلاین', 'سایر']),
       _OrderField('هدف اصلی و چالش فعلی', multiline: true),
       _OrderField('شیوه ترجیحی', choices: ['جلسه آنلاین', 'مشاوره متنی', 'فرقی ندارد']),
     ],
     'خدمات شبکه‌های اجتماعی': [
-      _OrderField('پلتفرم‌های موردنظر', multi: true, choices: ['اینستاگرام', 'تلگرام', 'لینکدین', 'یوتیوب', 'سایر']),
-      _OrderField('نوع خدمات', multi: true, choices: ['برنامه‌ریزی محتوا', 'طراحی پست و استوری', 'تقویم انتشار', 'مدیریت صفحه', 'ایده‌پردازی و سناریو', 'تحلیل عملکرد']),
+      _OrderField('پلتفرم‌های موردنظر', isRequired: true, multi: true, choices: ['اینستاگرام', 'تلگرام', 'لینکدین', 'یوتیوب', 'سایر']),
+      _OrderField('نوع خدمات', isRequired: true, multi: true, choices: ['برنامه‌ریزی محتوا', 'طراحی پست و استوری', 'تقویم انتشار', 'مدیریت صفحه', 'ایده‌پردازی و سناریو', 'تحلیل عملکرد']),
       _OrderField('تعداد صفحات یا حساب‌ها', choices: ['۱', '۲ تا ۳', '۴ تا ۵', 'بیش از ۵']),
       _OrderField('آدرس صفحات فعلی', multiline: true, hint: 'در صورت وجود، لینک صفحات را وارد کنید.'),
       _OrderField('هدف فعالیت', multiline: true),
     ],
     'طراحی لوگو اختصاصی': [
-      _OrderField('نام برند یا نوشته لوگو', hint: 'نام دقیق با املای صحیح'),
+      _OrderField('نام برند یا نوشته لوگو', isRequired: true, hint: 'نام دقیق با املای صحیح'),
       _OrderField('حوزه فعالیت برند', hint: 'زمینه کاری برند'),
       _OrderField('سبک موردنظر', choices: ['مینیمال', 'لوکس و رسمی', 'مدرن', 'تایپوگرافی', 'نمادین', 'ترکیبی', 'پیشنهاد طراح']),
       _OrderField('رنگ‌های ترجیحی', hint: 'مثلاً مشکی و طلایی یا بدون محدودیت'),
@@ -105,9 +105,9 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
       _OrderField('توضیحات و نمونه‌های الهام‌بخش', multiline: true),
     ],
     'خدمات SEO': [
-      _OrderField('آدرس وب‌سایت', hint: 'https://example.com'),
+      _OrderField('آدرس وب‌سایت', isRequired: true, hint: 'https://example.com'),
       _OrderField('وضعیت فعلی سایت', choices: ['سایت تازه راه‌اندازی شده', 'سایت فعال با بازدید کم', 'سایت فعال با افت بازدید', 'نیازمند بررسی']),
-      _OrderField('خدمات موردنیاز', multi: true, choices: ['بررسی فنی', 'سئوی داخلی', 'سئوی محتوا', 'تحقیق کلمات کلیدی', 'بهبود سرعت', 'بررسی ساختار صفحات', 'گزارش و مشاوره']),
+      _OrderField('خدمات موردنیاز', isRequired: true, multi: true, choices: ['بررسی فنی', 'سئوی داخلی', 'سئوی محتوا', 'تحقیق کلمات کلیدی', 'بهبود سرعت', 'بررسی ساختار صفحات', 'گزارش و مشاوره']),
       _OrderField('هدف یا کلمات کلیدی مهم', multiline: true),
       _OrderField('دسترسی به سرچ کنسول', choices: ['دارم', 'ندارم', 'اطلاع ندارم']),
     ],
@@ -140,6 +140,17 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
     final session = auth.currentSession;
     if (user == null || session == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('برای ثبت سفارش ابتدا وارد حساب کاربری شوید.')));
+      return;
+    }
+    final requiredMultiMissing = _formFields[_service]!
+        .where((field) => field.isRequired && field.multi)
+        .where((field) => (_multiAnswers[field.label] ?? <String>{}).isEmpty)
+        .map((field) => field.label)
+        .toList();
+    if (requiredMultiMissing.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('لطفاً این موارد را انتخاب کن: ${requiredMultiMissing.join('، ')}')),
+      );
       return;
     }
     final answerLines = <String>[
@@ -297,6 +308,9 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
         value: _answers[field.label],
         isExpanded: true,
         decoration: InputDecoration(labelText: field.label),
+        validator: field.isRequired
+            ? (value) => (value == null || value.isEmpty) ? 'این گزینه را انتخاب کن.' : null
+            : null,
         items: field.choices!.map((value) => DropdownMenuItem(value: value, child: Text(value, overflow: TextOverflow.ellipsis))).toList(),
         onChanged: (value) => setState(() => _answers[field.label] = value ?? ''),
       );
@@ -307,6 +321,9 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
       minLines: field.multiline ? 3 : 1,
       maxLines: field.multiline ? 5 : 1,
       onChanged: (value) => _answers[field.label] = value,
+      validator: field.isRequired
+          ? (value) => (value == null || value.trim().isEmpty) ? 'این فیلد را تکمیل کن.' : null
+          : null,
       decoration: InputDecoration(labelText: field.label, hintText: field.hint),
     );
   }
@@ -350,6 +367,7 @@ class _OrderField {
   final List<String>? choices;
   final bool multiline;
   final bool multi;
+  final bool isRequired;
 
-  const _OrderField(this.label, {this.hint, this.choices, this.multiline = false, this.multi = false});
+  const _OrderField(this.label, {this.hint, this.choices, this.multiline = false, this.multi = false, this.isRequired = false});
 }
