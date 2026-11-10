@@ -393,7 +393,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
             error: (_, __) => Center(
               child: TextButton.icon(
-                onPressed: () => ref.invalidate(portfolioItemsProvider),
+                onPressed: () { ref.invalidate(portfolioItemsProvider); ref.invalidate(homeFeaturedPortfolioProvider); },
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('دریافت نمونه‌کارها ناموفق بود؛ تلاش دوباره'),
               ),
