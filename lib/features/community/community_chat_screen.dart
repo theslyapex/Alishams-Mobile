@@ -776,7 +776,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
             controller: _input, focusNode: _focus, minLines: 1, maxLines: 5, maxLength: 5000,
             textInputAction: TextInputAction.newline,
             decoration: const InputDecoration(
-              hintText: 'پیامت را برای اعضا بنویس…',
+              hintText: 'نوشتن…',
               border: InputBorder.none, counterText: '', contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 13),
             ),
             onSubmitted: (_) => _send(),
