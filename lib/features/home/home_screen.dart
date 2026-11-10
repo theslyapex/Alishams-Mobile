@@ -371,7 +371,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
 
   Widget _portfolioStrip(BuildContext context, AppColors c, WidgetRef ref) {
-    final result = ref.watch(portfolioItemsProvider);
+    final result = ref.watch(homeFeaturedPortfolioProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -399,15 +399,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
             data: (items) {
-              final featured = <PortfolioItem>[];
-              for (final kind in [
-                PortfolioKind.website,
-                PortfolioKind.logo,
-                PortfolioKind.adImage,
-                PortfolioKind.video,
-              ]) {
-                featured.addAll(items.where((item) => item.kind == kind).take(2));
-              }
+              final featured = items.take(8).toList();
               if (featured.isEmpty) {
                 return Center(
                   child: Text('هنوز نمونه‌کاری منتشر نشده است.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted)),
