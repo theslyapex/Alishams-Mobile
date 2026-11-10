@@ -30,6 +30,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
   final _imagePicker = ImagePicker();
   final Map<String, String> _attachmentUrls = {};
   int _onlineCount = 0;
+  List<Map<String, String>> _onlineMembers = [];
   final List<Map<String, dynamic>> _messages = [];
   final Map<String, Map<String, dynamic>> _profiles = {};
   RealtimeChannel? _channel;
@@ -162,14 +163,19 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
     channel
       ..onPresenceSync((_) {
         final state = channel.presenceState();
-        final ids = <String>{};
+        final members = <String, Map<String, String>>{};
         for (final entries in state.values) {
           for (final presence in entries) {
-            final id = presence.payload['user_id']?.toString();
-            if (id != null) ids.add(id);
+            final payload = presence.payload;
+            final id = payload['user_id']?.toString();
+            if (id != null) members[id] = {
+              'user_id': id,
+              'display_name': payload['display_name']?.toString() ?? 'عضو',
+              'avatar_url': payload['avatar_url']?.toString() ?? '',
+            };
           }
         }
-        if (mounted) setState(() => _onlineCount = ids.length);
+        if (mounted) setState(() { _onlineMembers = members.values.toList(); _onlineCount = members.length; });
       })
       ..onPostgresChanges(
         event: PostgresChangeEvent.insert,
@@ -216,7 +222,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
       );
     _channel = channel;
     await channel.subscribe();
-    await channel.track({'user_id': _userId, 'display_name': _displayName ?? 'عضو', 'online_at': DateTime.now().toUtc().toIso8601String()});
+    await channel.track({'user_id': _userId, 'display_name': _displayName ?? 'عضو', 'avatar_url': _profiles[_userId]?['avatar_url'] ?? '', 'online_at': DateTime.now().toUtc().toIso8601String()});
   }
 
   void _onSearchChanged() {
@@ -265,6 +271,49 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
     }
   }
 
+
+
+  void _showOnlineMembers() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF171D2D),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: SafeArea(child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Row(children: [
+              const Icon(Icons.circle, color: Color(0xFF48D597), size: 10),
+              const SizedBox(width: 8),
+              Text('اعضای آنلاین ($_onlineCount)', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16)),
+            ]),
+            const SizedBox(height: 14),
+            if (_onlineMembers.isEmpty)
+              const Padding(padding: EdgeInsets.all(20), child: Text('در حال حاضر عضوی آنلاین نیست.', style: TextStyle(color: Colors.white70)))
+            else
+              Flexible(child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: _onlineMembers.length,
+                separatorBuilder: (_,__) => const Divider(color: Colors.white12, height: 1),
+                itemBuilder: (_, index) {
+                  final member = _onlineMembers[index];
+                  final avatar = member['avatar_url'] ?? '';
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: avatar.isEmpty ? null : NetworkImage(avatar),
+                      child: avatar.isEmpty ? const Icon(Icons.person_outline_rounded) : null,
+                    ),
+                    title: Text(member['display_name'] ?? 'عضو', style: const TextStyle(color: Colors.white, fontSize: 13)),
+                    trailing: const Icon(Icons.circle, color: Color(0xFF48D597), size: 9),
+                  );
+                },
+              )),
+          ]),
+        )),
+      ),
+    );
+  }
 
   Future<void> _notifyCommunity(String messageId) async {
     try {
@@ -622,6 +671,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
           ]),
           actions: [
             IconButton(tooltip: 'جست‌وجو', onPressed: () => setState(() => _searching = !_searching), icon: Icon(_searching ? Icons.close_rounded : Icons.search_rounded)),
+            IconButton(tooltip: 'اعضای آنلاین', onPressed: _showOnlineMembers, icon: const Icon(Icons.groups_2_outlined)),
             IconButton(tooltip: 'آخرین پیام‌ها', onPressed: _scrollToBottom, icon: const Icon(Icons.south_rounded)),
           ],
         ),
