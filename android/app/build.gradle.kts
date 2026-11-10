@@ -27,7 +27,8 @@ android {
     defaultConfig {
         applicationId = "com.fluttergo.alishams_mobile"
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        // Myket requires API 34+, and Google Play requires API 36 for new apps/updates (2026).
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
