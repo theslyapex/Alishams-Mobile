@@ -16,6 +16,15 @@ final portfolioItemsProvider = FutureProvider<List<PortfolioItem>>((ref) async {
     PortfolioItem(id: 'website-shirazeh', title: 'SHIRAZEH · رزومه‌ساز', description: 'رزومه‌ساز آنلاین با تمرکز بر ارائه حرفه‌ای اطلاعات و انتخاب قالب.', categoryLabel: 'وب‌اپلیکیشن', imagePath: AppAssets.shirazehImage, kind: PortfolioKind.website, isAsset: true, targetUrl: 'https://theslyapex.github.io/SHIRAZEH/', caseStudyUrl: 'https://alishams.ir/case-studies/shirazeh.html'),
   ];
 
+  final visibilityRows = await client.from('mobile_app_portfolio_visibility')
+      .select('item_key')
+      .eq('is_visible', true);
+  final visibleKeys = (visibilityRows as List)
+      .map((row) => (row as Map)['item_key'].toString())
+      .toSet();
+  bool isVisibleInApp(String key) => !visibilityRows.any((row) =>
+      (row as Map)['item_key'] == key) || visibleKeys.contains(key);
+
   final rows = await client.from('portfolio_items')
       .select('id,category,title,description,image_path,cover_path,created_at,view_count')
       .eq('published', true).order('created_at', ascending: false);
@@ -67,5 +76,15 @@ final portfolioItemsProvider = FutureProvider<List<PortfolioItem>>((ref) async {
     ));
   }
 
-  return <PortfolioItem>[...websites, ...galleryItems, ...videos];
+  final visibleWebsites = websites
+      .where((item) => isVisibleInApp(item.id))
+      .toList();
+  final visibleGallery = galleryItems
+      .where((item) => isVisibleInApp('portfolio:${item.id}'))
+      .toList();
+  final visibleVideos = videos
+      .where((item) => isVisibleInApp('video:${item.id}'))
+      .toList();
+
+  return <PortfolioItem>[...visibleWebsites, ...visibleGallery, ...visibleVideos];
 });
