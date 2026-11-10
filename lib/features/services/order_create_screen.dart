@@ -10,7 +10,8 @@ import '../../theme/app_colors.dart';
 
 class OrderCreateScreen extends ConsumerStatefulWidget {
   final String? initialService;
-  const OrderCreateScreen({super.key, this.initialService});
+  final Map<String, int>? initialServiceQuantities;
+  const OrderCreateScreen({super.key, this.initialService, this.initialServiceQuantities});
   @override
   ConsumerState<OrderCreateScreen> createState() => _OrderCreateScreenState();
 }
@@ -27,6 +28,7 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
   String _service = 'طراحی وبسایت و قالب وبلاگ';
   bool _busy = false;
   String? _tracking;
+  final Map<String, int> _estimatedServices = {};
 
   static const _services = [
     'موشن‌گرافیک',
@@ -121,6 +123,11 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
     if (widget.initialService != null && _services.contains(widget.initialService)) {
       _service = widget.initialService!;
     }
+    final requested = widget.initialServiceQuantities ?? const <String, int>{};
+    for (final entry in requested.entries) {
+      if (_services.contains(entry.key)) _estimatedServices[entry.key] = entry.value.clamp(1, 100);
+    }
+    if (_estimatedServices.isNotEmpty) _service = _estimatedServices.keys.first;
   }
 
   @override
@@ -161,6 +168,7 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
     ];
     final fullDetails = [
       if (answerLines.isNotEmpty) 'اطلاعات اختصاصی خدمت:\n${answerLines.join('\n')}',
+      if (_estimatedServices.isNotEmpty) 'خدمات انتخاب‌شده در برآورد هوشمند:\n${_estimatedServices.entries.map((e) => '• ${e.key} × ${e.value}').join('\n')}',
       if (_details.text.trim().isNotEmpty) 'توضیحات تکمیلی:\n${_details.text.trim()}',
     ].join('\n\n');
 
@@ -173,7 +181,7 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
           'client_name': _name.text.trim(),
           'client_email': user.email ?? '',
           'contact_info': _phone.text.trim(),
-          'services': [_service],
+          'services': _estimatedServices.isEmpty ? [_service] : _estimatedServices.keys.toList(),
           'service': _service,
           'title': _title.text.trim().isEmpty ? 'درخواست $_service' : _title.text.trim(),
           'details': fullDetails,
@@ -238,6 +246,35 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
                           _details.clear();
                         }),
                       ),
+                      if (_estimatedServices.length > 1) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(13),
+                          decoration: BoxDecoration(
+                            color: c.secondary.withValues(alpha: .07),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: c.secondary.withValues(alpha: .25)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('خدمات انتخاب‌شده در برآورد', style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800)),
+                              const SizedBox(height: 7),
+                              ..._estimatedServices.entries.map((entry) => Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Row(children: [
+                                  Expanded(child: Text(entry.key, style: Theme.of(context).textTheme.bodySmall)),
+                                  Text('× ${entry.value}', style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w800, color: c.secondary)),
+                                ]),
+                              )),
+                              const SizedBox(height: 7),
+                              Text('فرم جزئیات زیر برای خدمت اصلی نمایش داده می‌شود؛ سایر خدمات و تعدادشان نیز همراه درخواست ارسال می‌شوند.',
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c.muted, height: 1.6)),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 18),
                       _sectionTitle(context, c, 'مشخصات اختصاصی خدمت'),
                       ...fields.map((field) => Padding(
