@@ -5,6 +5,7 @@ import 'order_create_screen.dart';
 import 'website_design_screen.dart';
 import 'domain_registration_screen.dart';
 import 'service_detail_screen.dart';
+import 'smart_estimate_card.dart';
 
 import '../../assets/app_assets.dart';
 import '../../theme/app_colors.dart';
@@ -101,7 +102,7 @@ class ServicesScreen extends StatelessWidget {
                       },
                     ),
                     const SizedBox(height: 24),
-                    _projectsSection(context, c),
+                    _SmartEstimateCard(colors: c),
                     const SizedBox(height: 22),
                     _processCard(context, c),
                     const SizedBox(height: 18),
@@ -221,97 +222,6 @@ class ServicesScreen extends StatelessWidget {
           ),
         ),
       );
-
-  Widget _projectsSection(BuildContext context, AppColors c) {
-    final projects = <_ProjectItem>[
-      _ProjectItem('ایران ما', 'وب‌سایت و محتوای دیجیتال', AppAssets.iranMaImage),
-      _ProjectItem('جعبه ابزار نوا', 'ابزارهای کاربردی تصویر', AppAssets.novaImage),
-      _ProjectItem('فشرده‌ساز ویدئو', 'ابزار آنلاین ویدئو', AppAssets.apexImage),
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'پروژه‌ها و محصولات دیجیتال',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          'نمونه‌هایی از پروژه‌های اجراشده در مجموعه.',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted),
-        ),
-        const SizedBox(height: 13),
-        SizedBox(
-          height: 154,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: projects.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 11),
-            itemBuilder: (context, index) {
-              final project = projects[index];
-              return SizedBox(
-                width: 205,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(17),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.asset(
-                        project.image,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: c.surface,
-                          child: Icon(Icons.image_not_supported_outlined, color: c.muted),
-                        ),
-                      ),
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withValues(alpha: .88),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        right: 12,
-                        left: 12,
-                        bottom: 12,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              project.title,
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              project.subtitle,
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: Colors.white70,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _processCard(BuildContext context, AppColors c) => Container(
         padding: const EdgeInsets.all(17),
