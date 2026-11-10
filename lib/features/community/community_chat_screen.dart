@@ -30,7 +30,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
   bool _sending = false;
   bool _profileReady = false;
   bool _isAdmin = false;
-  bool _hasPlus = false;
+  final Set<String> _plusUserIds = {};
   bool _searching = false;
   bool _loadingOlder = false;
   bool _hasMore = true;
@@ -82,8 +82,9 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
       _profiles[user.id] = profile;
       try {
         final plus = await _client.rpc('community_plus_user_ids');
-        _hasPlus = plus is List && plus.any((item) =>
-            (item is String ? item : (item is Map ? item['community_plus_user_ids'] ?? item['user_id'] : null)) == user.id);
+        if (plus is List) {
+          _plusUserIds.addAll(plus.map((item) => item is String ? item : (item is Map ? item['community_plus_user_ids'] ?? item['user_id'] : null)).whereType<String>());
+        }
       } catch (_) {}
       await _loadMessages();
       await _loadPinned();
@@ -571,7 +572,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                     if (admin) const Icon(Icons.verified_rounded, color: Color(0xFFD9FF72), size: 13),
                     const SizedBox(width: 4),
                     Text(name, style: TextStyle(color: admin ? const Color(0xFFD9FF72) : c.secondary, fontSize: 10, fontWeight: FontWeight.w800)),
-                    if (_hasPlus && mine) ...[
+                    if (_plusUserIds.contains(message['user_id'])) ...[
                       const SizedBox(width: 5),
                       const Text('PLUS', style: TextStyle(color: Color(0xFFFFD76A), fontSize: 8, fontWeight: FontWeight.w900)),
                     ],
