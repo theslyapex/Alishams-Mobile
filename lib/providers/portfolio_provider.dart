@@ -17,13 +17,12 @@ final portfolioItemsProvider = FutureProvider<List<PortfolioItem>>((ref) async {
   ];
 
   final visibilityRows = await client.from('mobile_app_portfolio_visibility')
-      .select('item_key')
-      .eq('is_visible', true);
-  final visibleKeys = (visibilityRows as List)
-      .map((row) => (row as Map)['item_key'].toString())
-      .toSet();
-  bool isVisibleInApp(String key) => !visibilityRows.any((row) =>
-      (row as Map)['item_key'] == key) || visibleKeys.contains(key);
+      .select('item_key,is_visible');
+  final visibilityMap = <String, bool>{
+    for (final row in visibilityRows as List)
+      (row as Map)['item_key'].toString(): (row as Map)['is_visible'] == true,
+  };
+  bool isVisibleInApp(String key) => visibilityMap[key] ?? true;
 
   final rows = await client.from('portfolio_items')
       .select('id,category,title,description,image_path,cover_path,created_at,view_count')
