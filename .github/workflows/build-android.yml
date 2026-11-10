@@ -71,6 +71,10 @@ jobs:
       - name: Resolve Flutter dependencies
         run: flutter pub get
 
+      - name: Apply current branded launcher icon to Android app resources
+        run: |
+          install -D assets/images/alishams-logo.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+
       - name: Build release APK
         run: flutter build apk --release
 
