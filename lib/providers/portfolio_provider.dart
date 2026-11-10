@@ -18,7 +18,6 @@ final portfolioItemsProvider = FutureProvider<List<PortfolioItem>>((ref) async {
 
   final visibilityRows = await client.from('mobile_app_portfolio_visibility')
       .select('item_key,is_visible');
-      .select('slot,item_key').order('slot');
   final visibilityMap = <String, bool>{
     for (final row in visibilityRows as List)
       (row as Map)['item_key'].toString(): (row as Map)['is_visible'] == true,
