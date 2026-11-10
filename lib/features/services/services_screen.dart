@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'order_create_screen.dart';
 import 'website_design_screen.dart';
 import 'domain_registration_screen.dart';
+import 'service_detail_screen.dart';
 
 import '../../assets/app_assets.dart';
 import '../../theme/app_colors.dart';
@@ -361,7 +362,14 @@ class ServicesScreen extends StatelessWidget {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DomainRegistrationScreen()));
       return;
     }
-    _showDetails(context, c, item);
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => ServiceDetailScreen(
+        title: item.title,
+        description: item.detail,
+        isActive: item.isActive,
+        accent: item.accent,
+      ),
+    ));
   }
 
   void _showDetails(BuildContext context, AppColors c, _ServiceItem item) {
