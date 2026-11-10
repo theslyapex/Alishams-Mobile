@@ -18,15 +18,15 @@ class _SelectedEstimate {
   _SelectedEstimate(this.item, {this.quantity = 1});
 }
 
-class _SmartEstimateCard extends StatefulWidget {
+class SmartEstimateCard extends StatefulWidget {
   final AppColors colors;
-  const _SmartEstimateCard({required this.colors});
+  const SmartEstimateCard({required this.colors});
 
   @override
-  State<_SmartEstimateCard> createState() => _SmartEstimateCardState();
+  State<SmartEstimateCard> createState() => SmartEstimateCardState();
 }
 
-class _SmartEstimateCardState extends State<_SmartEstimateCard> {
+class SmartEstimateCardState extends State<SmartEstimateCard> {
   static const _items = <_EstimateItem>[
     _EstimateItem('موشن‌گرافیک', 480000, 899000, 'پروژه'),
     _EstimateItem('طراحی وبسایت و قالب وبلاگ', 5000000, 100000000, 'پروژه'),
