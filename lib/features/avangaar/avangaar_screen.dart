@@ -15,7 +15,7 @@ TextSpan _avangaarHtmlToTextSpan(dynamic node, TextStyle base, List<TapGestureRe
   final tag = node.localName?.toLowerCase();
   if (tag == 'br') return const TextSpan(text: '\n');
   var style = inherited ?? base;
-  if (tag == 'strong' || tag == 'b' || (tag == 'span' && RegExp(r'font-weight\\s*:\\s*(bold|[7-9]00)').hasMatch((node.attributes['style'] ?? '').toLowerCase()))) style = style.merge(const TextStyle(fontWeight: FontWeight.w900));
+  if (tag == 'strong' || tag == 'b' || (tag == 'span' && RegExp(r'font-weight\s*:\s*(bold|[7-9]00)').hasMatch((node.attributes['style'] ?? '').toLowerCase()))) style = style.merge(const TextStyle(fontWeight: FontWeight.w900));
   if (tag == 'em' || tag == 'i') style = style.merge(const TextStyle(fontStyle: FontStyle.italic));
   if (tag == 'u') style = style.merge(const TextStyle(decoration: TextDecoration.underline));
   if (tag == 'span' && (node.attributes['style'] ?? '').toLowerCase().contains('#d9ff72')) style = style.merge(const TextStyle(color: Color(0xFFD9FF72)));
@@ -43,7 +43,7 @@ List<Map<String,dynamic>> _avangaarHtmlToDelta(String html){
   if(node is html_dom.Text){add(node.text,inherited);return;}
   if(node is! html_dom.Element)return;
   final attrs=Map<String,dynamic>.from(inherited);final tag=node.localName?.toLowerCase();if(tag=='br'){add('\n',{});return;}
-  if(tag=='b'||tag=='strong'||(tag=='span'&&RegExp(r'font-weight\\s*:\\s*(bold|[7-9]00)').hasMatch((node.attributes['style']??'').toLowerCase())))attrs['bold']=true;
+  if(tag=='b'||tag=='strong'||(tag=='span'&&RegExp(r'font-weight\s*:\s*(bold|[7-9]00)').hasMatch((node.attributes['style']??'').toLowerCase())))attrs['bold']=true;
   if(tag=='i'||tag=='em')attrs['italic']=true;
   if(tag=='u')attrs['underline']=true;
   if(tag=='a'){final href=node.attributes['href']??'';if(href.startsWith('https://')||href.startsWith('http://')||href.startsWith('mailto:'))attrs['link']=href;}
