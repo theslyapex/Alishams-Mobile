@@ -168,7 +168,6 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
           'service': _service,
           'title': _title.text.trim().isEmpty ? 'درخواست $_service' : _title.text.trim(),
           'details': fullDetails,
-          'service_options': structured,
           'budget': _budget.text.trim().isEmpty ? 'فعلاً مشخص نیست' : _budget.text.trim(),
         },
       );
