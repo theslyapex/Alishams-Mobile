@@ -18,7 +18,6 @@ final portfolioItemsProvider = FutureProvider<List<PortfolioItem>>((ref) async {
 
   final visibilityRows = await client.from('mobile_app_portfolio_visibility')
       .select('item_key,is_visible');
-  final homeFeaturedRows = await client.from('mobile_app_home_featured_portfolio')
       .select('slot,item_key').order('slot');
   final visibilityMap = <String, bool>{
     for (final row in visibilityRows as List)
@@ -87,28 +86,38 @@ final portfolioItemsProvider = FutureProvider<List<PortfolioItem>>((ref) async {
       .where((item) => isVisibleInApp('video:${item.id}'))
       .toList();
 
-  final allVisible = <PortfolioItem>[...visibleWebsites, ...visibleGallery, ...visibleVideos];
-  final configuredHome = (homeFeaturedRows as List)
+  return <PortfolioItem>[...visibleWebsites, ...visibleGallery, ...visibleVideos];
+});
+
+final homeFeaturedPortfolioProvider = FutureProvider<List<PortfolioItem>>((ref) async {
+  final allItems = await ref.watch(portfolioItemsProvider.future);
+  final client = Supabase.instance.client;
+  final rows = await client.from('mobile_app_home_featured_portfolio')
+      .select('slot,item_key').order('slot');
+  final configured = (rows as List)
       .where((row) => (row as Map)['item_key'] != null)
       .toList()
     ..sort((a, b) => ((a as Map)['slot'] as num).compareTo((b as Map)['slot'] as num));
-  if (configuredHome.isNotEmpty) {
-    final byKey = <String, PortfolioItem>{};
-    for (final item in allVisible) {
-      final key = item.id.startsWith('website-')
-          ? item.id
-          : item.kind == PortfolioKind.video
-              ? 'video:${item.id}'
-              : 'portfolio:${item.id}';
-      byKey[key] = item;
+  if (configured.isEmpty) {
+    final fallback = <PortfolioItem>[];
+    for (final kind in [PortfolioKind.website, PortfolioKind.logo, PortfolioKind.adImage, PortfolioKind.video]) {
+      fallback.addAll(allItems.where((item) => item.kind == kind).take(2));
     }
-    final selected = <PortfolioItem>[];
-    for (final row in configuredHome) {
-      final key = (row as Map)['item_key'].toString();
-      final item = byKey[key];
-      if (item != null && !selected.any((existing) => existing.id == item.id)) selected.add(item);
-    }
-    return selected;
+    return fallback.take(8).toList();
   }
-  return allVisible;
+  final byKey = <String, PortfolioItem>{};
+  for (final item in allItems) {
+    final key = item.id.startsWith('website-')
+        ? item.id
+        : item.kind == PortfolioKind.video
+            ? 'video:${item.id}'
+            : 'portfolio:${item.id}';
+    byKey[key] = item;
+  }
+  final selected = <PortfolioItem>[];
+  for (final row in configured) {
+    final item = byKey[(row as Map)['item_key'].toString()];
+    if (item != null && !selected.any((existing) => existing.id == item.id)) selected.add(item);
+  }
+  return selected.take(8).toList();
 });
