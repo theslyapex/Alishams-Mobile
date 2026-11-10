@@ -20,25 +20,19 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
 
   static const _filters = <(String, String)>[
     ('all', 'همه آثار'),
-    ('website', 'وب‌سایت‌ها'),
     ('logo', 'لوگوها'),
     ('ad', 'تصاویر تبلیغاتی'),
     ('video', 'ویدئوها'),
-    ('social', 'شبکه اجتماعی'),
   ];
 
   List<PortfolioItem> _filtered(List<PortfolioItem> items) {
     switch (_filter) {
-      case 'website':
-        return items.where((e) => e.kind == PortfolioKind.website).toList();
       case 'logo':
         return items.where((e) => e.kind == PortfolioKind.logo).toList();
       case 'ad':
         return items.where((e) => e.kind == PortfolioKind.adImage).toList();
       case 'video':
         return items.where((e) => e.kind == PortfolioKind.video).toList();
-      case 'social':
-        return items.where((e) => e.kind == PortfolioKind.social).toList();
       default:
         return items;
     }
