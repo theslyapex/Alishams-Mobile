@@ -19,6 +19,7 @@ import '../orders/orders_screen.dart';
 import '../account/account_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../support/support_center_screen.dart';
+import '../community/community_chat_screen.dart';
 import '../../theme/app_colors.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -109,6 +110,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Text('اینجا نقطه شروع ایده‌های دیجیتال توست.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: c.muted)),
             const SizedBox(height: 20),
             _heroCard(context, c),
+            const SizedBox(height: 18),
+            _communityBanner(context, c),
             const SizedBox(height: 28),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('شروع سریع', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
@@ -160,6 +163,56 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ],
     );
   }
+
+
+  Widget _communityBanner(BuildContext context, AppColors c) => InkWell(
+    onTap: () => Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const CommunityChatScreen()),
+    ),
+    borderRadius: BorderRadius.circular(22),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: const LinearGradient(
+          begin: Alignment.centerRight,
+          end: Alignment.centerLeft,
+          colors: [Color(0xFF7027D8), Color(0xFF30266F), Color(0xFF06415B)],
+          stops: [0, .56, 1],
+        ),
+        border: Border.all(color: Colors.white.withValues(alpha: .19)),
+        boxShadow: [
+          BoxShadow(color: const Color(0xFF7137D7).withValues(alpha: .23), blurRadius: 26, offset: const Offset(0, 10)),
+        ],
+      ),
+      child: Row(children: [
+        Container(
+          width: 54, height: 54,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: .13),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white.withValues(alpha: .16)),
+          ),
+          child: const Icon(Icons.forum_rounded, color: Color(0xFFD8F5FF), size: 27),
+        ),
+        const SizedBox(width: 14),
+        Expanded(child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('گفت‌وگوی عمومی', style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: -.2,
+            )),
+            const SizedBox(height: 5),
+            Text('با اعضای Alishams گفتگو کن؛ تجربه‌هایت را به اشتراک بگذار.',
+              maxLines: 2, overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white.withValues(alpha: .78), height: 1.7)),
+          ],
+        )),
+        const SizedBox(width: 8),
+        Icon(Icons.chevron_left_rounded, color: Colors.white.withValues(alpha: .78), size: 27),
+      ]),
+    ),
+  );
 
   Widget _heroCard(BuildContext context, AppColors c) {
     return ClipRRect(
