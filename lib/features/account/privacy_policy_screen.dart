@@ -17,7 +17,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           children: [
             _intro(c),
             const SizedBox(height: 16),
-            _section(c, Icons.database_outlined, '۱. چه اطلاعاتی دریافت می‌شود', [
+            _section(c, Icons.storage_outlined, '۱. چه اطلاعاتی دریافت می‌شود', [
               'اطلاعات حساب مانند نام، نشانی ایمیل و شناسه حساب برای ورود و ارائه خدمات.',
               'اطلاعاتی که در پروفایل وارد می‌کنید؛ از جمله تصویر پروفایل.',
               'اطلاعات سفارش‌ها، درخواست‌های خدمات، پروژه‌ها، پرداخت‌ها و مکاتبات پشتیبانی که خودتان ثبت می‌کنید.',
