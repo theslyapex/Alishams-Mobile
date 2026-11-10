@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
 import 'community_image_editor.dart';
 import 'community_voice_recorder.dart';
@@ -292,7 +291,8 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
       return;
     }
     setState(() => _sending = true);
-    final ext = p.extension(fileName).toLowerCase();
+    final dot = fileName.lastIndexOf('.');
+    final ext = dot >= 0 ? fileName.substring(dot).toLowerCase() : '';
     final safeExt = ext.isEmpty ? '.bin' : ext;
     final path = '$_userId/${DateTime.now().microsecondsSinceEpoch}$safeExt';
     try {
@@ -379,7 +379,8 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
       final file = result.files.single;
       final bytes = file.bytes ?? (file.path == null ? null : await File(file.path!).readAsBytes());
       if (bytes == null) { _toast('خواندن فایل انتخاب‌شده ممکن نشد.'); return; }
-      final ext = p.extension(file.name).toLowerCase();
+      final dot = file.name.lastIndexOf('.');
+      final ext = dot >= 0 ? file.name.substring(dot).toLowerCase() : '';
       const mimeByExt = {
         '.pdf':'application/pdf','.zip':'application/zip','.txt':'text/plain','.csv':'text/csv',
         '.doc':'application/msword','.docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
