@@ -30,18 +30,58 @@ class AccountScreen extends ConsumerStatefulWidget {
 class _AccountScreenState extends ConsumerState<AccountScreen> {
   bool _uploadingAvatar = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // Android may recreate the activity while the system photo picker is open.
+    // Recover the selected file when the app process is restored.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _recoverLostAvatar());
+  }
+
+  Future<void> _recoverLostAvatar() async {
+    try {
+      final response = await ImagePicker().retrieveLostData();
+      if (response.isEmpty || !mounted) return;
+      final files = response.files;
+      if (files != null && files.isNotEmpty) {
+        await _processPickedAvatar(files.first);
+      } else if (response.exception != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('بازیابی عکس انتخاب‌شده ممکن نشد. دوباره عکس را انتخاب کن.')),
+        );
+      }
+    } catch (_) {
+      // Recovery is best-effort; normal gallery selection remains available.
+    }
+  }
+
   Future<void> _changeAvatar() async {
     final user = ref.read(authProvider).user;
     if (user == null || _uploadingAvatar) return;
-    final picker = ImagePicker();
     try {
-      final picked = await picker.pickImage(
+      final picked = await ImagePicker().pickImage(
         source: ImageSource.gallery,
         imageQuality: 92,
         maxWidth: 1800,
         maxHeight: 1800,
       );
       if (picked == null || !mounted) return;
+      await _processPickedAvatar(picked);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('باز کردن یا انتخاب عکس انجام نشد: $error')),
+        );
+      }
+    }
+  }
+
+  Future<void> _processPickedAvatar(XFile picked) async {
+    if (!mounted || _uploadingAvatar) return;
+    final user = ref.read(authProvider).user;
+    if (user == null) return;
+    setState(() => _uploadingAvatar = true);
+    try {
       final cropped = await ImageCropper().cropImage(
         sourcePath: picked.path,
         aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
@@ -58,7 +98,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         ],
       );
       if (cropped == null || !mounted) return;
-      setState(() => _uploadingAvatar = true);
       final bytes = await File(cropped.path).readAsBytes();
       final path = '${user.id}/profile.jpg';
       final storage = Supabase.instance.client.storage.from('user-avatars');
