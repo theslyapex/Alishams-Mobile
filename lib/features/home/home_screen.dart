@@ -20,6 +20,7 @@ import '../account/account_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../support/support_center_screen.dart';
 import '../community/community_chat_screen.dart';
+import '../avangaar/avangaar_screen.dart';
 import '../../theme/app_colors.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -112,6 +113,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             _heroCard(context, c),
             const SizedBox(height: 18),
             _communityBanner(context, c),
+            const SizedBox(height: 14),
+            _avangaarBanner(context, c),
             const SizedBox(height: 28),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('شروع سریع', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
@@ -164,6 +167,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+
+  Widget _avangaarBanner(BuildContext context, AppColors c) => InkWell(
+    onTap: () => Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const AvangaarScreen()),
+    ),
+    borderRadius: BorderRadius.circular(22),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: const LinearGradient(
+          begin: Alignment.centerRight,
+          end: Alignment.centerLeft,
+          colors: [Color(0xFF39246F), Color(0xFF20244F), Color(0xFF103E50)],
+        ),
+        border: Border.all(color: const Color(0xFFB39BFF).withValues(alpha: .42)),
+        boxShadow: [BoxShadow(color: const Color(0xFF7654D8).withValues(alpha: .18), blurRadius: 22, offset: const Offset(0, 8))],
+      ),
+      child: Row(children: [
+        Container(width: 48, height: 48, decoration: BoxDecoration(color: Colors.white.withValues(alpha: .12), borderRadius: BorderRadius.circular(15)),
+          child: const Icon(Icons.auto_stories_rounded, color: Color(0xFF8DEAF0), size: 27)),
+        const SizedBox(width: 12),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('AVANGAAR  ·  COMMUNITY STORIES', style: TextStyle(color: Color(0xFF8DEAF0), fontSize: 8, fontWeight: FontWeight.w800, letterSpacing: .8)),
+          const SizedBox(height: 4),
+          const Text('آوانگار', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 17)),
+          Text('ایده‌ها و مقاله‌های اعضای جامعه', style: TextStyle(color: Colors.white.withValues(alpha: .78), fontSize: 10)),
+        ])),
+        const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70, size: 15),
+      ]),
+    ),
+  );
 
   Widget _communityBanner(BuildContext context, AppColors c) => InkWell(
     onTap: () => Navigator.of(context).push(
