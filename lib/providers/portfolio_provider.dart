@@ -7,6 +7,15 @@ import '../models/portfolio_item.dart';
 final portfolioItemsProvider = FutureProvider<List<PortfolioItem>>((ref) async {
   final client = Supabase.instance.client;
 
+  // پروژه‌های وب‌سایت که پیش‌تر در گالری اپ نمایش داده می‌شدند؛ حفظ شده‌اند.
+  const websites = <PortfolioItem>[
+    PortfolioItem(id: 'website-iran-ma', title: 'ایران‌ما', description: 'وب‌سایت محتوایی درباره تاریخ ایران با تمرکز بر طراحی وب، هویت بصری و انتشار محتوای تاریخی.', categoryLabel: 'وب‌سایت محتوایی', imagePath: AppAssets.iranMaImage, kind: PortfolioKind.website, isAsset: true, targetUrl: 'https://infoiranma.ir/', caseStudyUrl: 'https://alishams.ir/case-studies/iran-ma.html'),
+    PortfolioItem(id: 'website-apex', title: 'Apex Video Compressor', description: 'ابزار تحت وب برای ساده‌سازی فرایند فشرده‌سازی ویدئو و ارائه تجربه کاربری روشن.', categoryLabel: 'ابزار آنلاین', imagePath: AppAssets.apexImage, kind: PortfolioKind.website, isAsset: true, targetUrl: 'https://theslyapex.github.io/Apex-video-compressor/', caseStudyUrl: 'https://alishams.ir/case-studies/apex.html'),
+    PortfolioItem(id: 'website-nova', title: 'Nova Image Lab', description: 'مجموعه ابزارهای تصویری با تمرکز بر پردازش محلی تصویر و دسترسی ساده.', categoryLabel: 'ابزار تصویری', imagePath: AppAssets.novaImage, kind: PortfolioKind.website, isAsset: true, targetUrl: 'https://theslyapex.github.io/Nova-image-lab/', caseStudyUrl: 'https://alishams.ir/case-studies/nova.html'),
+    PortfolioItem(id: 'website-abzarino', title: 'ابزارینو', description: 'مجموعه ابزارهای کاربردی آنلاین با هدف دسترسی سریع و تجربه ساده برای کاربران.', categoryLabel: 'مجموعه ابزار', imagePath: AppAssets.abzarinoImage, kind: PortfolioKind.website, isAsset: true, targetUrl: 'https://theslyapex.github.io/Abzarino/', caseStudyUrl: 'https://alishams.ir/case-studies/abzarino.html'),
+    PortfolioItem(id: 'website-shirazeh', title: 'SHIRAZEH · رزومه‌ساز', description: 'رزومه‌ساز آنلاین با تمرکز بر ارائه حرفه‌ای اطلاعات و انتخاب قالب.', categoryLabel: 'وب‌اپلیکیشن', imagePath: AppAssets.shirazehImage, kind: PortfolioKind.website, isAsset: true, targetUrl: 'https://theslyapex.github.io/SHIRAZEH/', caseStudyUrl: 'https://alishams.ir/case-studies/shirazeh.html'),
+  ];
+
   final rows = await client.from('portfolio_items')
       .select('id,category,title,description,image_path,cover_path,created_at,view_count')
       .eq('published', true).order('created_at', ascending: false);
@@ -58,5 +67,5 @@ final portfolioItemsProvider = FutureProvider<List<PortfolioItem>>((ref) async {
     ));
   }
 
-  return <PortfolioItem>[...galleryItems, ...videos];
+  return <PortfolioItem>[...websites, ...galleryItems, ...videos];
 });
