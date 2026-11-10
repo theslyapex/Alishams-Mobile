@@ -17,6 +17,7 @@ import '../club/club_screen.dart';
 import '../projects/projects_screen.dart';
 import '../notifications/notifications_screen.dart';
 import 'security_settings_screen.dart';
+import 'terms_conditions_screen.dart';
 import '../support/support_center_screen.dart';
 import '../orders/orders_screen.dart';
 
@@ -170,7 +171,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     const SizedBox(height: 10),
                     _menuTile(context, c, Icons.notifications_none_rounded, 'اعلان‌ها', 'پیگیری پیام‌های سفارش، پروژه، پرداخت، پلاس و باشگاه', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationsScreen())); } }),
                     const SizedBox(height: 9),
-                    _menuTile(context, c, Icons.shield_outlined, 'حریم خصوصی و امنیت', 'تغییر رمز عبور و مشاهده فعالیت‌های امنیتی', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SecuritySettingsScreen())); } }),
+                    _menuTile(context, c, Icons.shield_outlined, 'حریم خصوصی و امنیت', 'مدیریت امنیت حساب و مطالعه سیاست حریم خصوصی', onTap: () { if (user == null) { _message(context, 'ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SecuritySettingsScreen())); } }),
+                    const SizedBox(height: 9),
+                    _menuTile(context, c, Icons.gavel_rounded, 'شرایط و قوانین', 'قوانین استفاده از اپلیکیشن و دریافت خدمات', onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TermsConditionsScreen()))),
                     const SizedBox(height: 9),
                     _menuTile(context, c, Icons.support_agent_rounded, 'ارتباط با پشتیبانی', 'ثبت درخواست، مشاهده پاسخ‌ها و ارسال فایل', onTap: () { if (user == null) { _message(context, 'برای استفاده از پشتیبانی ابتدا وارد حساب شوید.'); } else { Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SupportCenterScreen())); } }),
                     const SizedBox(height: 9),
