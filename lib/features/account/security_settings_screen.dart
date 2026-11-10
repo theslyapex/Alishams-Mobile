@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_colors.dart';
 import '../notifications/notifications_screen.dart';
+import 'privacy_policy_screen.dart';
 import '../auth/mfa_screen.dart';
 
 class SecuritySettingsScreen extends ConsumerStatefulWidget {
@@ -197,6 +198,20 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                       ),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              const SizedBox(height: 18),
+              Text('سیاست حریم خصوصی', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+              const SizedBox(height: 7),
+              Text('اطلاعاتی درباره داده‌های حساب، سفارش‌ها، اعلان‌ها و نحوه استفاده از آن‌ها بخوانید.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.muted, height: 1.6)),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen())),
+                  icon: const Icon(Icons.policy_outlined),
+                  label: const Text('مطالعه سیاست حریم خصوصی'),
                 ),
               ),
               const SizedBox(height: 18),
