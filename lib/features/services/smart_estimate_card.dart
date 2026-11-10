@@ -159,7 +159,7 @@ class SmartEstimateCardState extends State<SmartEstimateCard> {
                       visualDensity: VisualDensity.compact,
                       constraints: const BoxConstraints.tightFor(width: 30, height: 32),
                       padding: EdgeInsets.zero,
-                      onPressed: () => setState(() => selected.quantity = (selected.quantity - 1).clamp(1, 100)),
+                      onPressed: () => setState(() => selected.quantity = (selected.quantity - 1).clamp(1, 100).toInt()),
                       icon: Icon(Icons.remove_circle_outline, color: c.muted, size: 19),
                     ),
                     Text('${selected.quantity}',
@@ -168,7 +168,7 @@ class SmartEstimateCardState extends State<SmartEstimateCard> {
                       visualDensity: VisualDensity.compact,
                       constraints: const BoxConstraints.tightFor(width: 30, height: 32),
                       padding: EdgeInsets.zero,
-                      onPressed: () => setState(() => selected.quantity = (selected.quantity + 1).clamp(1, 100)),
+                      onPressed: () => setState(() => selected.quantity = (selected.quantity + 1).clamp(1, 100).toInt()),
                       icon: Icon(Icons.add_circle_outline, color: c.secondary, size: 19),
                     ),
                   ] else
