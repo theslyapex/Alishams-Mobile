@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
 import 'community_image_editor.dart';
 import 'community_voice_recorder.dart';
+import 'community_voice_message.dart';
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -385,7 +386,8 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
         '.xls':'application/vnd.ms-excel','.xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         '.ppt':'application/vnd.ms-powerpoint','.pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       };
-      final mime = mimeByExt[ext] ?? 'application/octet-stream';
+      final mime = mimeByExt[ext];
+      if (mime == null) { _toast('این نوع فایل پشتیبانی نمی‌شود. PDF، Word، Excel، PowerPoint، ZIP، TXT و CSV مجاز هستند.'); return; }
       await _uploadAndSend(bytes, file.name, mime, 'file');
     } catch (_) { _toast('انتخاب فایل انجام نشد.'); }
   }
@@ -408,6 +410,9 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
     }
     final mime = message['attachment_mime'] as String? ?? '';
     final name = message['attachment_name'] as String? ?? 'پیوست';
+    if (message['message_type'] == 'voice' || message['message_type'] == 'audio') {
+      return Padding(padding: const EdgeInsets.only(bottom: 7), child: CommunityVoiceMessage(url: url, mine: message['user_id'] == _userId));
+    }
     if (mime.startsWith('image/')) {
       return Padding(padding: const EdgeInsets.only(bottom: 7), child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
