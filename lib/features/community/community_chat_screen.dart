@@ -1,4 +1,12 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:url_launcher/url_launcher.dart';
+import 'community_image_editor.dart';
+import 'community_voice_recorder.dart';
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,6 +27,9 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
   final _search = TextEditingController();
   final _scroll = ScrollController();
   final _focus = FocusNode();
+  final _imagePicker = ImagePicker();
+  final Map<String, String> _attachmentUrls = {};
+  int _onlineCount = 0;
   final List<Map<String, dynamic>> _messages = [];
   final Map<String, Map<String, dynamic>> _profiles = {};
   RealtimeChannel? _channel;
@@ -150,6 +161,17 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
   Future<void> _subscribe() async {
     final channel = _client.channel('community-public-room');
     channel
+      ..onPresenceSync((_) {
+        final state = channel.presenceState();
+        final ids = <String>{};
+        for (final entries in state.values) {
+          for (final presence in entries) {
+            final id = presence.payload['user_id']?.toString();
+            if (id != null) ids.add(id);
+          }
+        }
+        if (mounted) setState(() => _onlineCount = ids.length);
+      })
       ..onPostgresChanges(
         event: PostgresChangeEvent.insert,
         schema: 'public',
@@ -159,6 +181,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
           if (row['deleted_at'] != null) return;
           if (!_messages.any((m) => m['id'] == row['id'])) {
             await _loadProfiles([row['user_id'] as String]);
+            await _loadAttachmentUrl(row);
             if (mounted) setState(() => _messages.add(row));
             _scrollToBottom();
           }
@@ -194,6 +217,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
       );
     _channel = channel;
     await channel.subscribe();
+    await channel.track({'user_id': _userId, 'display_name': _displayName ?? 'عضو', 'online_at': DateTime.now().toUtc().toIso8601String()});
   }
 
   void _onSearchChanged() {
@@ -226,6 +250,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
         'reply_to': _reply?['id'],
       }).select().single();
       await _loadProfiles([_userId!]);
+      await _notifyCommunity(sent['id'].toString());
       if (mounted && !_messages.any((m) => m['id'] == sent['id'])) {
         setState(() => _messages.add(Map<String, dynamic>.from(sent)));
       }
@@ -239,6 +264,181 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
     } finally {
       if (mounted) setState(() => _sending = false);
     }
+  }
+
+
+  Future<void> _notifyCommunity(String messageId) async {
+    try {
+      await _client.functions.invoke('community-chat-notify', body: {'message_id': messageId});
+    } catch (e) {
+      debugPrint('Community notification dispatch failed: $e');
+    }
+  }
+
+  Future<void> _loadAttachmentUrl(Map<String, dynamic> message) async {
+    final path = message['attachment_path'] as String?;
+    if (path == null || path.isEmpty || _attachmentUrls.containsKey(path)) return;
+    try {
+      final url = await _client.storage.from('community-chat').createSignedUrl(path, 3600);
+      _attachmentUrls[path] = url;
+      if (mounted) setState(() {});
+    } catch (_) {}
+  }
+
+  Future<void> _uploadAndSend(Uint8List bytes, String fileName, String mime, String kind) async {
+    if (_userId == null || bytes.isEmpty || _sending) return;
+    if (bytes.length > 50 * 1024 * 1024) {
+      _toast('حجم فایل نباید بیشتر از ۵۰ مگابایت باشد.');
+      return;
+    }
+    setState(() => _sending = true);
+    final ext = p.extension(fileName).toLowerCase();
+    final safeExt = ext.isEmpty ? '.bin' : ext;
+    final path = '$_userId/${DateTime.now().microsecondsSinceEpoch}$safeExt';
+    try {
+      await _client.storage.from('community-chat').uploadBinary(
+        path, bytes,
+        fileOptions: FileOptions(contentType: mime, upsert: false),
+      );
+      final row = await _client.from('community_messages').insert({
+        'user_id': _userId,
+        'body': '',
+        'message_type': kind,
+        'attachment_path': path,
+        'attachment_name': fileName,
+        'attachment_mime': mime,
+        'attachment_size': bytes.length,
+        'reply_to': _reply?['id'],
+      }).select().single();
+      _attachmentUrls[path] = await _client.storage.from('community-chat').createSignedUrl(path, 3600);
+      await _loadProfiles([_userId!]);
+      await _notifyCommunity(row['id'].toString());
+      if (mounted && !_messages.any((m) => m['id'] == row['id'])) {
+        setState(() => _messages.add(Map<String, dynamic>.from(row)));
+      }
+      if (mounted) setState(() => _reply = null);
+      _scrollToBottom();
+    } on PostgrestException catch (e) {
+      try { await _client.storage.from('community-chat').remove([path]); } catch (_) {}
+      _toast(e.code == '42501' ? 'ارسال پیوست برای این حساب مجاز نیست.' : 'ارسال پیوست انجام نشد: ${e.message}');
+    } catch (_) {
+      try { await _client.storage.from('community-chat').remove([path]); } catch (_) {}
+      _toast('بارگذاری فایل انجام نشد. دوباره تلاش کنید.');
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  Future<void> _showAttachmentMenu() async {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF171D2D),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) => SafeArea(child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Text('ارسال پیوست', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16)),
+          const SizedBox(height: 18),
+          Row(children: [
+            _attachmentAction(Icons.photo_library_rounded, 'گالری', const Color(0xFF9B79FF), () { Navigator.pop(context); _pickImage(ImageSource.gallery); }),
+            _attachmentAction(Icons.camera_alt_rounded, 'دوربین', const Color(0xFF47C9D8), () { Navigator.pop(context); _pickImage(ImageSource.camera); }),
+            _attachmentAction(Icons.insert_drive_file_rounded, 'فایل', const Color(0xFFFFC76B), () { Navigator.pop(context); _pickFile(); }),
+          ]),
+        ]),
+      )),
+    );
+  }
+
+  Widget _attachmentAction(IconData icon, String label, Color color, VoidCallback onTap) => Expanded(
+    child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(16),
+      child: Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Column(children: [
+        Container(width: 54, height: 54, decoration: BoxDecoration(color: color.withValues(alpha: .14), borderRadius: BorderRadius.circular(17)),
+          child: Icon(icon, color: color, size: 26)),
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
+      ])),
+    ),
+  );
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final picked = await _imagePicker.pickImage(source: source, imageQuality: 96, maxWidth: 3000);
+      if (picked == null || !mounted) return;
+      final edited = await Navigator.of(context).push<Uint8List>(
+        MaterialPageRoute(builder: (_) => CommunityImageEditor(file: File(picked.path))),
+      );
+      if (edited == null) return;
+      await _uploadAndSend(edited, 'community-${DateTime.now().millisecondsSinceEpoch}.jpg', 'image/jpeg', 'image');
+    } catch (_) { _toast('باز کردن تصویر انجام نشد.'); }
+  }
+
+  Future<void> _pickFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(withData: true, allowMultiple: false);
+      if (result == null || result.files.isEmpty) return;
+      final file = result.files.single;
+      final bytes = file.bytes ?? (file.path == null ? null : await File(file.path!).readAsBytes());
+      if (bytes == null) { _toast('خواندن فایل انتخاب‌شده ممکن نشد.'); return; }
+      final ext = p.extension(file.name).toLowerCase();
+      const mimeByExt = {
+        '.pdf':'application/pdf','.zip':'application/zip','.txt':'text/plain','.csv':'text/csv',
+        '.doc':'application/msword','.docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.xls':'application/vnd.ms-excel','.xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        '.ppt':'application/vnd.ms-powerpoint','.pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      };
+      final mime = mimeByExt[ext] ?? 'application/octet-stream';
+      await _uploadAndSend(bytes, file.name, mime, 'file');
+    } catch (_) { _toast('انتخاب فایل انجام نشد.'); }
+  }
+
+  Future<void> _recordVoice() async {
+    final file = await showDialog<File>(context: context, barrierDismissible: false,
+      builder: (_) => const CommunityVoiceRecorder());
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
+    await _uploadAndSend(bytes, 'voice-${DateTime.now().millisecondsSinceEpoch}.m4a', 'audio/mp4', 'voice');
+  }
+
+  Widget _attachmentContent(Map<String, dynamic> message, AppColors c) {
+    final path = message['attachment_path'] as String?;
+    if (path == null) return const SizedBox.shrink();
+    final url = _attachmentUrls[path];
+    if (url == null) {
+      _loadAttachmentUrl(message);
+      return const Padding(padding: EdgeInsets.all(12), child: SizedBox(width: 24,height: 24,child: CircularProgressIndicator(strokeWidth: 2)));
+    }
+    final mime = message['attachment_mime'] as String? ?? '';
+    final name = message['attachment_name'] as String? ?? 'پیوست';
+    if (mime.startsWith('image/')) {
+      return Padding(padding: const EdgeInsets.only(bottom: 7), child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: GestureDetector(
+          onTap: () => showDialog(context: context, builder: (_) => Dialog(
+            backgroundColor: Colors.black, insetPadding: const EdgeInsets.all(12),
+            child: InteractiveViewer(child: Image.network(url, fit: BoxFit.contain)),
+          )),
+          child: Image.network(url, width: 240, fit: BoxFit.cover,
+            loadingBuilder: (_, child, progress) => progress == null ? child : const SizedBox(width: 220,height: 140,child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+            errorBuilder: (_,__,___) => const Icon(Icons.broken_image_outlined, color: Colors.white70)),
+        ),
+      ));
+    }
+    return InkWell(
+      onTap: () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 7), padding: const EdgeInsets.all(11),
+        decoration: BoxDecoration(color: Colors.black.withValues(alpha: .12), borderRadius: BorderRadius.circular(12)),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(mime.startsWith('audio/') ? Icons.graphic_eq_rounded : Icons.insert_drive_file_rounded, color: c.secondary, size: 25),
+          const SizedBox(width: 9),
+          Flexible(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.ink, fontSize: 11, fontWeight: FontWeight.w700)),
+            Text('${((message['attachment_size'] as num? ?? 0) / 1024).toStringAsFixed(0)} KB · برای دریافت لمس کن',
+              style: TextStyle(color: c.muted, fontSize: 9)),
+          ])),
+        ]),
+      ),
+    );
   }
 
   Future<void> _react(Map<String, dynamic> message, String emoji) async {
@@ -411,7 +611,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
             const SizedBox(width: 11),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const Text('گفت‌وگوی عمومی', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-              Text(_loading ? 'در حال اتصال به انجمن…' : 'انجمن زنده اعضای Alishams',
+              Text(_loading ? 'در حال اتصال به انجمن…' : '$_onlineCount عضو آنلاین · انجمن زنده Alishams',
                 style: TextStyle(fontSize: 10, color: c.muted, fontWeight: FontWeight.w400)),
             ])),
           ]),
@@ -512,6 +712,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       decoration: BoxDecoration(color: c.surface, border: Border(top: BorderSide(color: c.line))),
       child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+        IconButton(tooltip: 'پیوست عکس یا فایل', onPressed: _sending ? null : _showAttachmentMenu, icon: Icon(Icons.add_circle_outline_rounded, color: c.secondary, size: 27)),
         Expanded(child: Container(
           decoration: BoxDecoration(color: c.surfaceContainer, borderRadius: BorderRadius.circular(18), border: Border.all(color: c.line)),
           child: TextField(
@@ -525,6 +726,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
           ),
         )),
         const SizedBox(width: 9),
+        IconButton(tooltip: 'ضبط پیام صوتی', onPressed: _sending ? null : _recordVoice, icon: Icon(Icons.mic_none_rounded, color: c.secondary, size: 25)),
         SizedBox(
           width: 48, height: 48,
           child: FilledButton(
@@ -597,6 +799,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                       child: Text('${_profiles[replySnapshot.data!['user_id']]?['display_name'] ?? 'عضو'}: ${replySnapshot.data!['body'] ?? 'پیوست'}',
                         maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.muted, fontSize: 10)),
                     ),
+                    if (message['attachment_path'] != null) _attachmentContent(message, c),
                     if (body.isNotEmpty) SelectableText(body, style: TextStyle(color: c.ink, height: 1.85, fontSize: 13)),
                     const SizedBox(height: 5),
                     Row(mainAxisSize: MainAxisSize.min, children: [
