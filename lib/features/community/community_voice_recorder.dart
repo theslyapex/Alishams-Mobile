@@ -138,9 +138,9 @@ class _CommunityVoiceRecorderState extends State<CommunityVoiceRecorder> {
                   builder: (_, snap) {
                     final duration = _player.duration ?? _elapsed;
                     final position = snap.data ?? Duration.zero;
-                    final max = duration.inMilliseconds.toDouble().clamp(1, double.infinity);
+                    final max = duration.inMilliseconds.toDouble().clamp(1.0, double.infinity).toDouble();
                     return Column(children: [
-                      Slider(value: position.inMilliseconds.toDouble().clamp(0, max), max: max,
+                      Slider(value: position.inMilliseconds.toDouble().clamp(0.0, max).toDouble(), max: max,
                         onChanged: (v) => _player.seek(Duration(milliseconds: v.toInt()))),
                       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                         Text(_format(position), style: const TextStyle(color: Colors.white54, fontSize: 10)),
