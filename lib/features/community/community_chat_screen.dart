@@ -436,7 +436,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
                         ),
                         if (_pinned != null) _pinnedBanner(c),
                         Expanded(child: _visibleMessages.isEmpty
-                            ? _statePanel(c, _query.isEmpty ? 'هنوز پیامی ارسال نشده؛ شروع‌کننده گفتگو باش.' : 'پیامی با این عبارت پیدا نشد.', Icons.forum_outlined, false)
+                            ? Center(child: _statePanel(c, _query.isEmpty ? 'هنوز پیامی ارسال نشده؛ شروع‌کننده گفتگو باش.' : 'پیامی با این عبارت پیدا نشد.', Icons.forum_outlined, false))
                             : ListView.builder(
                                 controller: _scroll,
                                 padding: const EdgeInsets.fromLTRB(14, 16, 14, 18),
@@ -455,8 +455,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
     );
   }
 
-  Widget _statePanel(AppColors c, String message, IconData icon, bool retry) => Expanded(
-    child: Center(child: Padding(
+  Widget _statePanel(AppColors c, String message, IconData icon, bool retry) => Center(child: Padding(
       padding: const EdgeInsets.all(28),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 42, color: c.secondary),
@@ -464,8 +463,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
         Text(message, textAlign: TextAlign.center, style: TextStyle(color: c.muted, height: 1.9)),
         if (retry) TextButton.icon(onPressed: () { setState(() { _error = null; _loading = true; }); _initialize(); }, icon: const Icon(Icons.refresh_rounded), label: const Text('تلاش دوباره')),
       ]),
-    )),
-  );
+    ));
 
   Widget _pinnedBanner(AppColors c) => InkWell(
     onTap: () {
