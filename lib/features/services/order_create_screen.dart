@@ -32,6 +32,9 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
 
   static const _services = [
     'موشن‌گرافیک',
+    'ریلز و محتوای ویدئویی',
+    'امنیت شبکه‌های اجتماعی',
+    'تبلیغات و معرفی',
     'طراحی وبسایت و قالب وبلاگ',
     'تیزر تبلیغاتی',
     'نگارش مقاله وب‌سایت',
@@ -43,6 +46,23 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
   ];
 
   static const Map<String, List<_OrderField>> _formFields = {
+    'ریلز و محتوای ویدئویی': [
+      _OrderField('مدت ویدئو', isRequired: true, choices: ['۱۵ تا ۳۰ ثانیه', '۳۰ تا ۶۰ ثانیه', '۱ تا ۲ دقیقه', 'بیش از ۲ دقیقه']),
+      _OrderField('سبک ویدئو', choices: ['تدوین ویدئو', 'موشن‌گرافیک', 'ترکیبی', 'نیاز به پیشنهاد دارم']),
+      _OrderField('سناریو یا توضیحات محتوا', multiline: true, hint: 'موضوع و هدف ریلز را شرح دهید.'),
+      _OrderField('تعداد ویدئو', isRequired: true, choices: ['۱', '۲ تا ۵', '۶ تا ۱۰', 'بیش از ۱۰']),
+    ],
+    'امنیت شبکه‌های اجتماعی': [
+      _OrderField('پلتفرم موردنظر', isRequired: true, multi: true, choices: ['اینستاگرام', 'تلگرام', 'واتساپ', 'سایر']),
+      _OrderField('نوع نیاز امنیتی', isRequired: true, choices: ['بررسی امنیت حساب', 'افزایش امنیت و تنظیمات', 'بازیابی دسترسی', 'مشاوره و پایش دوره‌ای']),
+      _OrderField('توضیحات تکمیلی', multiline: true),
+    ],
+    'تبلیغات و معرفی': [
+      _OrderField('خدمت یا محصول مورد تبلیغ', isRequired: true),
+      _OrderField('بستر تبلیغاتی', isRequired: true, multi: true, choices: ['اینستاگرام', 'تلگرام', 'وب‌سایت', 'آپارات', 'سایر']),
+      _OrderField('هدف کمپین', choices: ['آگاهی از برند', 'معرفی محصول یا خدمت', 'جذب مخاطب', 'افزایش فروش']),
+      _OrderField('توضیحات و بودجه مدنظر', multiline: true),
+    ],
     'طراحی وبسایت و قالب وبلاگ': [
       _OrderField('نوع وب‌سایت', isRequired: true, choices: ['شرکتی', 'فروشگاهی', 'شخصی و رزومه', 'خبری و مجله‌ای', 'وبلاگ', 'آموزشی', 'خدماتی', 'سایر']),
       _OrderField('تعداد صفحات تقریبی', isRequired: true, choices: ['۱ تا ۵ صفحه', '۶ تا ۱۰ صفحه', '۱۱ تا ۲۰ صفحه', 'بیش از ۲۰ صفحه', 'نیاز به مشاوره دارم']),
