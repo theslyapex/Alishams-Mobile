@@ -170,7 +170,20 @@ class ServicesScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: c.line),
             ),
-            child: Icon(Icons.auto_awesome_rounded, color: c.secondary),
+            // Icons8 — Material Outlined / Services
+            child: Image.network(
+              'https://img.icons8.com/material-outlined/96/58D9EE/services.png',
+              width: 27,
+              height: 27,
+              fit: BoxFit.contain,
+              color: c.secondary,
+              colorBlendMode: BlendMode.srcIn,
+              errorBuilder: (context, error, stackTrace) => Icon(
+                Icons.design_services_outlined,
+                color: c.secondary,
+                size: 27,
+              ),
+            ),
           ),
         ],
       );
