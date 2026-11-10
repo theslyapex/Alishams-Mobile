@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'notifications_screen.dart';
+import '../community/community_chat_screen.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -202,6 +203,10 @@ class PushNotificationService {
       return;
     }
     _navigationRetries = 0;
+    if (target.contains('community')) {
+      navigator.push(MaterialPageRoute(builder: (_) => const CommunityChatScreen()));
+      return;
+    }
     navigator.push(MaterialPageRoute(
       builder: (_) => NotificationsScreen(initialCategory: category),
     ));
