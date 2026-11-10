@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_html/flutter_html.dart' as rich_html;
 import 'package:html/parser.dart' as html_parser;
+import 'package:html/dom.dart' as html_dom;
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../theme/app_colors.dart';
@@ -13,8 +14,8 @@ List<Map<String,dynamic>> _avangaarHtmlToDelta(String html){
  final fragment=html_parser.parseFragment(html);final ops=<Map<String,dynamic>>[];
  void add(String value,Map<String,dynamic> attrs){if(value.isEmpty)return;if(ops.isNotEmpty&&ops.last['attributes']?.toString()==attrs.toString()&&ops.last['insert'] is String){ops.last['insert']=(ops.last['insert'] as String)+value;}else{ops.add({'insert':value,if(attrs.isNotEmpty)'attributes':Map<String,dynamic>.from(attrs)});}}
  void walk(dynamic node,Map<String,dynamic> inherited){
-  if(node is html_parser.Text){add(node.text,inherited);return;}
-  if(node is! html_parser.Element)return;
+  if(node is html_dom.Text){add(node.text,inherited);return;}
+  if(node is! html_dom.Element)return;
   final attrs=Map<String,dynamic>.from(inherited);final tag=node.localName?.toLowerCase();
   if(tag=='b'||tag=='strong')attrs['bold']=true;
   if(tag=='i'||tag=='em')attrs['italic']=true;
