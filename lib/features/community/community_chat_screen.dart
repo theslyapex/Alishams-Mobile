@@ -120,10 +120,9 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> {
     if (older && (_loadingOlder || !_hasMore || _oldest == null)) return;
     if (older) setState(() => _loadingOlder = true);
     try {
-      var request = _client.from('community_messages').select()
-          .isFilter('deleted_at', null).order('created_at', ascending: false).limit(35);
+      var request = _client.from('community_messages').select().isFilter('deleted_at', null);
       if (older) request = request.lt('created_at', _oldest!);
-      final rows = await request;
+      final rows = await request.order('created_at', ascending: false).limit(35);
       final batch = rows.map((row) => Map<String, dynamic>.from(row)).toList().reversed.toList();
       if (batch.isNotEmpty) {
         await _loadProfiles(batch.map((m) => m['user_id'] as String));
