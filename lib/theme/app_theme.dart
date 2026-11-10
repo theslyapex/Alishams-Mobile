@@ -134,7 +134,7 @@ class AppTheme {
         ),
         hintStyle: text.bodyMedium?.copyWith(color: c.muted),
         labelStyle: text.bodyMedium?.copyWith(color: c.muted),
-        errorStyle: text.bodySmall?.copyWith(color: c.danger),
+        errorStyle: text.bodySmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
@@ -160,8 +160,8 @@ class AppTheme {
         style: TextButton.styleFrom(foregroundColor: c.secondary),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: c.surfaceContainerHigh,
-        contentTextStyle: text.bodyMedium,
+        backgroundColor: const Color(0xFF263449),
+        contentTextStyle: text.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
