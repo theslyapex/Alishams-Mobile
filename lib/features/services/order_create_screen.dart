@@ -152,7 +152,7 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
     };
     final fullDetails = [
       if (_details.text.trim().isNotEmpty) 'توضیحات تکمیلی:\n${_details.text.trim()}',
-      'پاسخ‌های اختصاصی فرم:\n${const JsonEncoder.withIndent('  ').convert(structured)}',
+      'پاسخ‌های اختصاصی فرم:\n${JsonEncoder.withIndent('  ').convert(structured)}',
     ].join('\n\n');
 
     setState(() => _busy = true);
@@ -296,6 +296,7 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
     }
     if (field.choices != null) {
       return DropdownButtonFormField<String>(
+        key: ValueKey('$_service:${field.label}'),
         value: _answers[field.label],
         isExpanded: true,
         decoration: InputDecoration(labelText: field.label),
@@ -304,6 +305,7 @@ class _OrderCreateScreenState extends ConsumerState<OrderCreateScreen> {
       );
     }
     return TextFormField(
+      key: ValueKey('$_service:${field.label}'),
       initialValue: _answers[field.label],
       minLines: field.multiline ? 3 : 1,
       maxLines: field.multiline ? 5 : 1,
