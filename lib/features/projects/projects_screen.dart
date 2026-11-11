@@ -96,10 +96,81 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       final uri = Uri.tryParse((result['url'] ?? '').toString());
       if (uri == null || !uri.hasScheme) throw Exception('لینک دریافت فایل معتبر نیست.');
       final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (!opened) throw Exception('باز کردن فایل انجام نشد.');
+      if (!opened) throw Exception('شروع دانلود فایل انجام نشد.');
+      if (mounted) _message('دانلود فایل آغاز شد.');
     } catch (e) {
       if (mounted) _message(e.toString().replaceFirst('Exception: ', ''));
     }
+  }
+
+  Future<void> _openProjectLink(Map<String,dynamic> file) async {
+    final uri = Uri.tryParse((file['external_url'] ?? '').toString().trim());
+    if (uri == null || !['http','https'].contains(uri.scheme)) {
+      _message('لینک این مورد معتبر نیست.');
+      return;
+    }
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && mounted) _message('بازکردن لینک انجام نشد.');
+  }
+
+  Widget _projectFileItem(BuildContext context, AppColors c, Map<String,dynamic> file) {
+    final type = (file['file_type'] ?? 'upload').toString();
+    final title = (file['file_name'] ?? 'مورد تحویلی').toString();
+    final description = (file['description'] ?? '').toString().trim();
+    final content = (file['content'] ?? '').toString();
+    final link = (file['external_url'] ?? '').toString();
+    final isText = type == 'text';
+    final isLink = type == 'link';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 9),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(13),
+        decoration: BoxDecoration(
+          color: c.background,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: c.line),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(isText ? Icons.notes_rounded : isLink ? Icons.link_rounded : (title.contains('رسید') ? Icons.receipt_long_rounded : Icons.attach_file_rounded), size: 19, color: c.secondary),
+            const SizedBox(width: 9),
+            Expanded(child: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w800))),
+            if (!isText && !isLink)
+              IconButton(tooltip: 'دانلود فایل', onPressed: () => _downloadFile(file),
+                icon: const Icon(Icons.download_rounded, size: 21)),
+          ]),
+          if (description.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(description, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c.muted, height: 1.7)),
+          ],
+          if (isText) ...[
+            const SizedBox(height: 10),
+            SelectableText(content.isNotEmpty ? content : description,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.9)),
+            const SizedBox(height: 6),
+            Align(alignment: Alignment.centerLeft, child: TextButton.icon(
+              onPressed: () => Clipboard.setData(ClipboardData(text: content.isNotEmpty ? content : description)).then((_) => _message('متن کپی شد.')),
+              icon: const Icon(Icons.copy_rounded, size: 16), label: const Text('کپی متن'),
+            )),
+          ],
+          if (isLink) ...[
+            const SizedBox(height: 8),
+            Directionality(textDirection: ui.TextDirection.ltr, child: SelectableText(link,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.secondary))),
+            const SizedBox(height: 5),
+            Row(children: [
+              TextButton.icon(onPressed: () => _openProjectLink(file),
+                icon: const Icon(Icons.open_in_new_rounded, size: 16), label: const Text('بازکردن لینک')),
+              const SizedBox(width: 8),
+              TextButton.icon(onPressed: () => Clipboard.setData(ClipboardData(text: link)).then((_) => _message('لینک کپی شد.')),
+                icon: const Icon(Icons.copy_rounded, size: 16), label: const Text('کپی لینک')),
+            ]),
+          ],
+        ]),
+      ),
+    );
   }
 
   String _dateLabel(dynamic value) {
@@ -250,28 +321,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
           const SizedBox(height:14),
           Text('فایل‌ها و رسیدها',style:Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight:FontWeight.w800)),
           const SizedBox(height:7),
-          ...files.map((file)=>Padding(
-            padding:const EdgeInsets.only(bottom:7),
-            child:Container(
-              padding:const EdgeInsets.symmetric(horizontal:10,vertical:9),
-              decoration:BoxDecoration(color:c.background,borderRadius:BorderRadius.circular(12),border:Border.all(color:c.line)),
-              child:Row(children:[
-                Icon((file['file_name']??'').toString().contains('رسید')?Icons.receipt_long_rounded:Icons.attach_file_rounded,size:18,color:c.secondary),
-                const SizedBox(width:8),
-                Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-                  Text((file['file_name']??'فایل پروژه').toString(),maxLines:2,overflow:TextOverflow.ellipsis,style:Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight:FontWeight.w700)),
-                  Text(
-                    (file['description']??'').toString().trim().isNotEmpty
-                      ? file['description'].toString()
-                      : _dateLabel(file['created_at']),
-                    maxLines:2,overflow:TextOverflow.ellipsis,
-                    style:Theme.of(context).textTheme.labelSmall?.copyWith(color:c.muted),
-                  ),
-                ])),
-                IconButton(tooltip:'دریافت فایل',onPressed:()=>_downloadFile(file),icon:const Icon(Icons.download_rounded,size:20)),
-              ]),
-            ),
-          )),
+          ...files.map((file) => _projectFileItem(context, c, file)),
         ],
         if (receipts.isNotEmpty) ...[
           const SizedBox(height:3),
