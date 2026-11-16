@@ -3,19 +3,42 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 import 'order_create_screen.dart';
 
+class _EstimatePriceOption {
+  final String label;
+  final int min;
+  final int max;
+  final String unit;
+  const _EstimatePriceOption(this.label, this.min, this.max, this.unit);
+}
+
 class _EstimateItem {
   final String service;
   final int min;
   final int max;
   final String unit;
   final bool quote;
-  const _EstimateItem(this.service, this.min, this.max, this.unit, {this.quote = false});
+  final List<_EstimatePriceOption> options;
+  const _EstimateItem(
+    this.service,
+    this.min,
+    this.max,
+    this.unit, {
+    this.quote = false,
+    this.options = const [],
+  });
 }
 
 class _SelectedEstimate {
   final _EstimateItem item;
   int quantity;
-  _SelectedEstimate(this.item, {this.quantity = 1});
+  int optionIndex;
+  _SelectedEstimate(this.item, {this.quantity = 1, this.optionIndex = 0});
+
+  _EstimatePriceOption? get option =>
+      item.options.isEmpty ? null : item.options[optionIndex];
+  int get min => option?.min ?? item.min;
+  int get max => option?.max ?? item.max;
+  String get unit => option?.unit ?? item.unit;
 }
 
 class SmartEstimateCard extends StatefulWidget {
@@ -28,15 +51,34 @@ class SmartEstimateCard extends StatefulWidget {
 
 class SmartEstimateCardState extends State<SmartEstimateCard> {
   static const _items = <_EstimateItem>[
-    _EstimateItem('موشن‌گرافیک', 480000, 899000, 'پروژه'),
-    _EstimateItem('طراحی وبسایت و قالب وبلاگ', 5000000, 100000000, 'پروژه'),
-    _EstimateItem('ریلز و محتوای ویدئویی', 855000, 3000000, 'ویدئو'),
+    _EstimateItem('موشن‌گرافیک', 1750000, 25000000, 'پروژه'),
+    _EstimateItem('طراحی وبسایت و قالب وبلاگ', 13795000, 150000000, 'پروژه'),
+    _EstimateItem('طراحی قالب اختصاصی وبلاگ', 1450000, 1450000, 'قالب'),
+    _EstimateItem('ریلز و محتوای ویدئویی', 2000000, 18000000, 'ویدئو'),
     _EstimateItem('تیزر تبلیغاتی', 695000, 7850000, 'تیزر'),
     _EstimateItem('امنیت شبکه‌های اجتماعی', 8000000, 8000000, 'ماه'),
-    _EstimateItem('طراحی لوگو اختصاصی', 475000, 3000000, 'لوگو'),
-    _EstimateItem('نگارش مقاله وب‌سایت', 389000, 675000, 'مقاله'),
-    _EstimateItem('مشاوره کسب‌وکار آنلاین', 750000, 750000, 'جلسه'),
-    _EstimateItem('خدمات SEO', 1000000, 5000000, 'واحد'),
+    _EstimateItem('طراحی لوگو اختصاصی', 1550000, 22000000, 'لوگو'),
+    _EstimateItem('نگارش مقاله وب‌سایت', 1250000, 7000000, 'مقاله'),
+    _EstimateItem(
+      'مشاوره کسب‌وکار آنلاین',
+      2750000,
+      2750000,
+      'جلسه',
+      options: [
+        _EstimatePriceOption('جلسه‌ای', 2750000, 2750000, 'جلسه'),
+        _EstimatePriceOption('پروژه‌ای', 7000000, 7000000, 'پروژه'),
+      ],
+    ),
+    _EstimateItem(
+      'خدمات SEO',
+      36000000,
+      36000000,
+      'پروژه',
+      options: [
+        _EstimatePriceOption('پروژه‌ای', 36000000, 36000000, 'پروژه'),
+        _EstimatePriceOption('ماهانه', 9000000, 9000000, 'ماه'),
+      ],
+    ),
     _EstimateItem('خدمات شبکه‌های اجتماعی', 0, 0, 'استعلام', quote: true),
     _EstimateItem('تبلیغات و معرفی', 0, 0, 'استعلام', quote: true),
   ];
@@ -63,8 +105,8 @@ class SmartEstimateCardState extends State<SmartEstimateCard> {
       if (selected.item.quote) {
         hasQuote = true;
       } else {
-        minTotal += selected.item.min * selected.quantity;
-        maxTotal += selected.item.max * selected.quantity;
+        minTotal += selected.min * selected.quantity;
+        maxTotal += selected.max * selected.quantity;
       }
     }
 
@@ -155,6 +197,26 @@ class SmartEstimateCardState extends State<SmartEstimateCard> {
                     Text('استعلام قیمت',
                         style: TextStyle(color: c.tertiary, fontSize: 10, fontWeight: FontWeight.w700))
                   else if (active) ...[
+                    if (item.options.isNotEmpty)
+                      DropdownButton<int>(
+                        value: selected.optionIndex,
+                        isDense: true,
+                        underline: const SizedBox.shrink(),
+                        iconSize: 16,
+                        style: TextStyle(color: c.secondary, fontSize: 10, fontWeight: FontWeight.w700),
+                        items: [
+                          for (var i = 0; i < item.options.length; i++)
+                            DropdownMenuItem(
+                              value: i,
+                              child: Text(item.options[i].label),
+                            ),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => selected.optionIndex = value);
+                          }
+                        },
+                      ),
                     IconButton(
                       visualDensity: VisualDensity.compact,
                       constraints: const BoxConstraints.tightFor(width: 30, height: 32),
