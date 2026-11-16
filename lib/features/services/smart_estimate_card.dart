@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../theme/app_colors.dart';
 import 'order_create_screen.dart';
@@ -9,6 +10,15 @@ class _EstimatePriceOption {
   final int max;
   final String unit;
   const _EstimatePriceOption(this.label, this.min, this.max, this.unit);
+
+  factory _EstimatePriceOption.fromJson(Map<String, dynamic> json) {
+    return _EstimatePriceOption(
+      (json['label'] ?? '').toString(),
+      (json['min'] as num?)?.toInt() ?? 0,
+      (json['max'] as num?)?.toInt() ?? 0,
+      (json['unit'] ?? '').toString(),
+    );
+  }
 }
 
 class _EstimateItem {
@@ -26,6 +36,27 @@ class _EstimateItem {
     this.quote = false,
     this.options = const [],
   });
+
+  factory _EstimateItem.fromJson(Map<String, dynamic> json) {
+    final rawOptions = json['options'];
+    final options = rawOptions is List
+        ? rawOptions
+            .whereType<Map>()
+            .map((option) => _EstimatePriceOption.fromJson(
+                  Map<String, dynamic>.from(option),
+                ))
+            .toList(growable: false)
+        : const <_EstimatePriceOption>[];
+
+    return _EstimateItem(
+      (json['service_name'] ?? '').toString(),
+      (json['min_price'] as num?)?.toInt() ?? 0,
+      (json['max_price'] as num?)?.toInt() ?? 0,
+      (json['unit'] ?? '').toString(),
+      quote: json['is_quote'] == true,
+      options: options,
+    );
+  }
 }
 
 class _SelectedEstimate {
@@ -50,10 +81,10 @@ class SmartEstimateCard extends StatefulWidget {
 }
 
 class SmartEstimateCardState extends State<SmartEstimateCard> {
-  static const _items = <_EstimateItem>[
+  static const _fallbackItems = <_EstimateItem>[
     _EstimateItem('موشن‌گرافیک', 1750000, 25000000, 'پروژه'),
     _EstimateItem('طراحی وبسایت و قالب وبلاگ', 13795000, 150000000, 'پروژه'),
-    _EstimateItem('طراحی قالب اختصاصی وبلاگ', 1450000, 1450000, 'قالب'),
+    _EstimateItem('طراحی قالب اختصاصی وبلاگ', 650000, 650000, 'قالب'),
     _EstimateItem('ریلز و محتوای ویدئویی', 2000000, 18000000, 'ویدئو'),
     _EstimateItem('تیزر تبلیغاتی', 695000, 7850000, 'تیزر'),
     _EstimateItem('امنیت شبکه‌های اجتماعی', 8000000, 8000000, 'ماه'),
@@ -83,7 +114,51 @@ class SmartEstimateCardState extends State<SmartEstimateCard> {
     _EstimateItem('تبلیغات و معرفی', 0, 0, 'استعلام', quote: true),
   ];
 
+  List<_EstimateItem> _items = _fallbackItems;
   final Map<String, _SelectedEstimate> _selected = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRemotePricing();
+  }
+
+  Future<void> _loadRemotePricing() async {
+    try {
+      final rows = await Supabase.instance.client
+          .from('mobile_service_pricing')
+          .select('service_name,min_price,max_price,unit,is_quote,options')
+          .order('sort_order');
+
+      final remoteItems = rows
+          .map((row) => _EstimateItem.fromJson(
+                Map<String, dynamic>.from(row),
+              ))
+          .where((item) => item.service.isNotEmpty)
+          .toList(growable: false);
+
+      if (!mounted || remoteItems.isEmpty) return;
+
+      setState(() {
+        final previous = Map<String, _SelectedEstimate>.from(_selected);
+        _items = remoteItems;
+        _selected.clear();
+        for (final item in remoteItems) {
+          final old = previous[item.service];
+          if (old != null) {
+            final lastOption = item.options.isEmpty ? 0 : item.options.length - 1;
+            _selected[item.service] = _SelectedEstimate(
+              item,
+              quantity: old.quantity,
+              optionIndex: old.optionIndex.clamp(0, lastOption).toInt(),
+            );
+          }
+        }
+      });
+    } catch (_) {
+      // Keep the bundled prices available when the device is offline.
+    }
+  }
 
   String _money(int value) {
     final digits = value.toString();
